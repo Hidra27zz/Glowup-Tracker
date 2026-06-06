@@ -1,0 +1,415 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Workout {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  title     String
+  type      String
+  duration  Int
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BodyMetric {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  weight    Float?
+  bodyFat   Float?
+  chest     Float?
+  waist     Float?
+  hips      Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PantryItem {
+  id        String   @id @default(cuid())
+  name      String
+  category  String?
+  quantity  String?
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Recipe {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  ingredients String
+  instructions String
+  calories    Int?
+  prepTime    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Skill {
+  id        String   @id @default(cuid())
+  name      String
+  category  String
+  exp       Int      @default(0)
+  level     Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DeepWorkSession {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  duration  Int
+  taskName  String?
+  flowState Int?
+  createdAt DateTime @default(now())
+}
+
+model MoodLog {
+  id            String   @id @default(cuid())
+  date          DateTime @default(now())
+  energy        Int      
+  mood          Int      
+  notes         String?  
+  socialBattery Int?     
+  hydration     Int      @default(0)
+  createdAt     DateTime @default(now())
+}
+
+model InventoryItem {
+  id         String   @id @default(cuid())
+  name       String
+  cost       Float
+  uses       Int      @default(0)
+  openedAt   DateTime?
+  expiryDays Int?
+  paoMonths  Int?
+  createdAt  DateTime @default(now())
+}
+
+model Subscription {
+  id          String   @id @default(cuid())
+  name        String
+  cost        Float
+  renewalDate DateTime
+  frequency   String
+  createdAt   DateTime @default(now())
+}
+
+model Contact {
+  id           String        @id @default(cuid())
+  name         String
+  category     String
+  notes        String?
+  valueExchange Int          @default(0)
+  lastContact  DateTime      @default(now())
+  createdAt    DateTime      @default(now())
+  interactions Interaction[]
+}
+
+model Interaction {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  notes     String
+  type      String   @default("meeting") // meeting, call, favor, etc.
+  valueGiven Boolean @default(false)
+  contactId String
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+}
+
+model Sprint {
+  id        String   @id @default(cuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(true)
+  tasks     Task[]
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  energyLevel String   
+  status      String   @default("TODO") 
+  deadline    DateTime
+  completedAt DateTime?
+  timeSpent   Int      @default(0) // minutes
+  sprintId    String?
+  sprint      Sprint?  @relation(fields: [sprintId], references: [id])
+  isCoreTask  Boolean  @default(false)
+  blockedById String?
+  blockedBy   Task?    @relation("TaskDependencies", fields: [blockedById], references: [id])
+  blocking    Task[]   @relation("TaskDependencies")
+  createdAt   DateTime @default(now())
+}
+
+model MemoryVault {
+  id            String   @id @default(cuid())
+  date          DateTime @default(now())
+  content       String
+  mediaUrls     String?
+  tags          String?
+  isTimeCapsule Boolean  @default(false)
+  unlockDate    DateTime?
+  createdAt     DateTime @default(now())
+}
+
+model BrainDump {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model NutritionLog {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  calories  Int      @default(0)
+  protein   Int      @default(0)
+  carbs     Int      @default(0)
+  fat       Int      @default(0)
+  budgetUsed Float   @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SleepLog {
+  id           String   @id @default(cuid())
+  date         DateTime @default(now())
+  sleepTime    DateTime
+  wakeTime     DateTime?
+  qualityScore Int?     // 1-10
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model BioCycle {
+  id               String   @id @default(cuid())
+  startDate        DateTime
+  endDate          DateTime?
+  cycleLength      Int?
+  predictedLowEnergyDate DateTime?
+  waterRetentionDays String? // Có thể lưu chuỗi ngày
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model UserSettings {
+  id             String   @id @default("default")
+  bodyRecompGoal String   @default("Cài đặt mục tiêu cân nặng")
+  goalCal        Int      @default(1500)
+  budgetGoal     Float    @default(400000)
+  hydrationGoal  Int      @default(8)
+  fastingStart   DateTime?
+  activeBlueprint String?
+  updatedAt      DateTime @updatedAt
+}
+
+model FlashcardDeck {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  category    String      @default("General")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  cards       Flashcard[]
+}
+
+model Flashcard {
+  id         String        @id @default(cuid())
+  front      String
+  back       String
+  mastery    Int           @default(0) // 0: New, 1: Learning, 2: Mastered
+  nextReview DateTime      @default(now())
+  interval   Int           @default(0) // số ngày
+  deckId     String
+  deck       FlashcardDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
+
+model QuizHistory {
+  id            String   @id @default(cuid())
+  questionId    String
+  questionText  String
+  userAnswer    String
+  isCorrect     Boolean
+  skillCategory String?
+  createdAt     DateTime @default(now())
+}
+
+model UserSkillProfile {
+  id        String   @id @default(cuid())
+  skillName String   @unique
+  level     Int      @default(1)
+  exp       Int      @default(0)
+  strengths String?
+  weaknesses String?
+  updatedAt DateTime @updatedAt
+}
+
+model FinancialTransaction {
+  id        String   @id @default(cuid())
+  amount    Float
+  category  String
+  type      String   // income or expense
+  date      DateTime @default(now())
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model ImpulseBuyItem {
+  id        String   @id @default(cuid())
+  name      String
+  price     Float
+  status    String   @default("WAITING") // WAITING, BOUGHT, PASSED
+  addedAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DetoxSession {
+  id        String   @id @default(cuid())
+  startDate DateTime @default(now())
+  endDate   DateTime?
+  success   Boolean  @default(false)
+  notes     String?
+}
+
+model JobApplication {
+  id          String   @id @default(cuid())
+  company     String
+  position    String
+  status      String   @default("CV_SENT") // CV_SENT, HR_CALL, INTERVIEW, OFFER, REJECTED
+  appliedDate DateTime @default(now())
+  notes       String?
+  updatedAt   DateTime @updatedAt
+}
+
+model CodeSnippet {
+  id        String   @id @default(cuid())
+  title     String
+  language  String   @default("typescript")
+  code      String
+  tags      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InformationDietLog {
+  id           String   @id @default(cuid())
+  date         DateTime @default(now())
+  junkTime     Int      // minutes (e.g. TikTok, Shorts, mindless scrolling)
+  valuableTime Int      // minutes (e.g. reading docs, learning, deep work content)
+  notes        String?
+  createdAt    DateTime @default(now())
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CURRICULUM VAULT (DYNAMIC STUDY HUB)
+// ═══════════════════════════════════════════════════════════════════
+
+model SubjectGroup {
+  id        String    @id @default(cuid())
+  name      String
+  icon      String
+  color     String
+  order     Int       @default(0)
+  subjects  Subject[]
+  createdAt DateTime  @default(now())
+}
+
+model Subject {
+  id          String         @id @default(cuid())
+  code        String
+  name        String
+  credits     Int            @default(3)
+  icon        String
+  color       String
+  order       Int            @default(0)
+  groupId     String
+  group       SubjectGroup   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  theories    TheorySection[]
+  exercises   Exercise[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model TheorySection {
+  id                    String   @id @default(cuid())
+  title                 String
+  order                 Int      @default(0)
+  
+  // Các thành phần cấu trúc sâu (Deep Learning Structure)
+  coreConcept           String   // Giải thích bản chất
+  codeIllustrations     String?  // JSON string (Array<{title, code, lang, explanation}>)
+  realWorldApplications String?  // JSON string (Array<string>)
+  edgeCases             String?  // JSON string (Array<string>)
+  flashcards            String?  // JSON string (Array<{front, back}>)
+  rating                Int?     // 1-5 sao đánh giá
+  
+  subjectId             String
+  subject               Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  
+  exercises             Exercise[]
+  quizzes               ReviewQuiz[]
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model Exercise {
+  id                  String             @id @default(cuid())
+  title               String
+  difficulty          String             @default("Medium") // Easy, Medium, Hard
+  hint                String?
+  description         String
+  
+  // Cấu trúc sâu
+  realWorldScenario   String?
+  edgeCasesToConsider String?          // JSON string (Array<string>)
+  
+  starterCode         String             // JSON string (Record<language, code>)
+  testCases           ExerciseTestCase[]
+  
+  subjectId           String
+  subject             Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  
+  sectionId           String?
+  section             TheorySection?     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+}
+
+model ExerciseTestCase {
+  id             String   @id @default(cuid())
+  input          String
+  expectedOutput String
+  isHidden       Boolean  @default(false)
+  exerciseId     String
+  exercise       Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+}
+
+model ReviewQuiz {
+  id          String   @id @default(cuid())
+  topic       String
+  question    String
+  options     String   // JSON array of strings
+  answerIndex Int      // Index of correct option in options array
+  explanation String
+  difficulty  String   @default("Easy")
+  
+  sectionId   String?
+  section     TheorySection? @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+}

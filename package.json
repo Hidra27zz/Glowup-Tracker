@@ -1,0 +1,50 @@
+{
+  "name": "glowup-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "gen:curriculum": "node scripts/generate-curriculum.js",
+    "gen:safe": "node scripts/generate-all-safe.js",
+    "mine:all": "node scripts/auto-miner-all.js",
+    "mine:wiki": "node scripts/auto-miner-wiki.js",
+    "mine:github": "node scripts/auto-miner-github.js",
+    "db:backup": "node scripts/db-backup.js",
+    "db:restore": "node scripts/db-restore.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@mozilla/readability": "^0.6.0",
+    "@next/swc-darwin-arm64": "^16.2.6",
+    "@prisma/client": "^5.14.0",
+    "cheerio": "^1.2.0",
+    "gray-matter": "^4.0.3",
+    "jsdom": "^29.1.1",
+    "lucide-react": "^1.16.0",
+    "marked": "^18.0.4",
+    "next": "16.2.6",
+    "pdf-parse": "^2.4.5",
+    "prismjs": "^1.30.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "react-simple-code-editor": "^0.14.1",
+    "recharts": "^3.8.1",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^28.0.3",
+    "@types/node": "^20",
+    "@types/prismjs": "^1.26.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.6",
+    "prisma": "^5.14.0",
+    "typescript": "^5"
+  }
+}
