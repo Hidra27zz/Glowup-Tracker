@@ -3,9 +3,9 @@
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
-export async function hydrate(dateStr: string) {
+export async function hydrate() {
   // Find today's mood log or create one to store hydration
-  const today = new Date(dateStr);
+  const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const existingLog = await prisma.moodLog.findFirst({
@@ -57,4 +57,156 @@ export async function triggerSOS() {
 
   revalidatePath('/');
   revalidatePath('/memory');
+}
+
+export async function quickAddCalories(formData: FormData) {
+  const amountStr = formData.get('amount') as string;
+  const amount = parseInt(amountStr, 10);
+  if (isNaN(amount) || amount <= 0) return;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const existingLog = await prisma.nutritionLog.findFirst({
+    where: {
+      date: {
+        gte: today,
+        lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+      }
+    }
+  });
+
+  if (existingLog) {
+    await prisma.nutritionLog.update({
+      where: { id: existingLog.id },
+      data: { calories: { increment: amount } }
+    });
+  } else {
+    await prisma.nutritionLog.create({
+      data: {
+        date: today,
+        calories: amount
+      }
+    });
+  }
+
+  revalidatePath('/');
+}
+
+export async function quickAddExpense(formData: FormData) {
+  const amountStr = formData.get('amount') as string;
+  const notes = formData.get('notes') as string;
+  const amount = parseFloat(amountStr);
+  if (isNaN(amount) || amount <= 0) return;
+
+  await prisma.financialTransaction.create({
+    data: {
+      amount,
+      notes,
+      category: 'Quick Expense',
+      type: 'expense'
+    }
+  });
+
+  revalidatePath('/');
+}
+
+export async function quickAddWeight(formData: FormData) {
+  const weightStr = formData.get('weight') as string;
+  const weight = parseFloat(weightStr);
+  if (isNaN(weight) || weight <= 0) return;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const existingLog = await prisma.bodyMetric.findFirst({
+    where: {
+      date: {
+        gte: today,
+        lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+      }
+    }
+  });
+
+  if (existingLog) {
+    await prisma.bodyMetric.update({
+      where: { id: existingLog.id },
+      data: { weight }
+    });
+  } else {
+    await prisma.bodyMetric.create({
+      data: {
+        date: today,
+        weight
+      }
+    });
+  }
+
+  revalidatePath('/');
+}
+
+export async function quickAddDeepWork(duration: number) {
+  await prisma.deepWorkSession.create({
+    data: {
+      duration,
+      taskName: 'Quick Focus Session'
+    }
+  });
+
+  revalidatePath('/');
+}
+
+export async function toggleFasting() {
+  const settings = await prisma.userSettings.findUnique({ where: { id: 'default' } });
+  if (!settings) return;
+
+  if (settings.fastingStart) {
+    // End fast
+    await prisma.userSettings.update({
+      where: { id: 'default' },
+      data: { fastingStart: null }
+    });
+  } else {
+    // Start fast
+    await prisma.userSettings.update({
+      where: { id: 'default' },
+      data: { fastingStart: new Date() }
+    });
+  }
+  revalidatePath('/');
+}
+
+export async function logInfoDiet(type: 'junk' | 'valuable', minutes: number) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const existingLog = await prisma.informationDietLog.findFirst({
+    where: {
+      date: {
+        gte: today,
+        lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+      }
+    }
+  });
+
+  const data = type === 'junk' 
+    ? { junkTime: { increment: minutes }, valuableTime: { increment: 0 } }
+    : { valuableTime: { increment: minutes }, junkTime: { increment: 0 } };
+
+  if (existingLog) {
+    await prisma.informationDietLog.update({
+      where: { id: existingLog.id },
+      data
+    });
+  } else {
+    await prisma.informationDietLog.create({
+      data: {
+        date: today,
+        junkTime: type === 'junk' ? minutes : 0,
+        valuableTime: type === 'valuable' ? minutes : 0
+      }
+    });
+  }
+
+  revalidatePath('/');
 }

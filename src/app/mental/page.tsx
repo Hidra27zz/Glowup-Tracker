@@ -17,6 +17,7 @@ export default async function MentalPage() {
     }),
     prisma.informationDietLog.findMany({
       orderBy: { date: 'desc' },
+      take: 50,
     })
   ]);
 

@@ -7,15 +7,19 @@ export default async function FinancePage() {
   const [transactions, impulseBuys, subscriptions, inventoryItems] = await Promise.all([
     prisma.financialTransaction.findMany({
       orderBy: { date: 'desc' },
+      take: 100,
     }),
     prisma.impulseBuyItem.findMany({
       orderBy: { addedAt: 'desc' },
+      take: 50,
     }),
     prisma.subscription.findMany({
       orderBy: { renewalDate: 'asc' },
+      take: 50,
     }),
     prisma.inventoryItem.findMany({
       orderBy: { createdAt: 'desc' },
+      take: 50,
     })
   ]);
 

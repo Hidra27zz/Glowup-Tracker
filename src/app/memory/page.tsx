@@ -17,9 +17,11 @@ export default async function MemoryPage() {
   const [memories, dumps] = await Promise.all([
     prisma.memoryVault.findMany({
       orderBy: { createdAt: 'desc' },
+      take: 50,
     }),
     prisma.brainDump.findMany({
       orderBy: { createdAt: 'desc' },
+      take: 50,
     })
   ]);
 

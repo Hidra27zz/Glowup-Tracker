@@ -6,12 +6,19 @@ export const dynamic = 'force-dynamic';
 export default async function TasksPage() {
   const [tasks, sprints, lastMood] = await Promise.all([
     prisma.task.findMany({
+      where: {
+        OR: [
+          { status: { not: 'DONE' } },
+          { completedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } }
+        ]
+      },
       include: { blockedBy: true, blocking: true },
       orderBy: { deadline: 'asc' },
     }),
     prisma.sprint.findMany({
       include: { tasks: true },
       orderBy: { startDate: 'desc' },
+      take: 10,
     }),
     prisma.moodLog.findFirst({
       orderBy: { date: 'desc' }

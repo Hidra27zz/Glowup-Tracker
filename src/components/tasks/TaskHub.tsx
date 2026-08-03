@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Kanban, Timer, ChevronRight, Plus, CheckCircle, Circle, Flame, BatteryCharging, Zap, BatteryLow, BatteryFull, BatteryMedium, Trash2 } from 'lucide-react';
+import { Kanban, Timer, ChevronRight, Plus, CheckCircle, Circle, Flame, BatteryCharging, Zap, BatteryLow, BatteryFull, BatteryMedium, Trash2, Calendar, ChevronLeft } from 'lucide-react';
 import { Task, Sprint } from '@prisma/client';
 import { addTask, updateTaskStatus, deleteTask, createSprint } from '@/app/tasks/actions';
 
@@ -18,6 +18,7 @@ interface Props {
 const TABS = [
   { id: 'energy', label: 'Energy Board', icon: BatteryCharging, accent: '#3b82f6' },
   { id: 'sprint', label: 'Sprint Manager', icon: Kanban, accent: '#f59e0b' },
+  { id: 'calendar', label: 'Calendar View', icon: Calendar, accent: '#10b981' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
@@ -25,6 +26,7 @@ type TabId = (typeof TABS)[number]['id'];
 export default function TaskHub({ tasks, sprints, currentEnergy }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('energy');
   const [loading, setLoading] = useState(false);
+  const [weekOffset, setWeekOffset] = useState(0);
   const currentTab = TABS.find(t => t.id === activeTab)!;
 
   // -- Derived --
@@ -49,27 +51,55 @@ export default function TaskHub({ tasks, sprints, currentEnergy }: Props) {
 
   const activeSprint = sprints.find(s => s.isActive);
 
+  // -- Calendar Derived --
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  
+  const startOfWeek = new Date(today);
+  const dayOfWeek = startOfWeek.getDay(); // 0 is Sunday, 1 is Monday
+  const diffToMonday = startOfWeek.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1) + (weekOffset * 7);
+  startOfWeek.setDate(diffToMonday);
+
+  const weekDays = [...Array(7)].map((_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+
+  const isSameDay = (d1: Date, d2: Date) => {
+    return d1.getFullYear() === d2.getFullYear() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getDate() === d2.getDate();
+  };
+
+  const getTasksForDate = (date: Date) => {
+    return tasks.filter(t => {
+      const realDeadline = new Date(t.deadline);
+      return isSameDay(realDeadline, date);
+    });
+  };
+
   // -- Handlers --
   const handleAddTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
     setLoading(true);
-    await addTask(new FormData(e.currentTarget));
-    e.currentTarget.reset();
+    await addTask(new FormData(form));
+    form.reset();
     setLoading(false);
   };
 
   const handleAddSprint = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
     setLoading(true);
-    await createSprint(new FormData(e.currentTarget));
-    e.currentTarget.reset();
+    await createSprint(new FormData(form));
+    form.reset();
     setLoading(false);
   };
 
   const renderTask = (task: any) => {
     const realDeadline = new Date(task.deadline);
-    const fakeDeadline = new Date(realDeadline);
-    fakeDeadline.setDate(fakeDeadline.getDate() - 2); // Anti-Procrastination Buffer: 2 days earlier
     
     // Check if task is blocked
     const isBlocked = task.blockedById && task.status !== 'DONE';
@@ -108,9 +138,11 @@ export default function TaskHub({ tasks, sprints, currentEnergy }: Props) {
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: getEnergyColor(task.energyLevel) }}>
             {getEnergyIcon(task.energyLevel)} {task.energyLevel} Energy
           </span>
-          <span style={{ color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '2px 6px', borderRadius: '4px' }} title={`Deadline thật: ${realDeadline.toLocaleDateString()}`}>
-            Hạn giả: {fakeDeadline.toLocaleDateString()}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+              Hạn: {realDeadline.toLocaleDateString('vi-VN')}
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -264,7 +296,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy }: Props) {
                           </span>
                         </div>
                         <div style={{ fontSize: '0.85rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Timer size={14} /> {new Date(sprint.startDate).toLocaleDateString()} - {new Date(sprint.endDate).toLocaleDateString()}
+                          <Timer size={14} /> {new Date(sprint.startDate).toLocaleDateString('vi-VN')} - {new Date(sprint.endDate).toLocaleDateString('vi-VN')}
                         </div>
                         
                         <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginTop: '4px' }}>
@@ -286,6 +318,82 @@ export default function TaskHub({ tasks, sprints, currentEnergy }: Props) {
                 )}
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {/* --- CALENDAR TAB --- */}
+        {activeTab === 'calendar' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s ease' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, color: '#fff', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Calendar size={20} color="#10b981" /> Lịch Công Việc Tuần
+              </h3>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <button onClick={() => setWeekOffset(prev => prev - 1)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <ChevronLeft size={16} /> Tuần trước
+                </button>
+                <button onClick={() => setWeekOffset(0)} style={{ background: 'transparent', border: 'none', color: '#10b981', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}>
+                  Hôm nay
+                </button>
+                <button onClick={() => setWeekOffset(prev => prev + 1)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  Tuần tới <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(180px, 1fr))', gap: '16px', overflowX: 'auto', paddingBottom: '16px' }}>
+              {weekDays.map((day, idx) => {
+                const dayTasks = getTasksForDate(day);
+                const isToday = isSameDay(day, today);
+                const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+                
+                return (
+                  <div key={idx} style={{ background: isToday ? 'rgba(16,185,129,0.05)' : 'rgba(255,255,255,0.02)', border: isToday ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', display: 'flex', flexDirection: 'column', minHeight: '350px' }}>
+                    
+                    {/* Header */}
+                    <div style={{ padding: '16px', borderBottom: isToday ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: isToday ? 'rgba(16,185,129,0.1)' : 'transparent', borderRadius: '16px 16px 0 0' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontSize: '0.8rem', color: isToday ? '#10b981' : '#94a3b8', fontWeight: 600 }}>{dayNames[day.getDay()]}</span>
+                        <span style={{ fontSize: '1.2rem', color: '#fff', fontWeight: 700 }}>{day.getDate()}</span>
+                      </div>
+                      <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px', color: '#cbd5e1' }}>{dayTasks.length} task</span>
+                    </div>
+
+                    {/* Task List */}
+                    <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
+                      {dayTasks.length === 0 ? (
+                        <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.8rem', marginTop: '24px', fontStyle: 'italic' }}>Trống</div>
+                      ) : (
+                        dayTasks.map(task => {
+                          const isDone = task.status === 'DONE';
+                          return (
+                            <div key={task.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px', opacity: isDone ? 0.6 : 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                                <button 
+                                  onClick={() => updateTaskStatus(task.id, isDone ? 'TODO' : 'DONE')} 
+                                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: isDone ? '#10b981' : '#64748b', flexShrink: 0, marginTop: '2px' }}
+                                >
+                                  {isDone ? <CheckCircle size={14} /> : <Circle size={14} />}
+                                </button>
+                                <span style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 500, lineHeight: 1.3, textDecoration: isDone ? 'line-through' : 'none', wordBreak: 'break-word' }}>
+                                  {task.title}
+                                </span>
+                              </div>
+                              <div style={{ display: 'flex', gap: '4px', marginLeft: '20px' }}>
+                                <span style={{ fontSize: '0.65rem', color: getEnergyColor(task.energyLevel), background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: '4px' }}>
+                                  {task.energyLevel}
+                                </span>
+                                {task.isCoreTask && <span style={{ fontSize: '0.65rem', color: '#ef4444', background: 'rgba(239,68,68,0.1)', padding: '2px 6px', borderRadius: '4px' }}><Flame size={10} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '2px' }}/>Core</span>}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

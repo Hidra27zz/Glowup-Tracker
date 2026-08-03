@@ -18,9 +18,11 @@ export default async function CareerPage() {
     }),
     prisma.jobApplication.findMany({
       orderBy: { appliedDate: 'desc' },
+      take: 50,
     }),
     prisma.codeSnippet.findMany({
       orderBy: { createdAt: 'desc' },
+      take: 50,
     })
   ]);
 
