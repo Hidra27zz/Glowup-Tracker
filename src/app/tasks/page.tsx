@@ -4,20 +4,19 @@ import TaskHub from '@/components/tasks/TaskHub';
 export const dynamic = 'force-dynamic';
 
 export default async function TasksPage() {
-  const tasks = await prisma.task.findMany({
-    include: { blockedBy: true, blocking: true },
-    orderBy: { deadline: 'asc' },
-  });
-
-  const sprints = await prisma.sprint.findMany({
-    include: { tasks: true },
-    orderBy: { startDate: 'desc' },
-  });
-
-  // Lấy năng lượng gần nhất từ MoodLog để gợi ý task
-  const lastMood = await prisma.moodLog.findFirst({
-    orderBy: { date: 'desc' }
-  });
+  const [tasks, sprints, lastMood] = await Promise.all([
+    prisma.task.findMany({
+      include: { blockedBy: true, blocking: true },
+      orderBy: { deadline: 'asc' },
+    }),
+    prisma.sprint.findMany({
+      include: { tasks: true },
+      orderBy: { startDate: 'desc' },
+    }),
+    prisma.moodLog.findFirst({
+      orderBy: { date: 'desc' }
+    })
+  ]);
   
   const currentEnergy = lastMood?.energy || 5;
 

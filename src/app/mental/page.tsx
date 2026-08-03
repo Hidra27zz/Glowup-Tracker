@@ -6,19 +6,19 @@ import MentalHub from '@/components/mental/MentalHub';
 export const dynamic = 'force-dynamic';
 
 export default async function MentalPage() {
-  const moodLogs = await prisma.moodLog.findMany({
-    orderBy: { date: 'desc' },
-    take: 7,
-  });
-
-  const detoxHistory = await prisma.detoxSession.findMany({
-    orderBy: { startDate: 'desc' },
-    take: 5,
-  });
-
-  const infoDietLogs = await prisma.informationDietLog.findMany({
-    orderBy: { date: 'desc' },
-  });
+  const [moodLogs, detoxHistory, infoDietLogs] = await Promise.all([
+    prisma.moodLog.findMany({
+      orderBy: { date: 'desc' },
+      take: 7,
+    }),
+    prisma.detoxSession.findMany({
+      orderBy: { startDate: 'desc' },
+      take: 5,
+    }),
+    prisma.informationDietLog.findMany({
+      orderBy: { date: 'desc' },
+    })
+  ]);
 
   const activeSession = detoxHistory.find(s => !s.endDate) || null;
 

@@ -4,27 +4,25 @@ import CareerHub from '@/components/career/CareerHub';
 export const dynamic = 'force-dynamic';
 
 export default async function CareerPage() {
-  const skills = await prisma.skill.findMany({
-    orderBy: { category: 'asc' },
-  });
-
-  const deepWorkSessions = await prisma.deepWorkSession.findMany({
-    orderBy: { date: 'desc' },
-    take: 5,
-  });
-
-  const flashcardDecks = await prisma.flashcardDeck.findMany({
-    include: { cards: true },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  const jobApplications = await prisma.jobApplication.findMany({
-    orderBy: { appliedDate: 'desc' },
-  });
-
-  const codeSnippets = await prisma.codeSnippet.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+  const [skills, deepWorkSessions, flashcardDecks, jobApplications, codeSnippets] = await Promise.all([
+    prisma.skill.findMany({
+      orderBy: { category: 'asc' },
+    }),
+    prisma.deepWorkSession.findMany({
+      orderBy: { date: 'desc' },
+      take: 5,
+    }),
+    prisma.flashcardDeck.findMany({
+      include: { cards: true },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.jobApplication.findMany({
+      orderBy: { appliedDate: 'desc' },
+    }),
+    prisma.codeSnippet.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+  ]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>

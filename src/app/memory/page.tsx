@@ -4,10 +4,6 @@ import MemoryHub from '@/components/memory/MemoryHub';
 export const dynamic = 'force-dynamic';
 
 export default async function MemoryPage() {
-  const memories = await prisma.memoryVault.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
-
   // Xóa tự động các Brain Dump cũ hơn 30 ngày
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -18,9 +14,14 @@ export default async function MemoryPage() {
     }
   });
 
-  const dumps = await prisma.brainDump.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+  const [memories, dumps] = await Promise.all([
+    prisma.memoryVault.findMany({
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.brainDump.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+  ]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

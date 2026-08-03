@@ -8,43 +8,46 @@ export default async function Dashboard() {
   const now = new Date();
   const startOfDay = new Date(now.setHours(0, 0, 0, 0));
 
-  // 1. Lấy dữ liệu Nước uống (Hydration)
-  const todayMoodLog = await prisma.moodLog.findFirst({
-    where: { date: { gte: startOfDay } }
-  });
-  const waterDrops = todayMoodLog?.hydration || 0;
+  const now2 = new Date(); // Using a separate date instance for startOfWeek
+  const startOfWeek = new Date(now2);
+  startOfWeek.setDate(now2.getDate() - now2.getDay()); // Sunday
 
-  // 2. Lấy dữ liệu Deadline Countdown & Daily Draft
-  const tasks = await prisma.task.findMany({ 
-    where: { status: { not: 'DONE' } },
-    orderBy: { deadline: 'asc' },
-    take: 3
-  });
+  // Optimize using Promise.all
+  const [todayMoodLog, tasks, weeklyExpenses, todayNutrition] = await Promise.all([
+    // 1. Lấy dữ liệu Nước uống (Hydration)
+    prisma.moodLog.findFirst({
+      where: { date: { gte: startOfDay } }
+    }),
+    // 2. Lấy dữ liệu Deadline Countdown & Daily Draft
+    prisma.task.findMany({ 
+      where: { status: { not: 'DONE' } },
+      orderBy: { deadline: 'asc' },
+      take: 3
+    }),
+    // 3. Lấy dữ liệu Quỹ đi chợ tuần (Từ FinancialTransaction)
+    prisma.financialTransaction.aggregate({
+      where: { 
+        createdAt: { gte: startOfWeek },
+        type: 'expense'
+      },
+      _sum: { amount: true }
+    }),
+    // 4. Lấy dữ liệu Macro & Calo
+    prisma.nutritionLog.findFirst({
+      where: { date: { gte: startOfDay } }
+    })
+  ]);
+
+  const waterDrops = todayMoodLog?.hydration || 0;
 
   const coreTasks = tasks.slice(0, 3); // Lấy 3 task quan trọng nhất
   const closestDeadlineTask = tasks.length > 0 ? tasks[0] : null;
-
-  // 3. Lấy dữ liệu Quỹ đi chợ tuần (Từ FinancialTransaction)
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
-  
-  const weeklyExpenses = await prisma.financialTransaction.aggregate({
-    where: { 
-      createdAt: { gte: startOfWeek },
-      type: 'expense'
-    },
-    _sum: { amount: true }
-  });
   
   const spent = weeklyExpenses._sum.amount || 0;
   const budget = 400000; // 400k VNĐ
   const budgetPercent = Math.min((spent / budget) * 100, 100);
   const budgetColor = spent > 350000 ? '#ef4444' : spent > 250000 ? '#f59e0b' : '#10b981';
 
-  // 4. Lấy dữ liệu Macro & Calo
-  const todayNutrition = await prisma.nutritionLog.findFirst({
-    where: { date: { gte: startOfDay } }
-  });
   const calConsumed = todayNutrition?.calories || 0;
   const calGoal = 1500;
   const donutDasharray = `${(calConsumed / calGoal) * 100} 100`;

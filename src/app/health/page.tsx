@@ -4,8 +4,10 @@ import HealthHub from '@/components/health/HealthHub';
 export const dynamic = 'force-dynamic';
 
 export default async function HealthDashboard() {
-  const data = await getHealthData();
-  const settings = await getUserSettings();
+  const [data, settings] = await Promise.all([
+    getHealthData(),
+    getUserSettings()
+  ]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

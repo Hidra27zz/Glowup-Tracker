@@ -4,21 +4,20 @@ import FinanceHub from '@/components/finance/FinanceHub';
 export const dynamic = 'force-dynamic';
 
 export default async function FinancePage() {
-  const transactions = await prisma.financialTransaction.findMany({
-    orderBy: { date: 'desc' },
-  });
-  
-  const impulseBuys = await prisma.impulseBuyItem.findMany({
-    orderBy: { addedAt: 'desc' },
-  });
-  
-  const subscriptions = await prisma.subscription.findMany({
-    orderBy: { renewalDate: 'asc' },
-  });
-
-  const inventoryItems = await prisma.inventoryItem.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+  const [transactions, impulseBuys, subscriptions, inventoryItems] = await Promise.all([
+    prisma.financialTransaction.findMany({
+      orderBy: { date: 'desc' },
+    }),
+    prisma.impulseBuyItem.findMany({
+      orderBy: { addedAt: 'desc' },
+    }),
+    prisma.subscription.findMany({
+      orderBy: { renewalDate: 'asc' },
+    }),
+    prisma.inventoryItem.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+  ]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
