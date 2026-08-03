@@ -30,11 +30,11 @@ export default function RootLayout({
       </head>
       <body>
         <nav className="glass-nav">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '1200px', margin: '0 auto', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
               GlowUp Tracker
             </div>
-            <div style={{ display: 'flex', gap: '24px', fontSize: '0.9rem', fontWeight: 500 }}>
+            <div style={{ display: 'flex', gap: '16px', fontSize: '0.9rem', fontWeight: 500, flexWrap: 'wrap', overflowX: 'auto', paddingBottom: '4px' }}>
               <a href="/">Dashboard</a>
               <a href="/health">Health</a>
               <a href="/nutrition">Nutrition</a>

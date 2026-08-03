@@ -64,9 +64,12 @@ export default function InteractiveTasks({ tasks }: { tasks: Task[] }) {
                 <span style={{ fontWeight: 600, color: '#fff', fontSize: '1rem', textDecoration: isDone ? 'line-through' : 'none', transition: 'all 0.2s' }}>{task.title}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '0.85rem', color: isDone ? '#10b981' : (isUrgent ? '#ef4444' : '#94a3b8'), background: isDone ? 'rgba(16,185,129,0.1)' : (isUrgent ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)'), padding: '4px 10px', borderRadius: '10px', fontWeight: 600 }}>
-                  {isDone ? 'Hoàn thành' : `${daysLeft} days left`}
-                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                  <span style={{ fontSize: '0.85rem', color: isDone ? '#10b981' : (isUrgent ? '#ef4444' : '#94a3b8'), background: isDone ? 'rgba(16,185,129,0.1)' : (isUrgent ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)'), padding: '4px 10px', borderRadius: '10px', fontWeight: 600 }}>
+                    {isDone ? 'Hoàn thành' : `${new Date(task.deadline).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})} - ${new Date(task.deadline).toLocaleDateString('vi-VN')}`}
+                  </span>
+                  {!isDone && <span style={{ fontSize: '0.75rem', color: isUrgent ? '#ef4444' : '#64748b', marginTop: '4px', fontWeight: 600 }}>Còn {daysLeft} ngày</span>}
+                </div>
                 <button 
                   onClick={() => handleDelete(task.id)}
                   disabled={isPending}

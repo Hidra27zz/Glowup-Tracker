@@ -1,12 +1,61 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { quickAddCalories, quickAddExpense, quickAddWeight, quickAddDeepWork } from '@/app/dashboard-actions';
-import { Plus, Check, Timer, Scale } from 'lucide-react';
+import { Plus, Check, Timer, Scale, X, CheckCircle } from 'lucide-react';
 
 export default function QuickStatsForms() {
   const [isPending, startTransition] = useTransition();
   const [toastMsg, setToastMsg] = useState('');
+
+  // Deep Work Timer State
+  const [deepWorkEnd, setDeepWorkEnd] = useState<number | null>(null);
+  const [deepWorkMins, setDeepWorkMins] = useState<number>(25);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+
+  useEffect(() => {
+    const storedEnd = localStorage.getItem('dw_end');
+    const storedMins = localStorage.getItem('dw_mins');
+    if (storedEnd) {
+      const end = parseInt(storedEnd);
+      if (end > Date.now()) {
+        setDeepWorkEnd(end);
+        setDeepWorkMins(storedMins ? parseInt(storedMins) : 25);
+      } else {
+        // Countdown finished while away
+        setDeepWorkEnd(end);
+        setDeepWorkMins(storedMins ? parseInt(storedMins) : 25);
+        setTimeLeft(0);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!deepWorkEnd) return;
+    
+    const tick = () => {
+      const remaining = Math.max(0, Math.floor((deepWorkEnd - Date.now()) / 1000));
+      setTimeLeft(remaining);
+    };
+    
+    tick(); // immediate tick
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [deepWorkEnd]);
+
+  const startDeepWorkTimer = (mins: number) => {
+    const end = Date.now() + mins * 60 * 1000;
+    setDeepWorkEnd(end);
+    setDeepWorkMins(mins);
+    localStorage.setItem('dw_end', end.toString());
+    localStorage.setItem('dw_mins', mins.toString());
+  };
+
+  const cancelDeepWork = () => {
+    setDeepWorkEnd(null);
+    localStorage.removeItem('dw_end');
+    localStorage.removeItem('dw_mins');
+  };
 
   const showToast = (msg: string) => {
     setToastMsg(msg);
@@ -43,11 +92,18 @@ export default function QuickStatsForms() {
     });
   };
 
-  const handleDeepWork = (minutes: number) => {
+  const handleClaimDeepWork = () => {
     startTransition(async () => {
-      await quickAddDeepWork(minutes);
-      showToast(`+ ${minutes} phút Deep Work!`);
+      await quickAddDeepWork(deepWorkMins);
+      showToast(`+ ${deepWorkMins} phút Deep Work!`);
+      cancelDeepWork();
     });
+  };
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -87,13 +143,6 @@ export default function QuickStatsForms() {
         </button>
       </form>
 
-      {/* Deep Work */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <Timer size={18} color="#a78bfa" />
-        <span style={{ color: '#e2e8f0', fontSize: '0.95rem', fontWeight: 600, flex: 1 }}>Deep Work Sprint</span>
-        <button onClick={() => handleDeepWork(25)} disabled={isPending} style={{ background: 'rgba(167,139,250,0.15)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.3)', padding: '6px 12px', borderRadius: '8px', cursor: isPending ? 'wait' : 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>+ 25m</button>
-        <button onClick={() => handleDeepWork(50)} disabled={isPending} style={{ background: 'rgba(167,139,250,0.2)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.4)', padding: '6px 12px', borderRadius: '8px', cursor: isPending ? 'wait' : 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>+ 50m</button>
-      </div>
     </div>
   );
 }
