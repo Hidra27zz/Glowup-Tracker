@@ -92,18 +92,14 @@ export default async function Dashboard() {
       )}
 
       {/* KHU VỰC 1: VIBE & ĐỘNG LỰC */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
+      <section style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}>
         <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', overflow: 'hidden', position: 'relative', height: '240px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(circle at top right, rgba(59,130,246,0.15), transparent 60%)' }}></div>
-          <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80" alt="Motivation" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.35, position: 'absolute', mixBlendMode: 'overlay' }} />
+          <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80" alt="Motivation" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.35, position: 'absolute', mixBlendMode: 'overlay' }} />
           <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '32px', width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <h2 style={{ fontSize: '2rem', margin: '0 0 12px 0', color: '#fff', fontWeight: 800, letterSpacing: '1px', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>{targetGoal}</h2>
-            <p style={{ margin: 0, fontStyle: 'italic', color: '#94a3b8', fontSize: '1.1rem', fontWeight: 500 }}>"Discipline equals freedom."</p>
+            <h2 style={{ fontSize: '2.5rem', margin: '0 0 12px 0', color: '#fff', fontWeight: 800, letterSpacing: '1px', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>{targetGoal}</h2>
+            <p style={{ margin: 0, fontStyle: 'italic', color: '#94a3b8', fontSize: '1.2rem', fontWeight: 500 }}>"Discipline equals freedom."</p>
           </div>
-        </div>
-        
-        <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '0', overflow: 'hidden', height: '240px', boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}>
-          <iframe style={{ width: '100%', height: '100%', border: '0' }} src="https://open.spotify.com/embed/playlist/37i9dQZF1DWWQRwui0ExPn?utm_source=generator&theme=0" allowFullScreen={true} allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
         </div>
       </section>
 

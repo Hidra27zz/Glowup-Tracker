@@ -50,6 +50,10 @@ export default function RootLayout({
         <main className="main-content">
           {children}
         </main>
+        {/* Global Spotify Player for uninterrupted background playback */}
+        <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 1000, width: '300px', height: '152px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', opacity: 0.9, transition: 'opacity 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '1'} onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}>
+          <iframe style={{ width: '100%', height: '100%', border: '0' }} src="https://open.spotify.com/embed/playlist/37i9dQZF1DWWQRwui0ExPn?utm_source=generator&theme=0" allowFullScreen={true} allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        </div>
       </body>
     </html>
   );

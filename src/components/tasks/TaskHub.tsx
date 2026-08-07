@@ -152,7 +152,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '80vh' }}>
       
       {/* ── Top navigation bar ── */}
-      <div style={{ display: 'flex', gap: '4px', background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px 20px 0 0', padding: '6px' }}>
+      <div style={{ display: 'flex', gap: '4px', background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px 20px 0 0', padding: '6px', flexWrap: 'wrap' }}>
         {TABS.map(tab => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
@@ -207,13 +207,13 @@ export default function TaskHub({ tasks, sprints, currentEnergy }: Props) {
                       <option value="Medium">Medium Energy (Vừa)</option>
                       <option value="High">High Energy (Khó)</option>
                     </select>
-                    <input name="deadline" type="date" required defaultValue={new Date().toISOString().split('T')[0]} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none', colorScheme: 'dark' }} />
+                    <input name="deadline" type="datetime-local" required defaultValue={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)} style={{ flex: 1, minWidth: 0, padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none', colorScheme: 'dark' }} />
                   </div>
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#cbd5e1' }}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#cbd5e1', flexShrink: 0 }}>
                       <input type="checkbox" name="isCoreTask" /> Core Task (Daily Draft)
                     </label>
-                    <select name="blockedById" style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff', outline: 'none', fontSize: '0.85rem' }}>
+                    <select name="blockedById" style={{ flex: 1, minWidth: '150px', maxWidth: '100%', padding: '8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff', outline: 'none', fontSize: '0.85rem', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                       <option value="">Không bị block bởi task nào</option>
                       {tasks.filter(t => t.status !== 'DONE').map(t => (
                         <option key={t.id} value={t.id}>Bị block bởi: {t.title}</option>
