@@ -69,6 +69,7 @@ export default function CurriculumVault() {
   const [loading, setLoading] = useState(true);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [tocOpen, setTocOpen] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   
   const [selectedSubject, setSelectedSubject] = useState<any>(null);
@@ -814,6 +815,20 @@ export default function CurriculumVault() {
               </button>
             ))}
           </div>
+
+          {/* Toggle TOC sidebar */}
+          <button
+            onClick={() => setTocOpen(o => !o)}
+            title={tocOpen ? 'Ẩn mục lục' : 'Hiện mục lục'}
+            style={{
+              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '8px', padding: '6px 8px', cursor: 'pointer', color: '#94a3b8',
+              display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem',
+              transition: 'all 0.2s', marginLeft: '4px', flexShrink: 0,
+            }}
+          >
+            {tocOpen ? <PanelLeftClose size={15} style={{ transform: 'scaleX(-1)' }} /> : <PanelLeftOpen size={15} style={{ transform: 'scaleX(-1)' }} />}
+          </button>
         </div>
 
         {/* ── BODY ── */}
@@ -821,10 +836,12 @@ export default function CurriculumVault() {
 
           {/* Theory section list (mini TOC) */}
           <div style={{
-            width: '240px', minWidth: '240px', borderRight: '1px solid rgba(255,255,255,0.06)',
-                overflowY: 'auto', padding: '12px 8px', background: 'rgba(0,0,0,0.1)',
-                display: 'flex', flexDirection: 'column'
-              }}>
+            width: tocOpen ? '240px' : '0px', minWidth: tocOpen ? '240px' : '0px',
+            borderRight: '1px solid rgba(255,255,255,0.06)',
+            overflow: 'hidden', padding: tocOpen ? '12px 8px' : '0px',
+            background: 'rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
+            transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)'
+          }}>
                 <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#475569', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 8px 8px' }}>
                   Mục lục
                 </div>
@@ -866,7 +883,8 @@ export default function CurriculumVault() {
 
               {/* Theory content */}
               {activeView === 'theory' && (
-                <div style={{ flex: 1, overflowY: 'auto', padding: '32px 40px', maxWidth: '860px' }}>
+                <div style={{ flex: 1, overflowY: 'auto', padding: '32px 40px', maxWidth: '100%', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ width: '100%', maxWidth: '860px' }}>
                 {selectedSection ? (
                   <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
@@ -1267,6 +1285,7 @@ export default function CurriculumVault() {
                     Chọn một mục trong danh sách bên trái để bắt đầu.
                   </div>
                 )}
+                  </div>
               </div>
             )}
 

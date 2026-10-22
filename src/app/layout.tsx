@@ -16,6 +16,8 @@ export const viewport: Viewport = {
   themeColor: '#0a0a0a',
 };
 
+import DraggablePlayer from '@/components/DraggablePlayer';
+
 export default function RootLayout({
   children,
 }: {
@@ -30,7 +32,7 @@ export default function RootLayout({
       </head>
       <body>
         <nav className="glass-nav">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '1200px', margin: '0 auto', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '1600px', margin: '0 auto', flexWrap: 'wrap', gap: '16px' }}>
             <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
               GlowUp Tracker
             </div>
@@ -50,10 +52,8 @@ export default function RootLayout({
         <main className="main-content">
           {children}
         </main>
-        {/* Global Spotify Player for uninterrupted background playback */}
-        <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 1000, width: '300px', height: '152px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', opacity: 0.9, transition: 'opacity 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '1'} onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}>
-          <iframe style={{ width: '100%', height: '100%', border: '0' }} src="https://open.spotify.com/embed/playlist/37i9dQZF1DWWQRwui0ExPn?utm_source=generator&theme=0" allowFullScreen={true} allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
-        </div>
+        {/* Global Draggable Music Player */}
+        <DraggablePlayer />
       </body>
     </html>
   );

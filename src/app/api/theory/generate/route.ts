@@ -204,7 +204,17 @@ Yêu cầu BẮT BUỘC:
 
     const result = await model.generateContent(prompt);
     let text = result.response.text();
-    text = text.replace(/```html/g, '').replace(/```/g, '').trim();
+    text = text.replace(/```html/g, '').replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    if (text.startsWith('{') && text.endsWith('}')) {
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.html_content) text = parsed.html_content;
+      } catch (e) {}
+    }
+    
+    // Fix literal \n returned as string instead of actual newlines
+    text = text.replace(/\\n/g, '<br/>');
     
     if (!text || text.length < 50) return null;
     return `<div class="source-badge source-badge--ai">Nguồn: AI Generated (Gemini)</div>${text}`;
