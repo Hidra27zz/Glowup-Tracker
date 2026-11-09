@@ -18,8 +18,6 @@ import { logDeepWorkAction } from '@/app/career/actions';
 export default function GlobalTimerPopup() {
   const [mounted, setMounted] = useState(false);
   const [state, setState] = useState<UnifiedTimerState>(getTimerState());
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [pos, setPos] = useState({ x: 24, y: 24 }); // bottom-left offset
   const [isSaving, setIsSaving] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
@@ -45,7 +43,10 @@ export default function GlobalTimerPopup() {
           endTime: null,
         });
         setState(finished);
-        handleAutoSave(finished.durationMinutes, finished.taskName || `Hoàn thành ${TIMER_MODE_CONFIG[finished.mode].label}`);
+        handleAutoSave(
+          finished.durationMinutes,
+          finished.taskName || `Hoàn thành ${TIMER_MODE_CONFIG[finished.mode].label}`
+        );
       } else {
         setState((prev) => ({ ...prev, remainingSeconds: diff }));
       }
@@ -70,56 +71,14 @@ export default function GlobalTimerPopup() {
     }
   };
 
-  if (!mounted) return null;
+  // Chỉ hiện cửa sổ vuông thu nhỏ khi người dùng chủ động bật (showMiniPopup === true)
+  if (!mounted || !state.showMiniPopup) return null;
 
   const totalSecs = state.durationMinutes * 60;
   const elapsedSecs = Math.max(0, totalSecs - state.remainingSeconds);
   const progressPct = totalSecs > 0 ? Math.min(100, Math.round((elapsedSecs / totalSecs) * 100)) : 0;
   const activeConfig = TIMER_MODE_CONFIG[state.mode];
   const isModifiedOrRunning = state.isRunning || state.remainingSeconds < totalSecs;
-
-  // Collapsed pill button in bottom-left when timer is idle & user collapsed it
-  if (!state.showMiniPopup || (isCollapsed && !state.isRunning)) {
-    return (
-      <button
-        onClick={() => {
-          setIsCollapsed(false);
-          setTimerState({ showMiniPopup: true });
-        }}
-        title="Mở đồng hồ bấm giờ nổi (Mini Timer)"
-        style={{
-          position: 'fixed',
-          bottom: `${pos.y}px`,
-          left: `${pos.x}px`,
-          zIndex: 9998,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '10px 14px',
-          borderRadius: '14px',
-          background: 'rgba(18, 18, 24, 0.92)',
-          backdropFilter: 'blur(16px)',
-          border: `1px solid ${state.isRunning ? activeConfig.color : 'rgba(255,255,255,0.12)'}`,
-          color: '#fff',
-          cursor: 'pointer',
-          boxShadow: '0 8px 28px rgba(0,0,0,0.45)',
-          fontSize: '0.85rem',
-          fontWeight: 700,
-        }}
-      >
-        <span style={{
-          width: '8px',
-          height: '8px',
-          borderRadius: '50%',
-          background: state.isRunning ? '#10b981' : activeConfig.color,
-          boxShadow: state.isRunning ? '0 0 8px #10b981' : 'none',
-        }} />
-        <span style={{ fontFamily: 'monospace', fontSize: '0.95rem' }}>
-          {formatTimerMMSS(state.remainingSeconds)}
-        </span>
-      </button>
-    );
-  }
 
   const radius = 34;
   const circumference = 2 * Math.PI * radius;
@@ -129,18 +88,18 @@ export default function GlobalTimerPopup() {
     <div
       style={{
         position: 'fixed',
-        bottom: `${pos.y}px`,
-        left: `${pos.x}px`,
+        bottom: '24px',
+        left: '24px',
         zIndex: 9998,
-        width: '210px',
+        width: '215px',
         borderRadius: '20px',
-        background: 'rgba(15, 16, 22, 0.94)',
+        background: 'rgba(15, 16, 22, 0.95)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        border: `1px solid ${state.isRunning ? activeConfig.color : 'rgba(255,255,255,0.12)'}`,
+        border: `1px solid ${state.isRunning ? activeConfig.color : 'rgba(255,255,255,0.14)'}`,
         boxShadow: state.isRunning
           ? `0 12px 36px rgba(0,0,0,0.6), 0 0 20px ${activeConfig.color}33`
-          : '0 12px 32px rgba(0,0,0,0.5)',
+          : '0 12px 32px rgba(0,0,0,0.55)',
         padding: '14px',
         display: 'flex',
         flexDirection: 'column',
@@ -161,38 +120,47 @@ export default function GlobalTimerPopup() {
               boxShadow: state.isRunning ? '0 0 8px #10b981' : 'none',
             }}
           />
-          <span style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-secondary)' }}>
+          <span
+            style={{
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              color: 'var(--text-secondary)',
+            }}
+          >
             {activeConfig.label}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '4px' }}>
-          <button
-            onClick={() => {
-              setIsCollapsed(true);
-              if (!state.isRunning) setTimerState({ showMiniPopup: false });
-            }}
-            title="Thu gọn thành nút nhỏ"
-            style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: 'none',
-              color: 'var(--text-secondary)',
-              width: '22px',
-              height: '22px',
-              borderRadius: '6px',
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            —
-          </button>
-        </div>
+        <button
+          onClick={() => setTimerState({ showMiniPopup: false })}
+          title="Đóng cửa sổ thu nhỏ"
+          style={{
+            background: 'rgba(239, 68, 68, 0.14)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#fca5a5',
+            padding: '2px 7px',
+            borderRadius: '6px',
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+        >
+          Đóng ✕
+        </button>
       </div>
 
       {/* Mode Quick Tabs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px', background: 'rgba(255,255,255,0.04)', padding: '3px', borderRadius: '10px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '4px',
+          background: 'rgba(255,255,255,0.04)',
+          padding: '3px',
+          borderRadius: '10px',
+        }}
+      >
         {(['pomodoro', 'deepwork', 'hyperfocus'] as TimerMode[]).map((m) => {
           const active = state.mode === m;
           return (
@@ -218,7 +186,15 @@ export default function GlobalTimerPopup() {
       </div>
 
       {/* Center Circular Countdown */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '4px 0' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          padding: '4px 0',
+        }}
+      >
         <svg width="84" height="84" style={{ transform: 'rotate(-90deg)' }}>
           <circle
             cx="42"
@@ -242,7 +218,15 @@ export default function GlobalTimerPopup() {
           />
         </svg>
         <div style={{ position: 'absolute', textAlign: 'center' }}>
-          <div style={{ fontSize: '1.15rem', fontWeight: 800, fontFamily: 'monospace', color: '#fff', letterSpacing: '-0.5px' }}>
+          <div
+            style={{
+              fontSize: '1.15rem',
+              fontWeight: 800,
+              fontFamily: 'monospace',
+              color: '#fff',
+              letterSpacing: '-0.5px',
+            }}
+          >
             {formatTimerMMSS(state.remainingSeconds)}
           </div>
           <div style={{ fontSize: '0.62rem', color: state.isRunning ? '#10b981' : 'var(--text-secondary)' }}>
@@ -266,6 +250,7 @@ export default function GlobalTimerPopup() {
           fontSize: '0.73rem',
           color: '#fff',
           outline: 'none',
+          boxSizing: 'border-box',
         }}
       />
 

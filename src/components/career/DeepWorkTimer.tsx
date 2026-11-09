@@ -78,11 +78,11 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <h3 style={{ fontSize: '1.2rem', margin: 0 }}>⏱️ Deep Work Protocol (Đồng bộ)</h3>
           <button
-            onClick={() => setTimerState({ showMiniPopup: true })}
+            onClick={() => setTimerState({ showMiniPopup: !state.showMiniPopup })}
             style={{
-              background: 'rgba(139, 92, 246, 0.14)',
-              border: '1px solid rgba(139, 92, 246, 0.35)',
-              color: 'var(--accent-primary)',
+              background: state.showMiniPopup ? 'rgba(239, 68, 68, 0.16)' : 'rgba(139, 92, 246, 0.14)',
+              border: `1px solid ${state.showMiniPopup ? 'rgba(239, 68, 68, 0.4)' : 'rgba(139, 92, 246, 0.35)'}`,
+              color: state.showMiniPopup ? '#fca5a5' : 'var(--accent-primary)',
               borderRadius: '8px',
               padding: '5px 10px',
               fontSize: '0.78rem',
@@ -90,7 +90,7 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
               cursor: 'pointer',
             }}
           >
-            ❐ Hiện Pop-up Nổi
+            {state.showMiniPopup ? '✕ Tắt Pop-up thu nhỏ' : '❐ Thu nhỏ thành Pop-up'}
           </button>
         </div>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '20px' }}>

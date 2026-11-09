@@ -215,8 +215,8 @@ export default function TopNav() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {timer && (
             <button
-              onClick={() => setTimerState({ showMiniPopup: true })}
-              title="Nhấn để bật/hiện đồng hồ vuông Mini Pop-up"
+              onClick={() => setTimerState({ showMiniPopup: !timer.showMiniPopup })}
+              title="Nhấn để bật/tắt đồng hồ vuông thu nhỏ (Mini Pop-up)"
               style={{
                 display: 'flex',
                 alignItems: 'center',

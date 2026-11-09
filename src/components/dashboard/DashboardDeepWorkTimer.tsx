@@ -68,20 +68,20 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
             ⏱️ Deep Work Protocol
           </h3>
           <button
-            onClick={() => setTimerState({ showMiniPopup: true })}
-            title="Bật đồng hồ vuông nhỏ nổi khi chuyển tab"
+            onClick={() => setTimerState({ showMiniPopup: !state.showMiniPopup })}
+            title="Chỉ thu nhỏ thành cửa sổ vuông nổi khi bạn cần chuyển sang trang khác"
             style={{
-              background: 'rgba(139, 92, 246, 0.14)',
-              border: '1px solid rgba(139, 92, 246, 0.35)',
-              color: 'var(--accent-primary)',
+              background: state.showMiniPopup ? 'rgba(239, 68, 68, 0.16)' : 'rgba(139, 92, 246, 0.14)',
+              border: `1px solid ${state.showMiniPopup ? 'rgba(239, 68, 68, 0.4)' : 'rgba(139, 92, 246, 0.35)'}`,
+              color: state.showMiniPopup ? '#fca5a5' : 'var(--accent-primary)',
               borderRadius: '8px',
-              padding: '4px 8px',
+              padding: '4px 9px',
               fontSize: '0.72rem',
               fontWeight: 600,
               cursor: 'pointer',
             }}
           >
-            ❐ Mini Pop-up
+            {state.showMiniPopup ? '✕ Tắt Pop-up thu nhỏ' : '❐ Thu nhỏ khi cần'}
           </button>
         </div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>

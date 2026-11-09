@@ -16,7 +16,7 @@ export const TIMER_MODE_CONFIG: Record<TimerMode, { label: string; minutes: numb
   hyperfocus: { label: 'Hyperfocus', minutes: 90, color: '#a855f7' },
 };
 
-const STORAGE_KEY = 'glowup_unified_timer_v1';
+const STORAGE_KEY = 'glowup_unified_timer_v2';
 const SYNC_EVENT = 'glowup-timer-sync';
 
 const DEFAULT_STATE: UnifiedTimerState = {
@@ -26,7 +26,7 @@ const DEFAULT_STATE: UnifiedTimerState = {
   endTime: null,
   isRunning: false,
   taskName: '',
-  showMiniPopup: true,
+  showMiniPopup: false, // Chỉ hiện cửa sổ thu nhỏ khi người dùng bấm nút thu nhỏ
 };
 
 export function getTimerState(): UnifiedTimerState {
@@ -56,7 +56,9 @@ export function getTimerState(): UnifiedTimerState {
   }
 }
 
-export function setTimerState(updater: Partial<UnifiedTimerState> | ((prev: UnifiedTimerState) => UnifiedTimerState)): UnifiedTimerState {
+export function setTimerState(
+  updater: Partial<UnifiedTimerState> | ((prev: UnifiedTimerState) => UnifiedTimerState)
+): UnifiedTimerState {
   if (typeof window === 'undefined') return DEFAULT_STATE;
   const current = getTimerState();
   const next = typeof updater === 'function' ? updater(current) : { ...current, ...updater };
@@ -77,7 +79,6 @@ export function startUnifiedTimer(customState?: Partial<UnifiedTimerState>) {
     remainingSeconds: seconds,
     endTime: Date.now() + seconds * 1000,
     isRunning: true,
-    showMiniPopup: true,
   });
 }
 
