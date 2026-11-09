@@ -12,6 +12,8 @@ import {
   verifySessionCookieValue,
 } from '@/lib/authToken';
 
+const ACCOUNTS_BACKUP_COOKIE = 'glowup_accounts_backup';
+
 export interface SessionUser {
   id: string;
   name: string;
@@ -21,10 +23,71 @@ export interface SessionUser {
   sessionToken?: string;
 }
 
+interface BackupUserRecord {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  majorOrField: string;
+  role: string;
+}
+
+async function restoreAccountsFromBackupCookie(): Promise<BackupUserRecord[]> {
+  try {
+    const cookieStore = await cookies();
+    const raw = cookieStore.get(ACCOUNTS_BACKUP_COOKIE)?.value;
+    if (!raw) return [];
+    const list = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8')) as BackupUserRecord[];
+    if (!Array.isArray(list)) return [];
+
+    for (const acc of list) {
+      if (!acc?.id || !acc?.email || !acc?.passwordHash) continue;
+      try {
+        await prisma.user.upsert({
+          where: { email: acc.email },
+          update: {},
+          create: {
+            id: acc.id,
+            name: acc.name || 'Người dùng',
+            email: acc.email,
+            passwordHash: acc.passwordHash,
+            majorOrField: acc.majorOrField || 'Đa ngành',
+            role: acc.role || 'USER',
+          },
+        });
+      } catch {
+        // ignore upsert conflict
+      }
+    }
+    return list;
+  } catch {
+    return [];
+  }
+}
+
+async function saveAccountToBackupCookie(account: BackupUserRecord): Promise<void> {
+  try {
+    const existing = await restoreAccountsFromBackupCookie();
+    const filtered = existing.filter((a) => a.email !== account.email && a.id !== account.id);
+    const updated = [account, ...filtered].slice(0, 10);
+    const encoded = Buffer.from(JSON.stringify(updated), 'utf8').toString('base64url');
+    const cookieStore = await cookies();
+    cookieStore.set(ACCOUNTS_BACKUP_COOKIE, encoded, {
+      path: '/',
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: 'lax',
+    });
+  } catch {
+    // ignore cookie error
+  }
+}
+
 async function createDbSessionAndSetCookie(user: {
   id: string;
   name: string;
   email: string;
+  passwordHash: string;
   majorOrField: string | null;
   role: string;
 }): Promise<SessionUser> {
@@ -42,6 +105,15 @@ async function createDbSessionAndSetCookie(user: {
   } catch {
     // ignore if table still migrating
   }
+
+  await saveAccountToBackupCookie({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    passwordHash: user.passwordHash,
+    majorOrField: user.majorOrField || 'Đa ngành',
+    role: user.role,
+  });
 
   const sessionUser: SessionUser = {
     id: user.id,
@@ -74,6 +146,8 @@ export async function registerUserAction(formData: FormData): Promise<{
   user?: SessionUser;
 }> {
   try {
+    await restoreAccountsFromBackupCookie();
+
     const name = String(formData.get('name') ?? '').trim();
     const email = String(formData.get('email') ?? '')
       .trim()
@@ -90,7 +164,7 @@ export async function registerUserAction(formData: FormData): Promise<{
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
-      return { success: false, error: 'Email này đã được đăng ký. Vui lòng chuyển sang tab Đăng nhập.' };
+      return { success: false, error: 'Email này đã được đăng ký. Vui lòng chuyển sang Đăng nhập.' };
     }
 
     const created = await prisma.user.create({
@@ -118,6 +192,8 @@ export async function loginUserAction(formData: FormData): Promise<{
   user?: SessionUser;
 }> {
   try {
+    await restoreAccountsFromBackupCookie();
+
     const email = String(formData.get('email') ?? '')
       .trim()
       .toLowerCase();
@@ -131,12 +207,12 @@ export async function loginUserAction(formData: FormData): Promise<{
     if (!user) {
       return {
         success: false,
-        error: 'Không tìm thấy tài khoản với Email này. Bạn có thể tạo mới ở tab Đăng ký.',
+        error: 'Email hoặc mật khẩu chưa đúng, hoặc tài khoản chưa được đăng ký.',
       };
     }
 
     if (!verifyPasswordSecure(password, user.passwordHash)) {
-      return { success: false, error: 'Mật khẩu không chính xác.' };
+      return { success: false, error: 'Email hoặc mật khẩu không chính xác.' };
     }
 
     const sessionUser = await createDbSessionAndSetCookie(user);
@@ -148,41 +224,6 @@ export async function loginUserAction(formData: FormData): Promise<{
   }
 }
 
-export async function quickDemoLoginAction(): Promise<{
-  success: boolean;
-  user?: SessionUser;
-}> {
-  const email = 'member@glowup.os';
-  let user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        name: 'GlowUp Creator',
-        email,
-        passwordHash: hashPasswordSecure('123456'),
-        majorOrField: 'Đa ngành & Phát triển bản thân',
-        role: 'ADMIN',
-      },
-    });
-  }
-
-  const sessionUser = await createDbSessionAndSetCookie(user);
-  revalidatePath('/');
-  return { success: true, user: sessionUser };
-}
-
-export async function switchAccountByIdAction(userId: string): Promise<{
-  success: boolean;
-  user?: SessionUser;
-}> {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) return { success: false };
-
-  const sessionUser = await createDbSessionAndSetCookie(user);
-  revalidatePath('/');
-  return { success: true, user: sessionUser };
-}
-
 export async function updateProfileAction(formData: FormData): Promise<{
   success: boolean;
   error?: string;
@@ -190,10 +231,11 @@ export async function updateProfileAction(formData: FormData): Promise<{
   user?: SessionUser;
 }> {
   try {
+    await restoreAccountsFromBackupCookie();
     const cookieStore = await cookies();
     const verified = verifySessionCookieValue(cookieStore.get(AUTH_COOKIE_NAME)?.value);
     if (!verified) {
-      return { success: false, error: 'Bạn cần đăng nhập để cập nhật hồ sơ.' };
+      return { success: false, error: 'Bạn cần đăng nhập để cập nhật thông tin.' };
     }
 
     const name = String(formData.get('name') ?? '').trim();
@@ -219,7 +261,7 @@ export async function updateProfileAction(formData: FormData): Promise<{
     revalidatePath('/');
     return {
       success: true,
-      message: 'Đã cập nhật thông tin tài khoản & bảo mật.',
+      message: 'Đã lưu thông tin tài khoản.',
       user: sessionUser,
     };
   } catch (err: any) {
@@ -247,75 +289,25 @@ export async function logoutUserAction(): Promise<void> {
 
 export async function getSessionUserAction(): Promise<{
   currentUser: SessionUser | null;
-  accounts: SessionUser[];
 }> {
   try {
     const cookieStore = await cookies();
     const raw = cookieStore.get(AUTH_COOKIE_NAME)?.value;
     const verified = verifySessionCookieValue(raw);
-    let currentUser: SessionUser | null = null;
-
-    if (verified) {
-      // Check DB session validity if sessionToken is present
-      if (verified.sessionToken) {
-        try {
-          const dbSession = await prisma.authSession.findUnique({
-            where: { token: verified.sessionToken },
-            include: { user: true },
-          });
-          if (dbSession && dbSession.expiresAt > new Date() && dbSession.user) {
-            currentUser = {
-              id: dbSession.user.id,
-              name: dbSession.user.name,
-              email: dbSession.user.email,
-              majorOrField: dbSession.user.majorOrField || 'Đa ngành',
-              role: dbSession.user.role,
-              sessionToken: dbSession.token,
-            };
-          } else {
-            currentUser = {
-              id: verified.id,
-              name: verified.name,
-              email: verified.email,
-              majorOrField: verified.majorOrField,
-              role: verified.role,
-            };
-          }
-        } catch {
-          currentUser = {
-            id: verified.id,
-            name: verified.name,
-            email: verified.email,
-            majorOrField: verified.majorOrField,
-            role: verified.role,
-          };
-        }
-      } else {
-        currentUser = {
-          id: verified.id,
-          name: verified.name,
-          email: verified.email,
-          majorOrField: verified.majorOrField,
-          role: verified.role,
-        };
-      }
+    if (!verified) {
+      return { currentUser: null };
     }
 
-    const dbUsers = await prisma.user.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-    });
-
-    const accounts: SessionUser[] = dbUsers.map((u) => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      majorOrField: u.majorOrField || 'Đa ngành',
-      role: u.role,
-    }));
-
-    return { currentUser, accounts };
+    return {
+      currentUser: {
+        id: verified.id,
+        name: verified.name,
+        email: verified.email,
+        majorOrField: verified.majorOrField || 'Đa ngành',
+        role: verified.role || 'USER',
+      },
+    };
   } catch {
-    return { currentUser: null, accounts: [] };
+    return { currentUser: null };
   }
 }
