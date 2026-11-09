@@ -11,6 +11,7 @@ import {
   UnifiedTimerState,
   setTimerState,
 } from '@/lib/utils/timerStore';
+import { getSessionUserAction, SessionUser } from '@/app/auth/actions';
 
 interface NavItem {
   href: string;
@@ -34,11 +35,23 @@ const NAV_ITEMS: NavItem[] = [
 export default function TopNav() {
   const pathname = usePathname();
   const [timer, setTimer] = useState<UnifiedTimerState | null>(null);
+  const [currentUser, setCurrentUser] = useState<SessionUser | null>(null);
 
   useEffect(() => {
     setTimer(getTimerState());
     return subscribeTimerSync((st) => setTimer(st));
   }, []);
+
+  useEffect(() => {
+    const fetchUser = () => {
+      getSessionUserAction()
+        .then((res) => setCurrentUser(res.currentUser))
+        .catch(() => {});
+    };
+    fetchUser();
+    window.addEventListener('glowup-auth-changed', fetchUser);
+    return () => window.removeEventListener('glowup-auth-changed', fetchUser);
+  }, [pathname]);
 
   useEffect(() => {
     if (!timer?.isRunning || !timer.endTime) return;
@@ -49,8 +62,10 @@ export default function TopNav() {
   }, [timer?.isRunning, timer?.endTime]);
 
   const activeItem =
-    NAV_ITEMS.find((item) => (item.href === '/' ? pathname === '/' : pathname.startsWith(item.href))) ||
-    NAV_ITEMS[0];
+    pathname.startsWith('/login')
+      ? { href: '/login', label: 'Account', viLabel: 'Tài khoản', icon: '🔐' }
+      : NAV_ITEMS.find((item) => (item.href === '/' ? pathname === '/' : pathname.startsWith(item.href))) ||
+        NAV_ITEMS[0];
 
   return (
     <nav
@@ -74,7 +89,7 @@ export default function TopNav() {
           width: '100%',
           maxWidth: '1600px',
           margin: '0 auto',
-          gap: '16px',
+          gap: '14px',
           flexWrap: 'wrap',
         }}
       >
@@ -196,49 +211,75 @@ export default function TopNav() {
           })}
         </div>
 
-        {/* Live Timer Status Pill on Right */}
-        {timer && (
-          <button
-            onClick={() => setTimerState({ showMiniPopup: true })}
-            title="Nhấn để bật/hiện đồng hồ vuông Mini Pop-up"
+        {/* Right Controls: Live Timer + Login/Register Account Pill */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {timer && (
+            <button
+              onClick={() => setTimerState({ showMiniPopup: true })}
+              title="Nhấn để bật/hiện đồng hồ vuông Mini Pop-up"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '7px 12px',
+                borderRadius: '12px',
+                background: timer.isRunning
+                  ? 'rgba(16, 185, 129, 0.14)'
+                  : 'rgba(255, 255, 255, 0.04)',
+                border: `1px solid ${
+                  timer.isRunning ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255, 255, 255, 0.08)'
+                }`,
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <span
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: timer.isRunning
+                    ? '#10b981'
+                    : TIMER_MODE_CONFIG[timer.mode].color,
+                  boxShadow: timer.isRunning ? '0 0 8px #10b981' : 'none',
+                }}
+              />
+              <span style={{ fontFamily: 'monospace', fontSize: '0.88rem' }}>
+                {formatTimerMMSS(timer.remainingSeconds)}
+              </span>
+            </button>
+          )}
+
+          {/* Account / Login & Register Button */}
+          <Link
+            href="/login"
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              padding: '7px 12px',
+              gap: '7px',
+              padding: '7px 13px',
               borderRadius: '12px',
-              background: timer.isRunning
-                ? 'rgba(16, 185, 129, 0.14)'
-                : 'rgba(255, 255, 255, 0.04)',
-              border: `1px solid ${
-                timer.isRunning ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255, 255, 255, 0.08)'
-              }`,
+              background: currentUser
+                ? 'rgba(139, 92, 246, 0.16)'
+                : 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+              border: currentUser
+                ? '1px solid rgba(139, 92, 246, 0.45)'
+                : '1px solid transparent',
               color: '#fff',
-              cursor: 'pointer',
               fontSize: '0.8rem',
               fontWeight: 700,
+              textDecoration: 'none',
               whiteSpace: 'nowrap',
+              boxShadow: currentUser ? 'none' : '0 4px 12px rgba(139, 92, 246, 0.3)',
             }}
           >
-            <span
-              style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: timer.isRunning
-                  ? '#10b981'
-                  : TIMER_MODE_CONFIG[timer.mode].color,
-                boxShadow: timer.isRunning ? '0 0 8px #10b981' : 'none',
-              }}
-            />
-            <span style={{ fontFamily: 'monospace', fontSize: '0.88rem' }}>
-              {formatTimerMMSS(timer.remainingSeconds)}
-            </span>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-              {timer.isRunning ? 'Đang chạy' : 'Timer'}
-            </span>
-          </button>
-        )}
+            <span>{currentUser ? '👤' : '🔐'}</span>
+            <span>{currentUser ? currentUser.name : 'Đăng nhập / Đăng ký'}</span>
+          </Link>
+        </div>
       </div>
     </nav>
   );

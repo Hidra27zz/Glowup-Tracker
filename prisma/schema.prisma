@@ -1,7 +1,6 @@
 generator client {
-  provider      = "prisma-client-js"
-  engineType    = "library"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  provider = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
@@ -435,4 +434,16 @@ model ReviewQuiz {
   section     TheorySection? @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   
   createdAt   DateTime @default(now())
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  majorOrField String?  @default("Đa ngành")
+  avatar       String?
+  role         String   @default("USER")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

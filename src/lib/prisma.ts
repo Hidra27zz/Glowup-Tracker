@@ -15,7 +15,7 @@ function resolveDatabaseConfig(): { url: string; needsSchemaInit: boolean } {
 
   // Always use writable /tmp SQLite file on Vercel Serverless (even if Vercel env has an old postgres:// URL)
   if (isServerless) {
-    const tmpDbPath = '/tmp/glowup_v3.db';
+    const tmpDbPath = '/tmp/glowup_v4.db';
     let copiedFromBundle = false;
     try {
       if (!fs.existsSync(tmpDbPath) || fs.statSync(tmpDbPath).size < 4096) {
@@ -79,13 +79,11 @@ function createPrismaClient(): PrismaClient {
     if (!initialized && params.action !== 'executeRaw' && params.action !== 'queryRaw') {
       if (!globalForPrisma.schemaInitPromise) {
         globalForPrisma.schemaInitPromise = (async () => {
-          if (needsSchemaInit) {
-            for (const ddl of SCHEMA_DDL_STATEMENTS) {
-              try {
-                await client.$executeRawUnsafe(ddl);
-              } catch {
-                // ignore if table/index already exists
-              }
+          for (const ddl of SCHEMA_DDL_STATEMENTS) {
+            try {
+              await client.$executeRawUnsafe(ddl);
+            } catch {
+              // ignore if table/index already exists
             }
           }
           initialized = true;

@@ -11,6 +11,7 @@ import DashboardDeepWorkTimer from '@/components/dashboard/DashboardDeepWorkTime
 import SmartGoalBoard from '@/components/dashboard/SmartGoalBoard';
 import DashboardScheduleHub from '@/components/dashboard/DashboardScheduleHub';
 import SmartAICommandBar from '@/components/dashboard/SmartAICommandBar';
+import ExcelImportHub from '@/components/dashboard/ExcelImportHub';
 import { getTaskTimeStatus, formatDateTimeRange } from '@/lib/utils/timeFormat';
 
 export const dynamic = 'force-dynamic';
@@ -110,6 +111,9 @@ export default async function Dashboard() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', paddingBottom: '32px' }}>
       {/* TRỢ LÝ AI TỰ ĐỘNG TÍNH TOÁN & GHI NHẬN 1-CHẠM (KHÔNG CẦN NHẬP LIỆU RỜI RẠC) */}
       <SmartAICommandBar />
+
+      {/* NHẬP LIỆU HÀNG LOẠT BẰNG EXCEL (7 SHEETS CHO TỪNG CHỨC NĂNG) */}
+      <ExcelImportHub />
 
       {/* FLASHCARD ALERT */}
       {dueFlashcardsCount > 0 && (
