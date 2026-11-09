@@ -134,21 +134,43 @@ model Sprint {
 }
 
 model Task {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
-  energyLevel String   
-  status      String   @default("TODO") 
+  category    String    @default("TASK") // TASK, TIMETABLE, WORK_SCHEDULE, APPOINTMENT
+  location    String?
+  energyLevel String
+  status      String    @default("TODO")
+  startTime   DateTime  @default(now())
   deadline    DateTime
   completedAt DateTime?
-  timeSpent   Int      @default(0) // minutes
+  overdueNote String?
+  timeSpent   Int       @default(0) // minutes
   sprintId    String?
-  sprint      Sprint?  @relation(fields: [sprintId], references: [id])
-  isCoreTask  Boolean  @default(false)
+  sprint      Sprint?   @relation(fields: [sprintId], references: [id])
+  isCoreTask  Boolean   @default(false)
   blockedById String?
-  blockedBy   Task?    @relation("TaskDependencies", fields: [blockedById], references: [id])
-  blocking    Task[]   @relation("TaskDependencies")
-  createdAt   DateTime @default(now())
+  blockedBy   Task?     @relation("TaskDependencies", fields: [blockedById], references: [id])
+  blocking    Task[]    @relation("TaskDependencies")
+  createdAt   DateTime  @default(now())
+}
+
+model SmartGoal {
+  id           String   @id @default(cuid())
+  title        String
+  category     String   @default("Personal") // Health, Career, Finance, Study, Personal
+  specific     String
+  measurable   String
+  currentValue Float    @default(0)
+  targetValue  Float    @default(100)
+  unit         String   @default("%")
+  achievable   String
+  relevant     String
+  startDate    DateTime @default(now())
+  deadline     DateTime
+  status       String   @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, PAUSED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model MemoryVault {

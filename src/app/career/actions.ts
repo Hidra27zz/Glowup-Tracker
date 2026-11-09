@@ -15,7 +15,15 @@ export async function logDeepWork(duration: number, taskName: string, flowState:
     }
   });
 
+  revalidatePath('/');
   revalidatePath('/career');
+}
+
+export async function logDeepWorkAction(formData: FormData) {
+  const duration = parseInt((formData.get('duration') as string) || '25', 10);
+  const taskName = (formData.get('taskName') as string) || 'Phiên Tập Trung';
+  const flowState = parseInt((formData.get('flowState') as string) || '8', 10);
+  await logDeepWork(isNaN(duration) ? 25 : duration, taskName, flowState);
 }
 
 export async function addSkill(name: string, category: string) {

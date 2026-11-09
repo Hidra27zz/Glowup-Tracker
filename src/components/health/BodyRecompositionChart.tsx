@@ -17,12 +17,20 @@ export default function BodyRecompositionChart({ metrics, goal }: Props) {
   
   const [goalText, setGoalText] = useState(goal);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
+  const [smartFields, setSmartFields] = useState({
+    specific: 'Giảm mỡ tăng cơ săn chắc',
+    currentKg: metrics[metrics.length - 1]?.weight ? String(metrics[metrics.length - 1].weight) : '55',
+    targetKg: '48',
+    actionPlan: 'Tập 4 buổi/tuần + Thâm hụt 300 kcal/ngày',
+    deadline: new Date(Date.now() + 60 * 86400000).toISOString().split('T')[0],
+  });
 
-  const saveGoal = async (newGoal: string) => {
-    if (!newGoal) return;
-    setGoalText(newGoal);
+  const saveSmartBodyGoal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formatted = `[SMART] ${smartFields.specific}: ${smartFields.currentKg}kg → ${smartFields.targetKg}kg | Kế hoạch: ${smartFields.actionPlan} | Hạn: ${new Date(smartFields.deadline).toLocaleDateString('vi-VN')}`;
+    setGoalText(formatted);
     setIsEditingGoal(false);
-    await updateUserSettings({ bodyRecompGoal: newGoal });
+    await updateUserSettings({ bodyRecompGoal: formatted });
   };
 
   const data = metrics.map(m => ({
@@ -59,17 +67,23 @@ export default function BodyRecompositionChart({ metrics, goal }: Props) {
             Body Recomposition
           </h3>
           {isEditingGoal ? (
-            <input 
-              defaultValue={goalText === 'Cài đặt mục tiêu cân nặng' ? '' : goalText} 
-              onBlur={(e) => saveGoal(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && saveGoal(e.currentTarget.value)}
-              autoFocus
-              placeholder="VD: 60kg -> 48kg"
-              style={{ fontSize: '0.9rem', padding: '6px 12px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid rgba(59,130,246,0.4)', outline: 'none' }}
-            />
+            <form onSubmit={saveSmartBodyGoal} style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.4)', marginTop: '8px' }}>
+              <div style={{ fontSize: '0.78rem', color: '#60a5fa', fontWeight: 700 }}>Đặt mục tiêu SMART (Specific - Measurable - Achievable - Time-bound)</div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <input value={smartFields.specific} onChange={e => setSmartFields({...smartFields, specific: e.target.value})} placeholder="[S] Cụ thể (VD: Giảm mỡ bụng)" required style={{ flex: '2 1 160px', padding: '6px 10px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem' }} />
+                <input type="number" step="0.1" value={smartFields.currentKg} onChange={e => setSmartFields({...smartFields, currentKg: e.target.value})} placeholder="Hiện tại (kg)" required style={{ width: '90px', padding: '6px 10px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem' }} />
+                <input type="number" step="0.1" value={smartFields.targetKg} onChange={e => setSmartFields({...smartFields, targetKg: e.target.value})} placeholder="[M] Đích (kg)" required style={{ width: '90px', padding: '6px 10px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <input value={smartFields.actionPlan} onChange={e => setSmartFields({...smartFields, actionPlan: e.target.value})} placeholder="[A/R] Hành động khả thi" required style={{ flex: '2 1 180px', padding: '6px 10px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem' }} />
+                <input type="date" value={smartFields.deadline} onChange={e => setSmartFields({...smartFields, deadline: e.target.value})} required style={{ padding: '6px 10px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem', colorScheme: 'dark' }} />
+                <button type="submit" style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}>Lưu SMART</button>
+                <button type="button" onClick={() => setIsEditingGoal(false)} style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '6px 10px', cursor: 'pointer', fontSize: '0.82rem' }}>Hủy</button>
+              </div>
+            </form>
           ) : (
-            <p onClick={() => setIsEditingGoal(true)} style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', cursor: 'pointer', borderBottom: '1px dashed rgba(148,163,184,0.5)', display: 'inline-block' }} title="Nhấn để sửa">
-              Mục tiêu: {goalText}
+            <p onClick={() => setIsEditingGoal(true)} style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8', cursor: 'pointer', borderBottom: '1px dashed rgba(148,163,184,0.5)', display: 'inline-block' }} title="Nhấn để thiết lập theo chuẩn SMART">
+              Mục tiêu SMART: {goalText} ✎
             </p>
           )}
         </div>

@@ -1,228 +1,229 @@
 'use client';
 
-import { useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Apple, Plus } from 'lucide-react';
-import { NutritionLog } from '@prisma/client';
-import { logNutrition, updateUserSettings } from '@/lib/actions/health.actions';
+import React, { useState } from 'react';
+import { logNutrition } from '@/lib/actions/health.actions';
+import { smartAutoLogAction } from '@/app/dashboard-actions';
 
-interface Props {
-  nutrition?: NutritionLog | null;
-  goalCal: number;
-  budgetGoal: number;
-}
+const QUICK_MEAL_TEMPLATES = [
+  { label: '🍜 Phở bò', calories: 480, protein: 26, carbs: 62, fat: 12 },
+  { label: '🍱 Cơm tấm sườn', calories: 650, protein: 32, carbs: 75, fat: 22 },
+  { label: '🍗 200g Ức gà áp chảo', calories: 330, protein: 62, carbs: 0, fat: 7 },
+  { label: '🥚 2 Quả trứng luộc', calories: 155, protein: 13, carbs: 1, fat: 11 },
+  { label: '🥖 Bánh mì thịt', calories: 380, protein: 16, carbs: 46, fat: 14 },
+  { label: '🥗 Salad Eat Clean', calories: 320, protein: 24, carbs: 22, fat: 14 },
+  { label: '🥛 1 Muỗng Whey', calories: 120, protein: 25, carbs: 3, fat: 2 },
+];
 
-export default function NutritionVault({ nutrition, goalCal, budgetGoal }: Props) {
-  const [loading, setLoading] = useState(false);
-  const [showInput, setShowInput] = useState(false);
+export default function NutritionVault({
+  nutrition,
+  todayNutrition,
+  goalCal = 2200,
+}: {
+  nutrition?: any;
+  todayNutrition?: any;
+  goalCal?: number;
+  budgetGoal?: number;
+}) {
+  const [showManual, setShowManual] = useState(false);
+  const [aiFoodInput, setAiFoodInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [isEditingGoals, setIsEditingGoals] = useState(false);
+  const activeNutri = nutrition || todayNutrition;
+  const cals = activeNutri?.calories || 0;
+  const targetCals = goalCal || 2200;
+  const calProgress = Math.min((cals / targetCals) * 100, 100);
 
-  const handleUpdateGoals = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    
-    const newCal = Number(formData.get('goalCal'));
-    const newBudget = Number(formData.get('budgetGoal'));
-    
-    const updates: any = {};
-    if (newCal > 0) updates.goalCal = newCal;
-    if (newBudget > 0) updates.budgetGoal = newBudget;
-    
-    if (Object.keys(updates).length > 0) {
-      await updateUserSettings(updates);
+  const p = activeNutri?.protein || 0;
+  const c = activeNutri?.carbs || 0;
+  const f = activeNutri?.fat || 0;
+
+  const handleQuickTemplate = async (tpl: typeof QUICK_MEAL_TEMPLATES[0]) => {
+    setIsLoading(true);
+    try {
+      await logNutrition(tpl.calories, 0, tpl.protein, tpl.carbs, tpl.fat);
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsEditingGoals(false);
-    setLoading(false);
   };
 
-  const currentCal = nutrition?.calories || 0;
-  const remainingCal = Math.max(0, goalCal - currentCal);
-
-  const data = [
-    { name: 'Đã nạp', value: currentCal, color: 'var(--accent-color)' },
-    { name: 'Còn lại', value: remainingCal, color: 'rgba(255,255,255,0.1)' }
-  ];
-
-  const budgetUsed = nutrition?.budgetUsed || 0;
-  const budgetPercent = Math.min(100, (budgetUsed / budgetGoal) * 100);
-  const isBudgetWarning = budgetPercent > 80;
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAiEstimate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const calories = Number(formData.get('calories'));
-    const budget = Number(formData.get('budget')) || 0;
-    const protein = Number(formData.get('protein')) || 0;
-    const carbs = Number(formData.get('carbs')) || 0;
-    const fat = Number(formData.get('fat')) || 0;
-    
-    await logNutrition(calories, budget, protein, carbs, fat);
-    form.reset();
-    setShowInput(false);
-    setLoading(false);
+    if (!aiFoodInput.trim()) return;
+    setIsLoading(true);
+    try {
+      await smartAutoLogAction(aiFoodInput);
+      setAiFoodInput('');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleManualSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const cal = parseInt((fd.get('calories') as string) || '0', 10);
+    const pro = parseFloat((fd.get('protein') as string) || '0');
+    const carb = parseFloat((fd.get('carbs') as string) || '0');
+    const fatVal = parseFloat((fd.get('fat') as string) || '0');
+    setIsLoading(true);
+    try {
+      await logNutrition(cal, 0, pro, carb, fatVal);
+      e.currentTarget.reset();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <h3 style={{ margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Apple size={20} color="var(--success-color)" /> Nutrition & Grocery Vault
-        </h3>
-        <button 
-          onClick={() => setShowInput(!showInput)}
-          className="btn btn-primary" 
-          style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', gap: '4px', background: 'var(--success-color)' }}
+    <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+        <div>
+          <h3 style={{ fontSize: '1.15rem', margin: 0 }}>🥗 Dinh Dưỡng & Macro Tự Động</h3>
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '2px 0 0 0' }}>
+            Chọn món ăn 1-chạm hoặc nhập tên món để AI tự tính Calo & Protein
+          </p>
+        </div>
+        <button
+          onClick={() => setShowManual((m) => !m)}
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid var(--glass-border)',
+            color: 'var(--text-secondary)',
+            padding: '5px 10px',
+            borderRadius: '8px',
+            fontSize: '0.75rem',
+            cursor: 'pointer',
+          }}
         >
-          <Plus size={14} /> Thêm Bữa Ăn
+          {showManual ? 'Ẩn nhập thủ công' : '⚙️ Tự nhập số'}
         </button>
       </div>
 
-      {showInput && (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px' }}>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <input 
-              name="calories" 
-              type="number" 
-              placeholder="Calories" 
-              required 
-              style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'transparent', color: '#fff', outline: 'none' }}
-            />
-            <input 
-              name="budget" 
-              type="number" 
-              placeholder="Chi phí (VND)" 
-              style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'transparent', color: '#fff', outline: 'none' }}
-            />
+      {/* Calorie Progress Bar */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <span style={{ fontWeight: 600 }}>Năng lượng hôm nay</span>
+          <span style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>
+            {cals} / {targetCals} kcal
+          </span>
+        </div>
+        <div style={{ width: '100%', height: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', overflow: 'hidden' }}>
+          <div
+            style={{
+              width: `${calProgress}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, #10b981, #3b82f6)',
+              transition: 'width 0.3s ease',
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Macros Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', textAlign: 'center' }}>
+        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '12px', borderRadius: '8px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#f87171', fontWeight: 600 }}>PROTEIN</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 700, margin: '4px 0' }}>{Math.round(p)}g</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Mục tiêu: 150g</div>
+        </div>
+        <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '12px', borderRadius: '8px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#60a5fa', fontWeight: 600 }}>CARBS</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 700, margin: '4px 0' }}>{Math.round(c)}g</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Mục tiêu: 200g</div>
+        </div>
+        <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 130, 11, 0.2)', padding: '12px', borderRadius: '8px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#fbbf24', fontWeight: 600 }}>FAT</div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 700, margin: '4px 0' }}>{Math.round(f)}g</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Mục tiêu: 70g</div>
+        </div>
+      </div>
+
+      {/* 1-Tap Food Chips (No Manual Calculation!) */}
+      <div>
+        <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
+          ⚡ Bấm 1 chạm để cộng món ăn (Đã tính sẵn Calo & Protein):
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+          {QUICK_MEAL_TEMPLATES.map((tpl, i) => (
+            <button
+              key={i}
+              type="button"
+              disabled={isLoading}
+              onClick={() => handleQuickTemplate(tpl)}
+              style={{
+                padding: '6px 10px',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.04)',
+                color: '#e2e8f0',
+                fontSize: '0.76rem',
+                cursor: 'pointer',
+              }}
+            >
+              {tpl.label} <span style={{ color: '#10b981', fontWeight: 700 }}>+{tpl.calories}cal / {tpl.protein}g P</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Natural Food Input */}
+      <form onSubmit={handleAiEstimate} style={{ display: 'flex', gap: '8px' }}>
+        <input
+          value={aiFoodInput}
+          onChange={(e) => setAiFoodInput(e.target.value)}
+          placeholder='Nhập tên món vừa ăn (VD: "bún bò + sữa chua")...'
+          style={{
+            flex: 1,
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid var(--glass-border)',
+            color: 'white',
+            padding: '9px 12px',
+            borderRadius: '8px',
+            fontSize: '0.84rem',
+          }}
+        />
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="glass-button"
+          style={{ background: 'var(--accent-primary)', color: '#fff', border: 'none', fontWeight: 700, whiteSpace: 'nowrap' }}
+        >
+          ⚡ AI Tự Tính
+        </button>
+      </form>
+
+      {/* Optional Manual Form */}
+      {showManual && (
+        <form
+          onSubmit={handleManualSubmit}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            paddingTop: '12px',
+            borderTop: '1px solid var(--glass-border)',
+          }}
+        >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <input name="calories" type="number" placeholder="+ Calo (kcal)" required style={inputStyle} />
+            <input name="protein" type="number" step="0.1" placeholder="+ Protein (g)" style={inputStyle} />
+            <input name="carbs" type="number" step="0.1" placeholder="+ Carbs (g)" style={inputStyle} />
+            <input name="fat" type="number" step="0.1" placeholder="+ Fat (g)" style={inputStyle} />
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <input 
-              name="protein" 
-              type="number" 
-              placeholder="Protein (g)" 
-              style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'transparent', color: '#fff', outline: 'none' }}
-            />
-            <input 
-              name="carbs" 
-              type="number" 
-              placeholder="Carbs (g)" 
-              style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'transparent', color: '#fff', outline: 'none' }}
-            />
-            <input 
-              name="fat" 
-              type="number" 
-              placeholder="Fat (g)" 
-              style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'transparent', color: '#fff', outline: 'none' }}
-            />
-          </div>
-          <button type="submit" disabled={loading} className="btn btn-primary" style={{ background: 'var(--success-color)', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Đang lưu...' : 'Lưu Bữa Ăn'}
+          <button type="submit" disabled={isLoading} className="glass-button" style={{ justifyContent: 'center' }}>
+            + Cộng Thủ Công
           </button>
         </form>
       )}
-
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ width: '120px', height: '120px', position: 'relative' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                innerRadius={45}
-                outerRadius={60}
-                startAngle={90}
-                endAngle={-270}
-                dataKey="value"
-                stroke="none"
-              >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip 
-                contentStyle={{ backgroundColor: 'rgba(24, 24, 27, 0.9)', border: '1px solid var(--glass-border)', borderRadius: '8px' }}
-                itemStyle={{ color: '#fff' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-            <span style={{ fontSize: '1.2rem', fontWeight: 700 }}>{currentCal}</span>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>/ {goalCal} kcal</span>
-          </div>
-        </div>
-
-        <div style={{ flex: 1, marginLeft: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {/* Macro Bars */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '4px' }}>
-              <span style={{ color: '#60a5fa' }}>Protein</span>
-              <span>{nutrition?.protein || 0}g</span>
-            </div>
-            <div style={{ background: 'rgba(255,255,255,0.1)', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${Math.min(100, ((nutrition?.protein || 0) / 150) * 100)}%`, backgroundColor: '#60a5fa' }} />
-            </div>
-          </div>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '4px' }}>
-              <span style={{ color: '#fb923c' }}>Carbs</span>
-              <span>{nutrition?.carbs || 0}g</span>
-            </div>
-            <div style={{ background: 'rgba(255,255,255,0.1)', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${Math.min(100, ((nutrition?.carbs || 0) / 250) * 100)}%`, backgroundColor: '#fb923c' }} />
-            </div>
-          </div>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', marginBottom: '4px' }}>
-              <span style={{ color: '#f43f5e' }}>Fat</span>
-              <span>{nutrition?.fat || 0}g</span>
-            </div>
-            <div style={{ background: 'rgba(255,255,255,0.1)', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${Math.min(100, ((nutrition?.fat || 0) / 65) * 100)}%`, backgroundColor: '#f43f5e' }} />
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Quỹ Đi Chợ Tuần</h4>
-            <button 
-              onClick={() => setIsEditingGoals(!isEditingGoals)}
-              style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'underline', padding: 0 }}
-            >
-              {isEditingGoals ? 'Hủy' : 'Sửa mục tiêu'}
-            </button>
-          </div>
-          
-          {isEditingGoals && (
-            <form onSubmit={handleUpdateGoals} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '8px' }}>
-              <input name="goalCal" type="number" defaultValue={goalCal} placeholder="Mục tiêu Calo/ngày" style={{ padding: '6px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'transparent', color: '#fff', outline: 'none', fontSize: '0.8rem' }} />
-              <input name="budgetGoal" type="number" defaultValue={budgetGoal} placeholder="Quỹ đi chợ (VND)" style={{ padding: '6px 8px', borderRadius: '4px', border: '1px solid var(--glass-border)', background: 'transparent', color: '#fff', outline: 'none', fontSize: '0.8rem' }} />
-              <button type="submit" disabled={loading} className="btn btn-primary" style={{ background: 'var(--success-color)', opacity: loading ? 0.7 : 1, padding: '4px 8px', fontSize: '0.8rem' }}>
-                {loading ? '...' : 'Lưu Mục Tiêu'}
-              </button>
-            </form>
-          )}
-
-          <div style={{ background: 'rgba(255,255,255,0.1)', height: '8px', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
-            <div style={{ 
-              height: '100%', 
-              width: `${budgetPercent}%`, 
-              backgroundColor: isBudgetWarning ? 'var(--warning-color)' : 'var(--success-color)',
-              transition: 'width 0.3s ease, background-color 0.3s ease'
-            }} />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-            <span>{budgetUsed.toLocaleString('vi-VN')}đ</span>
-            <span style={{ color: 'var(--text-secondary)' }}>{budgetGoal.toLocaleString('vi-VN')}đ</span>
-          </div>
-        </div>
     </div>
   );
 }
+
+const inputStyle = {
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid var(--glass-border)',
+  color: 'white',
+  padding: '8px 12px',
+  borderRadius: '6px',
+  width: '100%',
+};

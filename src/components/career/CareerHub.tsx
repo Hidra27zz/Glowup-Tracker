@@ -1,233 +1,302 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Map,
-  Timer,
-  Network,
-  BookOpen,
-  Mic,
-  ChevronRight,
-  Briefcase,
-  Code,
-  Library,
-} from 'lucide-react';
-import { DeepWorkSession, Skill, FlashcardDeck } from '@prisma/client';
-
-import CareerBlueprint from './CareerBlueprint';
-import MockInterviewRoom from './MockInterviewRoom';
-import DeepWorkTimer from './DeepWorkTimer';
+import React, { useState } from 'react';
 import SkillTree from './SkillTree';
+import DeepWorkTimer from './DeepWorkTimer';
 import FlashcardVault from './FlashcardVault';
 import InternshipPipeline from './InternshipPipeline';
 import SnippetLibrary from './SnippetLibrary';
 import CurriculumVault from './CurriculumVault';
+import CareerBlueprint from './CareerBlueprint';
+import MockInterviewRoom from './MockInterviewRoom';
 
-// ────────────────────────────────────────────────────────────────────────────
-// Types
-// ────────────────────────────────────────────────────────────────────────────
-interface Props {
-  skills: Skill[];
-  recentSessions: DeepWorkSession[];
-  flashcardDecks: (FlashcardDeck & { cards: any[] })[];
+type PrimaryWorkspace = 'learning' | 'ai_coach' | 'focus' | 'portfolio';
+
+interface CareerHubProps {
+  skills: any[];
+  recentSessions: any[];
+  flashcardDecks: any[];
   jobApplications: any[];
   codeSnippets: any[];
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// Tab config
-// ────────────────────────────────────────────────────────────────────────────
-const TABS = [
-  {
-    id: 'curriculum',
-    label: 'University Review',
-    sublabel: 'Giáo trình & Mock Test',
-    icon: Library,
-    accent: '#3b82f6',
-  },
-  {
-    id: 'blueprint',
-    label: 'Career Mentor',
-    sublabel: 'AI Lộ trình & Quiz',
-    icon: Map,
-    accent: '#a855f7',
-  },
-  {
-    id: 'interview',
-    label: 'Mock Interview',
-    sublabel: 'Phòng phỏng vấn AI',
-    icon: Mic,
-    accent: '#ec4899',
-  },
-  {
-    id: 'skills',
-    label: 'Skill Tree',
-    sublabel: 'Bản đồ kỹ năng',
-    icon: Network,
-    accent: '#38bdf8',
-  },
-  {
-    id: 'deepwork',
-    label: 'Deep Work',
-    sublabel: 'Timer & Flow State',
-    icon: Timer,
-    accent: '#10b981',
-  },
-  {
-    id: 'flashcards',
-    label: 'Flashcards',
-    sublabel: 'Kho thẻ ghi nhớ',
-    icon: BookOpen,
-    accent: '#f59e0b',
-  },
-  {
-    id: 'pipeline',
-    label: 'Job Pipeline',
-    sublabel: 'Internship Kanban',
-    icon: Briefcase,
-    accent: '#f43f5e',
-  },
-  {
-    id: 'snippets',
-    label: 'Snippets',
-    sublabel: 'Thư viện thuật toán',
-    icon: Code,
-    accent: '#8b5cf6',
-  },
-] as const;
+export default function CareerHub({
+  skills,
+  recentSessions,
+  flashcardDecks,
+  jobApplications,
+  codeSnippets,
+}: CareerHubProps) {
+  const [workspace, setWorkspace] = useState<PrimaryWorkspace>('learning');
+  const [learningSubTab, setLearningSubTab] = useState<'curriculum' | 'flashcards'>('curriculum');
+  const [aiSubTab, setAiSubTab] = useState<'mentor' | 'interview'>('mentor');
+  const [portfolioSubTab, setPortfolioSubTab] = useState<'jobs' | 'skills' | 'notes'>('jobs');
+  const [zenMode, setZenMode] = useState(false);
 
-type TabId = (typeof TABS)[number]['id'];
-
-// ────────────────────────────────────────────────────────────────────────────
-// Component
-// ────────────────────────────────────────────────────────────────────────────
-export default function CareerHub({ skills, recentSessions, flashcardDecks, jobApplications, codeSnippets }: Props) {
-  const [activeTab, setActiveTab] = useState<TabId>('curriculum');
-
-  const currentTab = TABS.find(t => t.id === activeTab)!;
+  const totalDecksCount = flashcardDecks?.length || 0;
+  const activeJobsCount = jobApplications?.length || 0;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0', minHeight: '80vh' }}>
-
-      {/* ── Top navigation bar ── */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Clean Workspace Selector Bar */}
       <div
+        className="glass-card"
         style={{
+          padding: '14px 18px',
           display: 'flex',
-          alignItems: 'stretch',
-          gap: '4px',
-          background: 'rgba(15,23,42,0.7)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: '20px 20px 0 0',
-          overflow: 'hidden',
-          padding: '6px',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+          background: 'rgba(18, 19, 28, 0.78)',
         }}
       >
-        {TABS.map(tab => {
-          const Icon = tab.icon;
-          const active = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                padding: '14px 8px',
-                borderRadius: '14px',
-                border: 'none',
-                background: active
-                  ? `linear-gradient(135deg, ${tab.accent}22, ${tab.accent}10)`
-                  : 'transparent',
-                borderBottom: active ? `2px solid ${tab.accent}` : '2px solid transparent',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                outline: 'none',
-              }}
-              onMouseEnter={e => {
-                if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
-              }}
-              onMouseLeave={e => {
-                if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent';
-              }}
-            >
-              <Icon
-                size={18}
-                color={active ? tab.accent : '#64748b'}
-                strokeWidth={active ? 2.5 : 1.5}
-              />
-              <span
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {[
+            {
+              id: 'learning' as PrimaryWorkspace,
+              icon: '📚',
+              label: 'Học Tập & Ôn Luyện',
+              desc: 'Giáo trình đa ngành & Flashcards',
+              badge: totalDecksCount > 0 ? `${totalDecksCount} bộ` : null,
+            },
+            {
+              id: 'ai_coach' as PrimaryWorkspace,
+              icon: '🤖',
+              label: 'AI Cố Vấn & Phỏng Vấn',
+              desc: 'Lộ trình & Luyện phỏng vấn',
+              badge: 'AI',
+            },
+            {
+              id: 'focus' as PrimaryWorkspace,
+              icon: '⏱️',
+              label: 'Deep Work Protocol',
+              desc: 'Đồng bộ với Dashboard & Pop-up',
+              badge: null,
+            },
+            {
+              id: 'portfolio' as PrimaryWorkspace,
+              icon: '💼',
+              label: 'Hồ Sơ & Kỹ Năng',
+              desc: 'Ứng tuyển, Kỹ năng & Ghi chú',
+              badge: activeJobsCount > 0 ? `${activeJobsCount}` : null,
+            },
+          ].map((tab) => {
+            const active = workspace === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setWorkspace(tab.id)}
                 style={{
-                  fontSize: '0.75rem',
-                  fontWeight: active ? 700 : 400,
-                  color: active ? tab.accent : '#64748b',
-                  letterSpacing: '0.3px',
-                  whiteSpace: 'nowrap',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '10px 16px',
+                  borderRadius: '12px',
+                  border: active
+                    ? '1px solid rgba(139, 92, 246, 0.55)'
+                    : '1px solid rgba(255,255,255,0.06)',
+                  background: active
+                    ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(59, 130, 246, 0.18))'
+                    : 'rgba(255,255,255,0.02)',
+                  color: active ? '#fff' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.2s ease',
                 }}
               >
-                {tab.label}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+                <span style={{ fontSize: '1.25rem' }}>{tab.icon}</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>{tab.label}</span>
+                    {tab.badge && (
+                      <span
+                        style={{
+                          fontSize: '0.68rem',
+                          padding: '1px 6px',
+                          borderRadius: '8px',
+                          background: active ? 'var(--accent-primary)' : 'rgba(255,255,255,0.08)',
+                          color: '#fff',
+                        }}
+                      >
+                        {tab.badge}
+                      </span>
+                    )}
+                  </div>
+                  {!zenMode && (
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                      {tab.desc}
+                    </div>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
 
-      {/* ── Breadcrumb strip ── */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '10px 24px',
-          background: 'rgba(15,23,42,0.5)',
-          borderLeft: '1px solid rgba(255,255,255,0.06)',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
-        }}
-      >
-        <span style={{ fontSize: '0.78rem', color: '#475569', letterSpacing: '0.3px' }}>
-          Career Hub
-        </span>
-        <ChevronRight size={12} color="#334155" />
-        <span
+        {/* Zen / Distraction-Free Toggle */}
+        <button
+          onClick={() => setZenMode((z) => !z)}
           style={{
-            fontSize: '0.78rem',
-            color: currentTab.accent,
+            padding: '8px 14px',
+            borderRadius: '10px',
+            border: zenMode ? '1px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
+            background: zenMode ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.04)',
+            color: zenMode ? '#10b981' : 'var(--text-secondary)',
+            fontSize: '0.8rem',
             fontWeight: 600,
-            letterSpacing: '0.3px',
+            cursor: 'pointer',
           }}
         >
-          {currentTab.label}
-        </span>
-        <span style={{ fontSize: '0.78rem', color: '#334155', marginLeft: '4px' }}>
-          — {currentTab.sublabel}
-        </span>
+          {zenMode ? '🧘 Đang bật Chế độ Tập trung' : '🧘 Chế độ Tối giản (Chống xao nhãng)'}
+        </button>
       </div>
 
-      {/* ── Content panel ── */}
-      <div
-        style={{
-          flex: 1,
-          background: 'rgba(15,23,42,0.4)',
-          border: '1px solid rgba(255,255,255,0.06)',
-          borderTop: 'none',
-          borderRadius: '0 0 20px 20px',
-          padding: '24px',
-          backdropFilter: 'blur(16px)',
-        }}
-      >
-        {activeTab === 'curriculum' && <CurriculumVault />}
-        {activeTab === 'blueprint' && <CareerBlueprint />}
-        {activeTab === 'interview' && <MockInterviewRoom />}
-        {activeTab === 'skills' && <SkillTree skills={skills} />}
-        {activeTab === 'deepwork' && <DeepWorkTimer recentSessions={recentSessions} />}
-        {activeTab === 'flashcards' && <FlashcardVault decks={flashcardDecks} />}
-        {activeTab === 'pipeline' && <InternshipPipeline applications={jobApplications} />}
-        {activeTab === 'snippets' && <SnippetLibrary snippets={codeSnippets} />}
-      </div>
+      {/* Workspace 1: Learning & Flashcards */}
+      {workspace === 'learning' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '10px' }}>
+              <button
+                onClick={() => setLearningSubTab('curriculum')}
+                style={{
+                  padding: '7px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: learningSubTab === 'curriculum' ? 'var(--accent-primary)' : 'transparent',
+                  color: learningSubTab === 'curriculum' ? '#fff' : 'var(--text-secondary)',
+                  fontWeight: 600,
+                  fontSize: '0.84rem',
+                  cursor: 'pointer',
+                }}
+              >
+                📖 Kho Học Liệu & Bài Tập Đa Ngành
+              </button>
+              <button
+                onClick={() => setLearningSubTab('flashcards')}
+                style={{
+                  padding: '7px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: learningSubTab === 'flashcards' ? 'var(--accent-primary)' : 'transparent',
+                  color: learningSubTab === 'flashcards' ? '#fff' : 'var(--text-secondary)',
+                  fontWeight: 600,
+                  fontSize: '0.84rem',
+                  cursor: 'pointer',
+                }}
+              >
+                🃏 Ôn Tập Flashcards ({totalDecksCount} bộ thẻ)
+              </button>
+            </div>
+          </div>
+
+          {learningSubTab === 'curriculum' ? (
+            <CurriculumVault />
+          ) : (
+            <FlashcardVault decks={flashcardDecks} />
+          )}
+        </div>
+      )}
+
+      {/* Workspace 2: AI Mentor & Mock Interview */}
+      {workspace === 'ai_coach' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '10px', width: 'fit-content' }}>
+            <button
+              onClick={() => setAiSubTab('mentor')}
+              style={{
+                padding: '7px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: aiSubTab === 'mentor' ? 'var(--accent-primary)' : 'transparent',
+                color: aiSubTab === 'mentor' ? '#fff' : 'var(--text-secondary)',
+                fontWeight: 600,
+                fontSize: '0.84rem',
+                cursor: 'pointer',
+              }}
+            >
+              🧭 AI Tư Vấn Lộ Trình Nghề Nghiệp
+            </button>
+            <button
+              onClick={() => setAiSubTab('interview')}
+              style={{
+                padding: '7px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: aiSubTab === 'interview' ? 'var(--accent-primary)' : 'transparent',
+                color: aiSubTab === 'interview' ? '#fff' : 'var(--text-secondary)',
+                fontWeight: 600,
+                fontSize: '0.84rem',
+                cursor: 'pointer',
+              }}
+            >
+              🎙️ Phòng Phỏng Vấn AI Giả Lập
+            </button>
+          </div>
+
+          {aiSubTab === 'mentor' ? <CareerBlueprint /> : <MockInterviewRoom />}
+        </div>
+      )}
+
+      {/* Workspace 3: Synchronized Deep Work Timer */}
+      {workspace === 'focus' && <DeepWorkTimer recentSessions={recentSessions} />}
+
+      {/* Workspace 4: Portfolio, Jobs, Skill Tree & Notes */}
+      {workspace === 'portfolio' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '10px', width: 'fit-content', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setPortfolioSubTab('jobs')}
+              style={{
+                padding: '7px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: portfolioSubTab === 'jobs' ? 'var(--accent-primary)' : 'transparent',
+                color: portfolioSubTab === 'jobs' ? '#fff' : 'var(--text-secondary)',
+                fontWeight: 600,
+                fontSize: '0.84rem',
+                cursor: 'pointer',
+              }}
+            >
+              💼 Quản Lý Ứng Tuyển ({activeJobsCount})
+            </button>
+            <button
+              onClick={() => setPortfolioSubTab('skills')}
+              style={{
+                padding: '7px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: portfolioSubTab === 'skills' ? 'var(--accent-primary)' : 'transparent',
+                color: portfolioSubTab === 'skills' ? '#fff' : 'var(--text-secondary)',
+                fontWeight: 600,
+                fontSize: '0.84rem',
+                cursor: 'pointer',
+              }}
+            >
+              🌳 Cây Kỹ Năng ({skills?.length || 0})
+            </button>
+            <button
+              onClick={() => setPortfolioSubTab('notes')}
+              style={{
+                padding: '7px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: portfolioSubTab === 'notes' ? 'var(--accent-primary)' : 'transparent',
+                color: portfolioSubTab === 'notes' ? '#fff' : 'var(--text-secondary)',
+                fontWeight: 600,
+                fontSize: '0.84rem',
+                cursor: 'pointer',
+              }}
+            >
+              📝 Kho Ghi Chú & Snippets ({codeSnippets?.length || 0})
+            </button>
+          </div>
+
+          {portfolioSubTab === 'jobs' && <InternshipPipeline applications={jobApplications} />}
+          {portfolioSubTab === 'skills' && <SkillTree skills={skills} />}
+          {portfolioSubTab === 'notes' && <SnippetLibrary snippets={codeSnippets} />}
+        </div>
+      )}
     </div>
   );
 }

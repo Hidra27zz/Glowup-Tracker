@@ -209,12 +209,67 @@ export async function getPantryItems() {
   });
 }
 
-export async function addPantryItem(name: string, quantity: string, expiresAt: Date | null) {
+export async function addPantryItem(name: string, quantity: string, expiresAt: Date | null, category: string = 'fresh') {
   const result = await prisma.pantryItem.create({
-    data: { name, quantity, expiresAt, category: 'General' }
+    data: { name, quantity, expiresAt, category }
   });
+  revalidatePath('/nutrition');
   revalidatePath('/health');
   return result;
+}
+
+export interface BillItemInput {
+  name: string;
+  quantity: string;
+  category: string;
+  daysToExpire: number;
+  price?: number;
+}
+
+export async function addBulkPantryItems(
+  items: BillItemInput[],
+  purchaseDateStr?: string,
+  logExpenseToFinance: boolean = false,
+  storeName?: string
+) {
+  const baseDate = purchaseDateStr ? new Date(purchaseDateStr) : new Date();
+  let totalBillCost = 0;
+
+  for (const item of items) {
+    if (!item.name.trim()) continue;
+    const expiresAt = new Date(baseDate);
+    expiresAt.setDate(expiresAt.getDate() + (item.daysToExpire || 7));
+
+    await prisma.pantryItem.create({
+      data: {
+        name: item.name.trim(),
+        quantity: item.quantity || '1 phần',
+        category: item.category || 'fresh',
+        expiresAt,
+      }
+    });
+
+    if (item.price && item.price > 0) {
+      totalBillCost += item.price;
+    }
+  }
+
+  if (logExpenseToFinance && totalBillCost > 0) {
+    await prisma.financialTransaction.create({
+      data: {
+        amount: totalBillCost,
+        category: 'Grocery Bill',
+        type: 'expense',
+        notes: `Bill đi chợ${storeName ? ` (${storeName})` : ''}: ${items.map(i => i.name).join(', ')}`,
+      }
+    });
+  }
+
+  revalidatePath('/nutrition');
+  revalidatePath('/health');
+  revalidatePath('/finance');
+  revalidatePath('/');
+  return { count: items.length, totalBillCost };
 }
 
 export async function deletePantryItem(id: string) {
