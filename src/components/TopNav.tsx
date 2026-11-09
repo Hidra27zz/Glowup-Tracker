@@ -157,24 +157,6 @@ export default function TopNav() {
             </button>
           )}
 
-          {authChecked && !currentUser && (
-            <span
-              title="Bạn chưa đăng nhập: dữ liệu thêm vào chỉ là bản thử (Mockup) và sẽ tự xóa khi thoát trang"
-              style={{
-                fontSize: '0.73rem',
-                color: '#f5b94a',
-                background: 'rgba(245, 185, 74, 0.1)',
-                border: '1px solid rgba(245, 185, 74, 0.28)',
-                padding: '5px 9px',
-                borderRadius: '7px',
-                fontWeight: 600,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Chế độ Mockup
-            </span>
-          )}
-
           <Link
             href="/login"
             className="nav-user-name"
@@ -189,7 +171,7 @@ export default function TopNav() {
               color: currentUser ? 'var(--text-primary)' : '#ffffff',
             }}
           >
-            {currentUser ? `${currentUser.name} · Lưu riêng` : 'Đăng nhập'}
+            {currentUser ? currentUser.name : 'Đăng nhập'}
           </Link>
 
           <button
