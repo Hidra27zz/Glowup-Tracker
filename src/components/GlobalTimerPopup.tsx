@@ -15,35 +15,39 @@ import {
 } from '@/lib/utils/timerStore';
 import { logDeepWorkAction } from '@/app/career/actions';
 
+const ghostBtn: React.CSSProperties = {
+  background: 'var(--surface-2)',
+  border: '1px solid var(--border)',
+  color: 'var(--text-secondary)',
+  padding: '4px 9px',
+  borderRadius: '6px',
+  fontSize: '0.72rem',
+  fontWeight: 500,
+  cursor: 'pointer',
+};
+
 export default function GlobalTimerPopup() {
   const [mounted, setMounted] = useState(false);
   const [state, setState] = useState<UnifiedTimerState>(getTimerState());
+  const [collapsed, setCollapsed] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
     setState(getTimerState());
-    const unsub = subscribeTimerSync((nextState) => {
-      setState(nextState);
-    });
-    return unsub;
+    return subscribeTimerSync((next) => setState(next));
   }, []);
 
   useEffect(() => {
     if (!mounted || !state.isRunning || !state.endTime) return;
-
     const interval = setInterval(() => {
       const diff = Math.max(0, Math.round((state.endTime! - Date.now()) / 1000));
       if (diff <= 0) {
         clearInterval(interval);
-        const finished = setTimerState({
-          remainingSeconds: 0,
-          isRunning: false,
-          endTime: null,
-        });
+        const finished = setTimerState({ remainingSeconds: 0, isRunning: false, endTime: null });
         setState(finished);
-        handleAutoSave(
+        handleSave(
           finished.durationMinutes,
           finished.taskName || `Hoàn thành ${TIMER_MODE_CONFIG[finished.mode].label}`
         );
@@ -51,114 +55,107 @@ export default function GlobalTimerPopup() {
         setState((prev) => ({ ...prev, remainingSeconds: diff }));
       }
     }, 500);
-
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, state.isRunning, state.endTime]);
 
-  const handleAutoSave = async (minutes: number, taskLabel: string) => {
+  const handleSave = async (minutes: number, label: string) => {
     setIsSaving(true);
     try {
       const fd = new FormData();
       fd.set('duration', String(minutes));
-      fd.set('taskName', taskLabel || 'Phiên Tập Trung');
+      fd.set('taskName', label || 'Phiên tập trung');
       await logDeepWorkAction(fd);
-      setToastMsg(`🎉 Đã lưu ${minutes}p Deep Work!`);
+      setToastMsg(`Đã lưu ${minutes} phút tập trung`);
       setTimeout(() => setToastMsg(null), 4000);
     } catch {
-      // ignore error
+      // ignore
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Chỉ hiện cửa sổ vuông thu nhỏ khi người dùng chủ động bật (showMiniPopup === true)
   if (!mounted || !state.showMiniPopup) return null;
 
-  const totalSecs = state.durationMinutes * 60;
-  const elapsedSecs = Math.max(0, totalSecs - state.remainingSeconds);
-  const progressPct = totalSecs > 0 ? Math.min(100, Math.round((elapsedSecs / totalSecs) * 100)) : 0;
-  const activeConfig = TIMER_MODE_CONFIG[state.mode];
-  const isModifiedOrRunning = state.isRunning || state.remainingSeconds < totalSecs;
+  const total = state.durationMinutes * 60;
+  const elapsed = Math.max(0, total - state.remainingSeconds);
+  const pct = total > 0 ? Math.min(100, (elapsed / total) * 100) : 0;
+  const cfg = TIMER_MODE_CONFIG[state.mode];
 
-  const radius = 34;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progressPct / 100) * circumference;
+  const shell: React.CSSProperties = {
+    position: 'fixed',
+    bottom: '24px',
+    left: '24px',
+    zIndex: 9998,
+    background: 'var(--surface)',
+    border: `1px solid ${state.isRunning ? cfg.color : 'var(--border-strong)'}`,
+    borderRadius: '12px',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
+    userSelect: 'none',
+  };
 
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        bottom: '24px',
-        left: '24px',
-        zIndex: 9998,
-        width: '215px',
-        borderRadius: '20px',
-        background: 'rgba(15, 16, 22, 0.95)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        border: `1px solid ${state.isRunning ? activeConfig.color : 'rgba(255,255,255,0.14)'}`,
-        boxShadow: state.isRunning
-          ? `0 12px 36px rgba(0,0,0,0.6), 0 0 20px ${activeConfig.color}33`
-          : '0 12px 32px rgba(0,0,0,0.55)',
-        padding: '14px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
-        userSelect: 'none',
-      }}
-    >
-      {/* Top Header of Square Widget */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span
+  /* ---- Collapsed: compact pill with text ---- */
+  if (collapsed) {
+    return (
+      <div
+        style={{
+          ...shell,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          padding: '8px 10px 8px 14px',
+        }}
+      >
+        <div>
+          <div
             style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: state.isRunning ? '#10b981' : activeConfig.color,
-              boxShadow: state.isRunning ? '0 0 8px #10b981' : 'none',
-            }}
-          />
-          <span
-            style={{
-              fontSize: '0.72rem',
+              fontFamily: 'ui-monospace, monospace',
               fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              color: 'var(--text-secondary)',
+              fontSize: '1rem',
+              color: 'var(--text-primary)',
+              lineHeight: 1.1,
             }}
           >
-            {activeConfig.label}
-          </span>
+            {formatTimerMMSS(state.remainingSeconds)}
+          </div>
+          <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>{cfg.label}</div>
         </div>
         <button
-          onClick={() => setTimerState({ showMiniPopup: false })}
-          title="Đóng cửa sổ thu nhỏ"
-          style={{
-            background: 'rgba(239, 68, 68, 0.14)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            color: '#fca5a5',
-            padding: '2px 7px',
-            borderRadius: '6px',
-            fontSize: '0.7rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
+          onClick={() => (state.isRunning ? pauseUnifiedTimer() : startUnifiedTimer())}
+          style={{ ...ghostBtn, color: 'var(--text-primary)' }}
         >
-          Đóng ✕
+          {state.isRunning ? 'Tạm dừng' : 'Chạy'}
+        </button>
+        <button onClick={() => setCollapsed(false)} style={ghostBtn}>
+          Mở rộng
         </button>
       </div>
+    );
+  }
 
-      {/* Mode Quick Tabs */}
+  /* ---- Expanded ---- */
+  return (
+    <div style={{ ...shell, width: '236px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)' }}>{cfg.label}</span>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          <button onClick={() => setCollapsed(true)} style={ghostBtn}>
+            Thu nhỏ
+          </button>
+          <button onClick={() => setTimerState({ showMiniPopup: false })} style={ghostBtn}>
+            Đóng
+          </button>
+        </div>
+      </div>
+
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '4px',
-          background: 'rgba(255,255,255,0.04)',
+          background: 'var(--surface-2)',
           padding: '3px',
-          borderRadius: '10px',
+          borderRadius: '8px',
         }}
       >
         {(['pomodoro', 'deepwork', 'hyperfocus'] as TimerMode[]).map((m) => {
@@ -168,177 +165,118 @@ export default function GlobalTimerPopup() {
               key={m}
               onClick={() => resetUnifiedTimer(m)}
               style={{
-                padding: '4px 2px',
-                fontSize: '0.65rem',
-                fontWeight: active ? 700 : 500,
-                borderRadius: '7px',
+                padding: '5px 2px',
+                fontSize: '0.72rem',
+                fontWeight: active ? 600 : 500,
+                borderRadius: '6px',
                 border: 'none',
                 cursor: 'pointer',
-                background: active ? TIMER_MODE_CONFIG[m].color : 'transparent',
-                color: active ? '#fff' : 'var(--text-secondary)',
-                transition: 'all 0.15s ease',
+                background: active ? 'var(--surface-3)' : 'transparent',
+                color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
               }}
             >
-              {TIMER_MODE_CONFIG[m].minutes}p
+              {TIMER_MODE_CONFIG[m].minutes} phút
             </button>
           );
         })}
       </div>
 
-      {/* Center Circular Countdown */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          padding: '4px 0',
-        }}
-      >
-        <svg width="84" height="84" style={{ transform: 'rotate(-90deg)' }}>
-          <circle
-            cx="42"
-            cy="42"
-            r={radius}
-            fill="transparent"
-            stroke="rgba(255,255,255,0.08)"
-            strokeWidth="5"
-          />
-          <circle
-            cx="42"
-            cy="42"
-            r={radius}
-            fill="transparent"
-            stroke={activeConfig.color}
-            strokeWidth="5"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
-            style={{ transition: 'stroke-dashoffset 0.4s ease' }}
-          />
-        </svg>
-        <div style={{ position: 'absolute', textAlign: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div
+          style={{
+            fontFamily: 'ui-monospace, monospace',
+            fontSize: '2.4rem',
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: state.isRunning ? cfg.color : 'var(--text-primary)',
+            lineHeight: 1.1,
+          }}
+        >
+          {formatTimerMMSS(state.remainingSeconds)}
+        </div>
+        <div style={{ height: '3px', background: 'var(--surface-3)', borderRadius: '2px', margin: '10px 0 6px' }}>
           <div
             style={{
-              fontSize: '1.15rem',
-              fontWeight: 800,
-              fontFamily: 'monospace',
-              color: '#fff',
-              letterSpacing: '-0.5px',
+              width: `${pct}%`,
+              height: '100%',
+              background: cfg.color,
+              borderRadius: '2px',
+              transition: 'width 0.4s ease',
             }}
-          >
-            {formatTimerMMSS(state.remainingSeconds)}
-          </div>
-          <div style={{ fontSize: '0.62rem', color: state.isRunning ? '#10b981' : 'var(--text-secondary)' }}>
-            {state.isRunning ? 'Đang chạy' : 'Sẵn sàng'}
-          </div>
+          />
+        </div>
+        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+          {state.isRunning ? 'Đang chạy' : 'Sẵn sàng'}
         </div>
       </div>
 
-      {/* Task Name Input */}
       <input
         type="text"
         value={state.taskName}
         onChange={(e) => setTimerState({ taskName: e.target.value })}
-        placeholder="Đang tập trung việc gì?..."
-        style={{
-          width: '100%',
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '8px',
-          padding: '5px 8px',
-          fontSize: '0.73rem',
-          color: '#fff',
-          outline: 'none',
-          boxSizing: 'border-box',
-        }}
+        placeholder="Đang tập trung vào việc gì?"
+        style={{ width: '100%', padding: '7px 10px', fontSize: '0.78rem' }}
       />
 
       {toastMsg && (
-        <div style={{ fontSize: '0.7rem', color: '#10b981', textAlign: 'center', fontWeight: 600 }}>
-          {toastMsg}
-        </div>
+        <div style={{ fontSize: '0.74rem', color: 'var(--success-color)', textAlign: 'center' }}>{toastMsg}</div>
       )}
 
-      {/* Control Buttons */}
       <div style={{ display: 'flex', gap: '6px' }}>
         {!state.isRunning ? (
           <button
             onClick={() => startUnifiedTimer()}
             style={{
               flex: 1,
-              padding: '7px 10px',
-              borderRadius: '9px',
+              padding: '8px',
+              borderRadius: '8px',
               border: 'none',
-              background: activeConfig.color,
+              background: 'var(--accent-color)',
               color: '#fff',
-              fontWeight: 700,
-              fontSize: '0.78rem',
+              fontWeight: 600,
+              fontSize: '0.8rem',
               cursor: 'pointer',
             }}
           >
-            ▶ Chạy
+            Bắt đầu
           </button>
         ) : (
           <button
             onClick={() => pauseUnifiedTimer()}
             style={{
               flex: 1,
-              padding: '7px 10px',
-              borderRadius: '9px',
-              border: '1px solid rgba(245, 158, 11, 0.5)',
-              background: 'rgba(245, 158, 11, 0.15)',
-              color: '#fbbf24',
-              fontWeight: 700,
-              fontSize: '0.78rem',
+              padding: '8px',
+              borderRadius: '8px',
+              border: '1px solid var(--border-strong)',
+              background: 'var(--surface-2)',
+              color: 'var(--text-primary)',
+              fontWeight: 600,
+              fontSize: '0.8rem',
               cursor: 'pointer',
             }}
           >
-            ⏸ Tạm dừng
+            Tạm dừng
           </button>
         )}
-
-        <button
-          onClick={() => resetUnifiedTimer()}
-          title="Đặt lại đồng hồ"
-          style={{
-            padding: '7px 9px',
-            borderRadius: '9px',
-            border: '1px solid rgba(255,255,255,0.1)',
-            background: 'rgba(255,255,255,0.05)',
-            color: 'var(--text-secondary)',
-            fontSize: '0.78rem',
-            cursor: 'pointer',
-          }}
-        >
-          ↺
+        <button onClick={() => resetUnifiedTimer()} style={{ ...ghostBtn, padding: '8px 12px', fontSize: '0.78rem' }}>
+          Đặt lại
         </button>
-
-        {isModifiedOrRunning && elapsedSecs >= 60 && (
-          <button
-            disabled={isSaving}
-            onClick={async () => {
-              const mins = Math.max(1, Math.round(elapsedSecs / 60));
-              pauseUnifiedTimer();
-              await handleAutoSave(mins, state.taskName || `Phiên ${activeConfig.label}`);
-              resetUnifiedTimer();
-            }}
-            title="Lưu thời gian đã tập trung"
-            style={{
-              padding: '7px 9px',
-              borderRadius: '9px',
-              border: '1px solid rgba(16, 185, 129, 0.4)',
-              background: 'rgba(16, 185, 129, 0.15)',
-              color: '#10b981',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            ✓
-          </button>
-        )}
       </div>
+
+      {elapsed >= 60 && (
+        <button
+          disabled={isSaving}
+          onClick={async () => {
+            const mins = Math.max(1, Math.round(elapsed / 60));
+            pauseUnifiedTimer();
+            await handleSave(mins, state.taskName || `Phiên ${cfg.label}`);
+            resetUnifiedTimer();
+          }}
+          style={{ ...ghostBtn, padding: '7px', fontSize: '0.76rem', color: 'var(--success-color)' }}
+        >
+          Lưu {Math.max(1, Math.round(elapsed / 60))} phút đã tập trung
+        </button>
+      )}
     </div>
   );
 }

@@ -90,7 +90,7 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
               cursor: 'pointer',
             }}
           >
-            {state.showMiniPopup ? '✕ Tắt Pop-up thu nhỏ' : '❐ Thu nhỏ thành Pop-up'}
+            {state.showMiniPopup ? 'Tắt Pop-up thu nhỏ' : 'Thu nhỏ thành Pop-up'}
           </button>
         </div>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '20px' }}>
@@ -137,7 +137,7 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
           {mounted ? formatTimerMMSS(state.remainingSeconds) : '25:00'}
         </div>
         <div style={{ fontSize: '0.9rem', color: state.isRunning ? '#10b981' : 'var(--text-secondary)', marginBottom: '20px', fontWeight: 600 }}>
-          {state.isRunning ? '🔥 Đang tập trung cao độ (Đã bật Pop-up khi chuyển tab)' : 'Sẵn sàng'}
+          {state.isRunning ? 'Đang tập trung cao độ (Đã bật Pop-up khi chuyển tab)' : 'Sẵn sàng'}
         </div>
 
         {/* Task Input */}
@@ -173,11 +173,11 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
               fontWeight: 700,
             }}
           >
-            {state.isRunning ? '⏸ Tạm dừng' : '▶ Bắt đầu'}
+            {state.isRunning ? 'Tạm dừng' : 'Bắt đầu'}
           </button>
 
           <button onClick={() => resetUnifiedTimer()} className="glass-button" style={{ padding: '12px 20px' }}>
-            ↺ Đặt lại
+            Đặt lại
           </button>
 
           {state.remainingSeconds < totalSeconds && (
@@ -193,7 +193,7 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
                 fontWeight: 700,
               }}
             >
-              ✓ Hoàn thành & Lưu ({elapsedMinutes}p)
+              Hoàn thành & Lưu ({elapsedMinutes}p)
             </button>
           )}
         </div>
@@ -201,7 +201,7 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
 
       {/* History Log */}
       <div className="glass-card">
-        <h3 style={{ fontSize: '1.15rem', marginBottom: '16px' }}>📜 Lịch sử Tập trung Gần đây</h3>
+        <h3 style={{ fontSize: '1.15rem', marginBottom: '16px' }}>Lịch sử Tập trung Gần đây</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '380px', overflowY: 'auto' }}>
           {recentSessions.length === 0 ? (
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Chưa có phiên làm việc sâu nào được ghi nhận.</p>

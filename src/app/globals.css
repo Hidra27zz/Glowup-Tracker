@@ -1,16 +1,38 @@
+/* ==========================================================================
+   GlowUp OS design system
+   Neutral dark surfaces, one accent colour, thin borders, tight radii.
+   ========================================================================== */
 :root {
-  --bg-color: #0a0a0a;
-  --text-primary: #ededed;
-  --text-secondary: #a1a1aa;
-  --glass-bg: rgba(24, 24, 27, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --accent-color: #3b82f6;
-  --accent-hover: #2563eb;
-  --success-color: #10b981;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
+  --bg-color: #0c0c0e;
+  --surface: #141418;
+  --surface-2: #1b1b20;
+  --surface-3: #232329;
+  --border: #2a2a31;
+  --border-strong: #3a3a43;
+
+  --text-primary: #ececf0;
+  --text-secondary: #9a9aa6;
+  --text-muted: #6b6b76;
+
+  --accent-color: #6366f1;
+  --accent-primary: #6366f1;
+  --accent-hover: #5558e6;
+  --accent-soft: rgba(99, 102, 241, 0.14);
+
+  --success-color: #34d399;
+  --warning-color: #fbbf24;
+  --danger-color: #f87171;
+
+  /* legacy aliases so older components keep working */
+  --glass-bg: var(--surface);
+  --glass-border: var(--border);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --nav-height: 70px;
+  --nav-height: 60px;
 }
 
 * {
@@ -19,10 +41,16 @@
   padding: 0;
 }
 
+html {
+  color-scheme: dark;
+}
+
 body {
   background-color: var(--bg-color);
   color: var(--text-primary);
   font-family: var(--font-family);
+  font-size: 15px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
@@ -30,21 +58,17 @@ body {
   flex-direction: column;
 }
 
-/* Glassmorphism Utilities */
-.glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+::selection {
+  background: var(--accent-soft);
 }
 
-.glass-panel:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+/* ---------- Layout ---------- */
+.main-content {
+  flex: 1;
+  padding: 32px 24px 64px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .glass-nav {
@@ -52,74 +76,144 @@ body {
   top: 0;
   z-index: 100;
   min-height: var(--nav-height);
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--glass-border);
+  background: rgba(12, 12, 14, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  padding: 16px 24px;
+  padding: 0 24px;
 }
 
-.main-content {
-  flex: 1;
-  padding: 40px 24px;
-  max-width: 1600px;
-  margin: 0 auto;
-  width: 100%;
+/* ---------- Surfaces ---------- */
+.glass-card,
+.glass-panel,
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: none;
 }
 
+.section-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+/* ---------- Typography ---------- */
 a {
-  color: var(--text-primary);
+  color: inherit;
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color 0.15s ease;
 }
 
-a:hover {
-  color: var(--accent-color);
-}
-
-/* Typography */
 h1, h2, h3, h4 {
   font-weight: 600;
-  margin-bottom: 16px;
-  line-height: 1.2;
+  margin-bottom: 8px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.5rem; }
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 0.95rem; }
 
 p {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   line-height: 1.6;
   color: var(--text-secondary);
 }
 
-/* Buttons */
-.btn {
+/* ---------- Controls ---------- */
+button {
+  font-family: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  transition: border-color 0.15s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.btn,
+.glass-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 20px;
-  border-radius: 8px;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
   font-weight: 500;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  outline: none;
-  font-size: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:hover,
+.glass-button:hover {
+  background: var(--surface-3);
+  border-color: var(--border-strong);
+}
+
+.btn:disabled,
+.glass-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .btn-primary {
-  background-color: var(--accent-color);
+  background: var(--accent-color);
+  border-color: var(--accent-color);
   color: #fff;
 }
 
 .btn-primary:hover {
-  background-color: var(--accent-hover);
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
+/* ---------- Scrollbars ---------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* ---------- Animations ---------- */
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
@@ -134,7 +228,7 @@ p {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Fix transparent images in dark mode */
+/* ---------- Content helpers ---------- */
 .theory-content img {
   background-color: #f8fafc;
   padding: 4px;
@@ -143,7 +237,6 @@ p {
   height: auto;
 }
 
-/* Global Spotify Player */
 .spotify-player {
   position: fixed;
   bottom: 24px;
@@ -153,12 +246,14 @@ p {
   height: 152px;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.1);
-  opacity: 0.9;
-  transition: opacity 0.2s;
+  border: 1px solid var(--border);
 }
 
-.spotify-player:hover {
-  opacity: 1;
+@media (max-width: 720px) {
+  .main-content {
+    padding: 20px 14px 56px;
+  }
+  .glass-nav {
+    padding: 0 14px;
+  }
 }

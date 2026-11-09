@@ -491,12 +491,12 @@ export default function NutritionHub({ pantryItems }: Props) {
                             </span>
                             {recipe.matchCount > 0 && (
                               <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', background: 'rgba(16,185,129,0.18)', color: '#34d399' }}>
-                                ✓ Có sẵn {recipe.matchedItems.join(', ')}
+                                Có sẵn {recipe.matchedItems.join(', ')}
                               </span>
                             )}
                             {recipe.usesExpiring && (
                               <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.2)', color: '#fbbf24' }}>
-                                🔥 Giải cứu đồ sắp hết hạn
+                                Giải cứu đồ sắp hết hạn
                               </span>
                             )}
                           </div>

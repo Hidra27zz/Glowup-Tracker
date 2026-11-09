@@ -3,10 +3,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 const PRESET_PLAYLISTS = [
-  { name: '🎧 Lofi Hip Hop Radio', url: 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1', type: 'youtube' },
-  { name: '🧠 Brain Food (Spotify)', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWXLeA8Omikj7?utm_source=generator&theme=0', type: 'spotify' },
-  { name: '🎹 Deep Focus (Spotify)', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ?utm_source=generator&theme=0', type: 'spotify' },
-  { name: '🌌 Ambient Synthwave', url: 'https://www.youtube.com/embed/4xDzrJKXOOY?autoplay=1', type: 'youtube' },
+  { name: 'Lofi Hip Hop Radio', url: 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1', type: 'youtube' },
+  { name: 'Brain Food (Spotify)', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWXLeA8Omikj7?utm_source=generator&theme=0', type: 'spotify' },
+  { name: 'Deep Focus (Spotify)', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ?utm_source=generator&theme=0', type: 'spotify' },
+  { name: 'Ambient Synthwave', url: 'https://www.youtube.com/embed/4xDzrJKXOOY?autoplay=1', type: 'youtube' },
 ];
 
 export default function DraggablePlayer() {
@@ -151,7 +151,7 @@ export default function DraggablePlayer() {
       type = 'spotify';
     }
 
-    setCurrentTrack({ name: '🎵 Kênh Tùy Chỉnh', url: embedUrl, type });
+    setCurrentTrack({ name: 'Kênh Tùy Chỉnh', url: embedUrl, type });
     setHasActivatedEmbed(true);
     setCustomInput('');
   };
@@ -171,14 +171,11 @@ export default function DraggablePlayer() {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            background: 'rgba(15, 16, 22, 0.94)',
-            backdropFilter: 'blur(18px)',
-            border: `1px solid ${isAudioActive ? 'rgba(139, 92, 246, 0.6)' : 'rgba(255,255,255,0.12)'}`,
-            borderRadius: '16px',
+            background: 'var(--surface)',
+            border: `1px solid ${isAudioActive ? 'var(--accent-color)' : 'var(--border-strong)'}`,
+            borderRadius: '12px',
             padding: '10px 14px',
-            boxShadow: isAudioActive
-              ? '0 8px 28px rgba(139, 92, 246, 0.35)'
-              : '0 8px 24px rgba(0,0,0,0.45)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
           }}
         >
           <button
@@ -199,8 +196,7 @@ export default function DraggablePlayer() {
               padding: 0,
             }}
           >
-            <span style={{ fontSize: '1.1rem' }}>{isAudioActive ? '🔊' : '🎵'}</span>
-            <span>{isAudioActive ? 'Nhạc đang phát (Xuyên Tab)' : 'Trạm Âm Thanh Focus'}</span>
+                        <span>{isAudioActive ? 'Đang phát nhạc' : 'Nhạc tập trung'}</span>
           </button>
 
           {synthPlaying && (
@@ -237,10 +233,9 @@ export default function DraggablePlayer() {
           overflow: 'hidden',
           zIndex: 9999,
           padding: isMinimized ? '0' : '16px',
-          boxShadow: '0 16px 40px rgba(0, 0, 0, 0.65)',
-          border: '1px solid rgba(139, 92, 246, 0.4)',
-          background: 'rgba(14, 15, 22, 0.95)',
-          backdropFilter: 'blur(20px)',
+          boxShadow: '0 16px 40px rgba(0, 0, 0, 0.6)',
+          border: '1px solid var(--border-strong)',
+          background: 'var(--surface)',
           transition: 'opacity 0.2s ease',
         }}
       >
@@ -259,20 +254,19 @@ export default function DraggablePlayer() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>🎵</span>
-            <div>
+                        <div>
               <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                Focus Audio (Xuyên Tab)
+                Nhạc tập trung
               </div>
               <div style={{ fontSize: '0.68rem', color: '#10b981' }}>
-                Thu gọn hoặc chuyển trang nhạc vẫn phát
+                Thu nhỏ hoặc chuyển trang, nhạc vẫn phát
               </div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button
               onClick={() => setIsMinimized(true)}
-              title="Thu gọn (Nhạc vẫn tiếp tục phát)"
+              title="Thu nhỏ (nhạc vẫn tiếp tục phát)"
               style={{
                 background: 'rgba(255,255,255,0.08)',
                 border: 'none',
@@ -284,7 +278,7 @@ export default function DraggablePlayer() {
                 fontWeight: 600,
               }}
             >
-              Thu gọn —
+              Thu nhỏ
             </button>
             <button
               onClick={() => {
@@ -304,7 +298,7 @@ export default function DraggablePlayer() {
                 fontWeight: 600,
               }}
             >
-              ✕
+              Tắt nhạc
             </button>
           </div>
         </div>
@@ -312,7 +306,7 @@ export default function DraggablePlayer() {
         {/* 1-Tap Instant Sound Generator (No YouTube ads / instant playback) */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 600 }}>
-            ⚡ Sóng Âm Tập Trung Tức Thì (Không quảng cáo):
+            Âm thanh tập trung (không quảng cáo)
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
             <button
@@ -332,7 +326,7 @@ export default function DraggablePlayer() {
                 cursor: 'pointer',
               }}
             >
-              {synthPlaying && synthMode === 'binaural' ? '⏸ Đang phát Alpha 14Hz' : '🧠 Sóng Alpha 14Hz'}
+              {synthPlaying && synthMode === 'binaural' ? 'Đang phát Alpha 14Hz' : 'Sóng Alpha 14Hz'}
             </button>
             <button
               onClick={() => (synthPlaying && synthMode === 'rain' ? stopSynth() : startSynth('rain'))}
@@ -349,7 +343,7 @@ export default function DraggablePlayer() {
                 cursor: 'pointer',
               }}
             >
-              {synthPlaying && synthMode === 'rain' ? '⏸ Đang phát Tiếng Mưa' : '🌧️ Tiếng Mưa Dịu'}
+              {synthPlaying && synthMode === 'rain' ? 'Đang phát Tiếng Mưa' : 'Tiếng Mưa Dịu'}
             </button>
           </div>
         </div>
@@ -379,7 +373,7 @@ export default function DraggablePlayer() {
         {/* Preset Selector */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
           <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-            📻 Kênh Lofi / Spotify:
+            Kênh Lofi / Spotify:
           </span>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
             {PRESET_PLAYLISTS.map((p, idx) => (

@@ -185,10 +185,10 @@ export default function InteractiveTasks({ tasks }: { tasks: any[] }) {
               disabled={isPending}
               style={{ padding: '10px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff', outline: 'none', fontWeight: 600 }}
             >
-              <option value="TASK">⚡ Công việc</option>
-              <option value="TIMETABLE">📚 Thời khóa biểu</option>
-              <option value="WORK_SCHEDULE">💼 Lịch làm việc</option>
-              <option value="APPOINTMENT">📅 Lịch hẹn</option>
+              <option value="TASK">Công việc</option>
+              <option value="TIMETABLE">Thời khóa biểu</option>
+              <option value="WORK_SCHEDULE">Lịch làm việc</option>
+              <option value="APPOINTMENT">Lịch hẹn</option>
             </select>
             <input
               name="title"
@@ -231,9 +231,9 @@ export default function InteractiveTasks({ tasks }: { tasks: any[] }) {
                 disabled={isPending}
                 style={{ width: '100%', padding: '8px 10px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff', outline: 'none', fontSize: '0.82rem' }}
               >
-                <option value="High">⚡ High</option>
-                <option value="Medium">🔋 Medium</option>
-                <option value="Low">🪫 Low</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
               </select>
             </div>
           </div>

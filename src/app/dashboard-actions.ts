@@ -327,7 +327,7 @@ export async function smartAutoLogAction(rawInput: string): Promise<{
       });
     }
     actionsTaken.push(
-      `🥗 Dinh dưỡng (${matchedFoods.join(', ')}): +${totalCals} kcal, +${totalProtein}g Protein, +${totalCarbs}g Carbs, +${totalFat}g Fat`
+      `Dinh dưỡng (${matchedFoods.join(', ')}): +${totalCals} kcal, +${totalProtein}g Protein, +${totalCarbs}g Carbs, +${totalFat}g Fat`
     );
   }
 
@@ -354,7 +354,7 @@ export async function smartAutoLogAction(rawInput: string): Promise<{
         },
       });
       actionsTaken.push(
-        `💳 Tài chính: Đã ghi ${isIncome ? 'Thu nhập' : 'Chi tiêu'} ${amountVnd.toLocaleString('vi-VN')}đ`
+        `Tài chính: Đã ghi ${isIncome ? 'Thu nhập' : 'Chi tiêu'} ${amountVnd.toLocaleString('vi-VN')}đ`
       );
     }
   }
@@ -365,14 +365,14 @@ export async function smartAutoLogAction(rawInput: string): Promise<{
   if (waterGlassesMatch) {
     const glasses = parseInt(waterGlassesMatch[1], 10);
     await hydrate(glasses);
-    actionsTaken.push(`💧 Nước uống: +${glasses} ly nước`);
+    actionsTaken.push(`Nước uống: +${glasses} ly nước`);
   } else if (waterMlMatch) {
     const glasses = Math.max(1, Math.round(parseInt(waterMlMatch[1], 10) / 250));
     await hydrate(glasses);
-    actionsTaken.push(`💧 Nước uống: +${glasses} ly (${waterMlMatch[1]}ml)`);
+    actionsTaken.push(`Nước uống: +${glasses} ly (${waterMlMatch[1]}ml)`);
   } else if (lower.includes('uống nước')) {
     await hydrate(1);
-    actionsTaken.push(`💧 Nước uống: +1 ly nước`);
+    actionsTaken.push(`Nước uống: +1 ly nước`);
   }
 
   // 4. Detect Weight (e.g., "cân nặng 54.5kg" or "nặng 60kg")
@@ -382,7 +382,7 @@ export async function smartAutoLogAction(rawInput: string): Promise<{
     const fd = new FormData();
     fd.set('weight', String(w));
     await quickAddWeight(fd);
-    actionsTaken.push(`⚖️ Cân nặng: Cập nhật ${w} kg`);
+    actionsTaken.push(`Cân nặng: Cập nhật ${w} kg`);
   }
 
   // 5. Detect Deep Work / Study / Workout duration (e.g., "học 45 phút", "tập gym 30 phút", "chạy bộ 20p")
@@ -398,7 +398,7 @@ export async function smartAutoLogAction(rawInput: string): Promise<{
           notes: input,
         },
       });
-      actionsTaken.push(`🏋️ Tập luyện: +${mins} phút (~${mins * 6} kcal đốt)`);
+      actionsTaken.push(`Tập luyện: +${mins} phút (~${mins * 6} kcal đốt)`);
     } else {
       await quickAddDeepWork(mins, input);
       actionsTaken.push(`⏱️ Tập trung (Deep Work): +${mins} phút`);
@@ -424,12 +424,12 @@ export async function smartAutoLogAction(rawInput: string): Promise<{
         deadline,
       },
     });
-    actionsTaken.push(`📅 Lịch trình: Đã tạo công việc/lịch hẹn "${input}"`);
+    actionsTaken.push(`Lịch trình: Đã tạo công việc/lịch hẹn "${input}"`);
   } else if (actionsTaken.length === 0) {
     await prisma.brainDump.create({
       data: { content: input },
     });
-    actionsTaken.push(`🧠 Ghi chú nhanh: Đã lưu vào Sổ tay Ký ức`);
+    actionsTaken.push(`Ghi chú nhanh: Đã lưu vào Sổ tay Ký ức`);
   }
 
   revalidatePath('/');

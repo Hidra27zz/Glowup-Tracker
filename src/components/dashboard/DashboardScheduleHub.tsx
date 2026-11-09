@@ -73,19 +73,19 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
             onClick={() => openAddWithCat('TIMETABLE')}
             style={{ background: 'rgba(168,85,247,0.18)', border: '1px solid rgba(168,85,247,0.4)', color: '#d8b4fe', padding: '8px 14px', borderRadius: '10px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            <Plus size={15} /> 📚 Thêm Thời khóa biểu
+            <Plus size={15} /> Thêm Thời khóa biểu
           </button>
           <button
             onClick={() => openAddWithCat('WORK_SCHEDULE')}
             style={{ background: 'rgba(16,185,129,0.18)', border: '1px solid rgba(16,185,129,0.4)', color: '#6ee7b7', padding: '8px 14px', borderRadius: '10px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            <Plus size={15} /> 💼 Thêm Lịch làm việc
+            <Plus size={15} /> Thêm Lịch làm việc
           </button>
           <button
             onClick={() => openAddWithCat('APPOINTMENT')}
             style={{ background: 'rgba(236,72,153,0.18)', border: '1px solid rgba(236,72,153,0.4)', color: '#f9a8d4', padding: '8px 14px', borderRadius: '10px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            <Plus size={15} /> 📅 Thêm Lịch hẹn
+            <Plus size={15} /> Thêm Lịch hẹn
           </button>
         </div>
       </div>
@@ -111,10 +111,10 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
               onChange={e => setDefaultCat(e.target.value)}
               style={{ padding: '10px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.12)', background: '#0f172a', color: '#fff', fontWeight: 700 }}
             >
-              <option value="TIMETABLE">📚 Thời khóa biểu</option>
-              <option value="WORK_SCHEDULE">💼 Lịch làm việc</option>
-              <option value="APPOINTMENT">📅 Lịch hẹn</option>
-              <option value="TASK">⚡ Công việc (Task)</option>
+              <option value="TIMETABLE">Thời khóa biểu</option>
+              <option value="WORK_SCHEDULE">Lịch làm việc</option>
+              <option value="APPOINTMENT">Lịch hẹn</option>
+              <option value="TASK">Công việc (Task)</option>
             </select>
             <input
               name="title"
@@ -157,9 +157,9 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
                 defaultValue="Medium"
                 style={{ width: '100%', padding: '9px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.12)', background: '#0f172a', color: '#fff' }}
               >
-                <option value="Low">🪫 Low</option>
-                <option value="Medium">🔋 Medium</option>
-                <option value="High">⚡ High</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
               </select>
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
@@ -185,9 +185,9 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
       {/* 3 BẢNG CHUYÊN BIỆT: THỜI KHÓA BIỂU | LỊCH LÀM VIỆC | LỊCH HẸN */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '16px' }}>
         {[
-          { title: '📚 Thời Khóa Biểu (Lịch Học)', accent: '#a855f7', items: timetableItems, emptyText: 'Chưa có lịch học nào.' },
-          { title: '💼 Lịch Làm Việc & Công Việc', accent: '#10b981', items: workItems, emptyText: 'Chưa có ca làm việc/task nào.' },
-          { title: '📅 Lịch Hẹn & Sự Kiện', accent: '#ec4899', items: appointmentItems, emptyText: 'Chưa có lịch hẹn nào.' },
+          { title: 'Thời Khóa Biểu (Lịch Học)', accent: '#a855f7', items: timetableItems, emptyText: 'Chưa có lịch học nào.' },
+          { title: 'Lịch Làm Việc & Công Việc', accent: '#10b981', items: workItems, emptyText: 'Chưa có ca làm việc/task nào.' },
+          { title: 'Lịch Hẹn & Sự Kiện', accent: '#ec4899', items: appointmentItems, emptyText: 'Chưa có lịch hẹn nào.' },
         ].map((col, idx) => (
           <div
             key={idx}
@@ -288,7 +288,7 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
               return (
                 <div key={sp.id} style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: '12px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.88rem' }}>🏃 {sp.name}</div>
+                    <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.88rem' }}>{sp.name}</div>
                     <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>
                       {new Date(sp.startDate).toLocaleDateString('vi-VN')} → {new Date(sp.endDate).toLocaleDateString('vi-VN')}
                     </div>

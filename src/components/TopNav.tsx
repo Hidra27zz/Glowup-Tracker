@@ -7,29 +7,21 @@ import {
   getTimerState,
   subscribeTimerSync,
   formatTimerMMSS,
-  TIMER_MODE_CONFIG,
   UnifiedTimerState,
   setTimerState,
 } from '@/lib/utils/timerStore';
 import { getSessionUserAction, SessionUser } from '@/app/auth/actions';
 
-interface NavItem {
-  href: string;
-  label: string;
-  viLabel: string;
-  icon: string;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { href: '/', label: 'Dashboard', viLabel: 'Tổng quan', icon: '⚡' },
-  { href: '/tasks', label: 'Tasks & Sprints', viLabel: 'Công việc & Lịch', icon: '🎯' },
-  { href: '/career', label: 'Career & Study', viLabel: 'Học tập & Sự nghiệp', icon: '🚀' },
-  { href: '/health', label: 'Health', viLabel: 'Sức khỏe', icon: '💪' },
-  { href: '/nutrition', label: 'Nutrition & Fridge', viLabel: 'Dinh dưỡng & Tủ lạnh', icon: '🥗' },
-  { href: '/finance', label: 'Finance', viLabel: 'Tài chính', icon: '💳' },
-  { href: '/mental', label: 'Mental', viLabel: 'Tinh thần', icon: '🧘' },
-  { href: '/crm', label: 'CRM', viLabel: 'Mối quan hệ', icon: '🤝' },
-  { href: '/memory', label: 'Memory', viLabel: 'Ký ức', icon: '🧠' },
+const NAV_ITEMS = [
+  { href: '/', label: 'Tổng quan' },
+  { href: '/tasks', label: 'Công việc' },
+  { href: '/career', label: 'Học tập' },
+  { href: '/health', label: 'Sức khỏe' },
+  { href: '/nutrition', label: 'Dinh dưỡng' },
+  { href: '/finance', label: 'Tài chính' },
+  { href: '/mental', label: 'Tinh thần' },
+  { href: '/crm', label: 'Quan hệ' },
+  { href: '/memory', label: 'Ghi chú' },
 ];
 
 export default function TopNav() {
@@ -55,229 +47,118 @@ export default function TopNav() {
 
   useEffect(() => {
     if (!timer?.isRunning || !timer.endTime) return;
-    const id = setInterval(() => {
-      setTimer(getTimerState());
-    }, 1000);
+    const id = setInterval(() => setTimer(getTimerState()), 1000);
     return () => clearInterval(id);
   }, [timer?.isRunning, timer?.endTime]);
 
-  const activeItem =
-    pathname.startsWith('/login')
-      ? { href: '/login', label: 'Account', viLabel: 'Tài khoản', icon: '🔐' }
-      : NAV_ITEMS.find((item) => (item.href === '/' ? pathname === '/' : pathname.startsWith(item.href))) ||
-        NAV_ITEMS[0];
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
   return (
-    <nav
-      className="glass-nav"
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        padding: '10px 24px',
-        background: 'rgba(10, 11, 16, 0.85)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-      }}
-    >
+    <nav className="glass-nav">
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
           width: '100%',
-          maxWidth: '1600px',
+          maxWidth: '1280px',
           margin: '0 auto',
-          gap: '14px',
-          flexWrap: 'wrap',
+          gap: '28px',
+          height: 'var(--nav-height)',
         }}
       >
-        {/* Brand + Current Active Location Indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <Link
-            href="/"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              textDecoration: 'none',
-            }}
-          >
-            <div
-              style={{
-                width: '34px',
-                height: '34px',
-                borderRadius: '10px',
-                background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.1rem',
-                boxShadow: '0 4px 14px rgba(139, 92, 246, 0.4)',
-              }}
-            >
-              ✨
-            </div>
-            <div>
-              <div
-                style={{
-                  fontSize: '1.05rem',
-                  fontWeight: 800,
-                  color: '#fff',
-                  letterSpacing: '-0.3px',
-                  lineHeight: 1.1,
-                }}
-              >
-                GlowUp OS
-              </div>
-              <div
-                style={{
-                  fontSize: '0.7rem',
-                  color: 'var(--accent-primary)',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                }}
-              >
-                <span>Đang ở:</span>
-                <span style={{ color: '#e2e8f0' }}>
-                  {activeItem.icon} {activeItem.viLabel}
-                </span>
-              </div>
-            </div>
-          </Link>
-        </div>
+        <Link
+          href="/"
+          style={{
+            fontSize: '1rem',
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            color: 'var(--text-primary)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          GlowUp<span style={{ color: 'var(--accent-color)' }}>.</span>
+        </Link>
 
-        {/* Navigation Pills */}
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            background: 'rgba(255, 255, 255, 0.03)',
-            padding: '5px',
-            borderRadius: '14px',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
+            alignItems: 'stretch',
+            gap: '2px',
+            height: '100%',
+            flex: 1,
             overflowX: 'auto',
-            maxWidth: '100%',
           }}
         >
           {NAV_ITEMS.map((item) => {
-            const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+            const active = isActive(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? 'page' : undefined}
                 style={{
                   position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '7px 13px',
-                  borderRadius: '10px',
-                  fontSize: '0.83rem',
-                  fontWeight: isActive ? 700 : 500,
-                  color: isActive ? '#ffffff' : 'var(--text-secondary)',
-                  background: isActive
-                    ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.28), rgba(59, 130, 246, 0.22))'
-                    : 'transparent',
-                  border: isActive
-                    ? '1px solid rgba(139, 92, 246, 0.5)'
-                    : '1px solid transparent',
-                  boxShadow: isActive ? '0 4px 12px rgba(139, 92, 246, 0.2)' : 'none',
-                  textDecoration: 'none',
+                  padding: '0 12px',
+                  fontSize: '0.875rem',
+                  fontWeight: active ? 600 : 500,
+                  color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
                   whiteSpace: 'nowrap',
-                  transition: 'all 0.2s ease',
+                  borderBottom: `2px solid ${active ? 'var(--accent-color)' : 'transparent'}`,
+                  marginBottom: '-1px',
+                  transition: 'color 0.15s ease',
                 }}
               >
-                <span style={{ fontSize: '0.95rem' }}>{item.icon}</span>
-                <span>{item.viLabel}</span>
-                {isActive && (
-                  <span
-                    style={{
-                      width: '6px',
-                      height: '6px',
-                      borderRadius: '50%',
-                      background: '#a855f7',
-                      boxShadow: '0 0 8px #a855f7',
-                      marginLeft: '2px',
-                    }}
-                  />
-                )}
+                {item.label}
               </Link>
             );
           })}
         </div>
 
-        {/* Right Controls: Live Timer + Login/Register Account Pill */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {timer && (
+          {timer && (timer.isRunning || timer.remainingSeconds < timer.durationMinutes * 60) && (
             <button
               onClick={() => setTimerState({ showMiniPopup: !timer.showMiniPopup })}
-              title="Nhấn để bật/tắt đồng hồ vuông thu nhỏ (Mini Pop-up)"
+              title="Bật/tắt đồng hồ thu nhỏ"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '7px 12px',
-                borderRadius: '12px',
-                background: timer.isRunning
-                  ? 'rgba(16, 185, 129, 0.14)'
-                  : 'rgba(255, 255, 255, 0.04)',
-                border: `1px solid ${
-                  timer.isRunning ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255, 255, 255, 0.08)'
-                }`,
-                color: '#fff',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                background: 'var(--surface-2)',
+                border: `1px solid ${timer.isRunning ? 'var(--success-color)' : 'var(--border)'}`,
+                color: 'var(--text-primary)',
                 cursor: 'pointer',
                 fontSize: '0.8rem',
-                fontWeight: 700,
+                fontWeight: 600,
                 whiteSpace: 'nowrap',
               }}
             >
-              <span
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  background: timer.isRunning
-                    ? '#10b981'
-                    : TIMER_MODE_CONFIG[timer.mode].color,
-                  boxShadow: timer.isRunning ? '0 0 8px #10b981' : 'none',
-                }}
-              />
-              <span style={{ fontFamily: 'monospace', fontSize: '0.88rem' }}>
+              <span style={{ fontFamily: 'ui-monospace, monospace' }}>
                 {formatTimerMMSS(timer.remainingSeconds)}
+              </span>
+              <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>
+                {timer.isRunning ? 'Đang chạy' : 'Tạm dừng'}
               </span>
             </button>
           )}
 
-          {/* Account / Login & Register Button */}
           <Link
             href="/login"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '7px',
-              padding: '7px 13px',
-              borderRadius: '12px',
-              background: currentUser
-                ? 'rgba(139, 92, 246, 0.16)'
-                : 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
-              border: currentUser
-                ? '1px solid rgba(139, 92, 246, 0.45)'
-                : '1px solid transparent',
-              color: '#fff',
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              textDecoration: 'none',
+              padding: '7px 14px',
+              borderRadius: '8px',
+              fontSize: '0.825rem',
+              fontWeight: 600,
               whiteSpace: 'nowrap',
-              boxShadow: currentUser ? 'none' : '0 4px 12px rgba(139, 92, 246, 0.3)',
+              background: currentUser ? 'var(--surface-2)' : 'var(--accent-color)',
+              border: `1px solid ${currentUser ? 'var(--border)' : 'var(--accent-color)'}`,
+              color: currentUser ? 'var(--text-primary)' : '#fff',
             }}
           >
-            <span>{currentUser ? '👤' : '🔐'}</span>
-            <span>{currentUser ? currentUser.name : 'Đăng nhập / Đăng ký'}</span>
+            {currentUser ? currentUser.name : 'Đăng nhập'}
           </Link>
         </div>
       </div>

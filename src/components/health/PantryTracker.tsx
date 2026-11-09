@@ -326,7 +326,7 @@ export default function PantryTracker({ items }: Props) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34d399' }}>
-                  ✓ Đã nhận diện {parsedBillItems.length} nguyên liệu từ Bill:
+                  Đã nhận diện {parsedBillItems.length} nguyên liệu từ Bill:
                 </span>
                 {totalBillPrice > 0 && (
                   <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#fbbf24' }}>
@@ -492,7 +492,7 @@ export default function PantryTracker({ items }: Props) {
                       {isExpired
                         ? `Đã quá hạn ${Math.abs(days!)} ngày - Cần kiểm tra/loại bỏ`
                         : isExpiringSoon
-                        ? `⚠️ Sắp hỏng (còn ${days} ngày) - Ưu tiên chế biến ngay!`
+                        ? `Sắp hỏng (còn ${days} ngày) - Ưu tiên chế biến ngay!`
                         : `Tươi ngon (còn ${days} ngày)`}
                     </div>
                   )}

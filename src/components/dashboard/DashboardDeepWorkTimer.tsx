@@ -81,7 +81,7 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
               cursor: 'pointer',
             }}
           >
-            {state.showMiniPopup ? '✕ Tắt Pop-up thu nhỏ' : '❐ Thu nhỏ khi cần'}
+            {state.showMiniPopup ? 'Tắt Pop-up thu nhỏ' : 'Thu nhỏ khi cần'}
           </button>
         </div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
@@ -141,7 +141,7 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
           {mounted ? formatTimerMMSS(state.remainingSeconds) : '25:00'}
         </div>
         <div style={{ fontSize: '0.78rem', color: state.isRunning ? '#10b981' : 'var(--text-secondary)', marginBottom: '12px', fontWeight: 600 }}>
-          {state.isRunning ? '🔥 Đang đồng bộ trên toàn hệ thống...' : 'Sẵn sàng vào trạng thái dòng chảy'}
+          {state.isRunning ? 'Đang đồng bộ trên toàn hệ thống...' : 'Sẵn sàng vào trạng thái dòng chảy'}
         </div>
 
         <input
@@ -169,7 +169,7 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
               className="glass-button"
               style={{ flex: 1, justifyContent: 'center', background: activeConfig.color, color: '#fff', border: 'none', fontWeight: 700 }}
             >
-              ▶ Bắt đầu
+              Bắt đầu
             </button>
           ) : (
             <button
@@ -177,7 +177,7 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
               className="glass-button"
               style={{ flex: 1, justifyContent: 'center', background: 'rgba(245, 158, 11, 0.2)', borderColor: '#f59e0b', color: '#fbbf24', fontWeight: 700 }}
             >
-              ⏸ Tạm dừng
+              Tạm dừng
             </button>
           )}
           <button
@@ -185,7 +185,7 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
             className="glass-button"
             style={{ padding: '8px 12px', fontSize: '0.82rem' }}
           >
-            ↺ Reset
+            Reset
           </button>
           {state.remainingSeconds < totalSeconds && (
             <button
@@ -198,7 +198,7 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
               className="glass-button"
               style={{ background: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981', fontSize: '0.82rem', fontWeight: 700 }}
             >
-              ✓ Lưu ({elapsedMinutes}p)
+              Lưu ({elapsedMinutes}p)
             </button>
           )}
         </div>

@@ -644,12 +644,12 @@ export default function CurriculumVault() {
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
           {[
-            { id: 'blank', label: '✨ Tự Tạo Môn Học Từ Đầu (Mọi Ngành)', color: '#10b981' },
-            { id: 'business', label: '📊 Kinh Tế, Quản Trị & Marketing', color: '#f59e0b' },
-            { id: 'languages', label: '🌍 Ngoại Ngữ & IELTS', color: '#3b82f6' },
-            { id: 'design', label: '🎨 Thiết Kế & Sáng Tạo', color: '#ec4899' },
-            { id: 'general', label: '📚 Phương Pháp Học Tập Chung', color: '#8b5cf6' },
-            { id: 'it', label: '💻 Công Nghệ Thông Tin', color: '#38bdf8' },
+            { id: 'blank', label: 'Tự Tạo Môn Học Từ Đầu (Mọi Ngành)', color: '#10b981' },
+            { id: 'business', label: 'Kinh Tế, Quản Trị & Marketing', color: '#f59e0b' },
+            { id: 'languages', label: 'Ngoại Ngữ & IELTS', color: '#3b82f6' },
+            { id: 'design', label: 'Thiết Kế & Sáng Tạo', color: '#ec4899' },
+            { id: 'general', label: 'Phương Pháp Học Tập Chung', color: '#8b5cf6' },
+            { id: 'it', label: 'Công Nghệ Thông Tin', color: '#38bdf8' },
           ].map(item => (
             <button
               key={item.id}
@@ -679,17 +679,17 @@ export default function CurriculumVault() {
       {/* ── MULTI-DISCIPLINE SWITCHER BAR (KHÔNG BỊ CÁ NHÂN HÓA CỨNG THEO 1 NGÀNH) ── */}
       <div style={{ background: 'rgba(15,23,42,0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#cbd5e1' }}>
-          <strong style={{ color: '#38bdf8' }}>🎓 Chuyển đổi Khung Chương Trình theo Ngành:</strong>
+          <strong style={{ color: '#38bdf8' }}>Chuyển đổi Khung Chương Trình theo Ngành:</strong>
           <span style={{ color: '#64748b' }}>(Phù hợp cho mọi ngành học, hoặc tự tạo từ đầu)</span>
         </div>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {[
-            { id: 'blank', label: '🧹 Tự tạo riêng (Xóa mẫu cũ)' },
-            { id: 'business', label: '📊 Kinh tế & Marketing' },
-            { id: 'languages', label: '🌍 Ngoại ngữ & IELTS' },
-            { id: 'design', label: '🎨 Thiết kế & Sáng tạo' },
-            { id: 'general', label: '📚 Kỹ năng chung' },
-            { id: 'it', label: '💻 CNTT' },
+            { id: 'blank', label: 'Tự tạo riêng (Xóa mẫu cũ)' },
+            { id: 'business', label: 'Kinh tế & Marketing' },
+            { id: 'languages', label: 'Ngoại ngữ & IELTS' },
+            { id: 'design', label: 'Thiết kế & Sáng tạo' },
+            { id: 'general', label: 'Kỹ năng chung' },
+            { id: 'it', label: 'CNTT' },
           ].map(p => (
             <button
               key={p.id}
@@ -813,7 +813,7 @@ export default function CurriculumVault() {
                     title="Xóa môn học không dùng tới"
                     style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px 4px', fontSize: '0.75rem' }}
                   >
-                    ✕
+                    
                   </button>
                 </div>
               ))}

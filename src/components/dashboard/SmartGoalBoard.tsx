@@ -23,7 +23,7 @@ export interface SmartGoalItem {
 
 const GOAL_TEMPLATES = [
   {
-    label: '💪 Giảm mỡ / Body Recomp',
+    label: 'Giảm mỡ / Body Recomp',
     title: 'Đạt vóc dáng Fit & Giảm mỡ cơ thể',
     category: 'Health',
     specific: 'Giảm mỡ thừa vùng bụng và tăng độ săn chắc cơ thể thông qua thâm hụt calo và tập kháng lực.',
@@ -36,7 +36,7 @@ const GOAL_TEMPLATES = [
     days: 60,
   },
   {
-    label: '🎓 Chinh phục Chứng chỉ / Môn học',
+    label: 'Chinh phục Chứng chỉ / Môn học',
     title: 'Hoàn thành khóa học chuyên môn & Đạt điểm A',
     category: 'Study',
     specific: 'Nắm vững toàn bộ chương trình học và hoàn thành các bài tập thực hành + đề thi thử.',
@@ -49,7 +49,7 @@ const GOAL_TEMPLATES = [
     days: 30,
   },
   {
-    label: '💰 Quỹ Dự Phòng Tài Chính',
+    label: 'Quỹ Dự Phòng Tài Chính',
     title: 'Xây dựng Quỹ Tiết Kiệm Cá Nhân',
     category: 'Finance',
     specific: 'Tích lũy quỹ dự phòng khẩn cấp bằng cách tối ưu chi tiêu đi chợ và cắt giảm mua sắm bốc đồng.',
@@ -210,11 +210,11 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
                 onChange={e => setFormState({ ...formState, category: e.target.value })}
                 style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.12)', background: '#0f172a', color: '#fff', outline: 'none' }}
               >
-                <option value="Health">💪 Sức khỏe & Thể chất</option>
-                <option value="Study">🎓 Học tập & Kỹ năng</option>
-                <option value="Career">🚀 Sự nghiệp & Công việc</option>
-                <option value="Finance">💰 Tài chính & Tiết kiệm</option>
-                <option value="Personal">🌟 Phát triển cá nhân</option>
+                <option value="Health">Sức khỏe & Thể chất</option>
+                <option value="Study">Học tập & Kỹ năng</option>
+                <option value="Career">Sự nghiệp & Công việc</option>
+                <option value="Finance">Tài chính & Tiết kiệm</option>
+                <option value="Personal">Phát triển cá nhân</option>
               </select>
             </div>
           </div>

@@ -259,7 +259,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
 
             {sprintObj && (
               <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.15)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)' }}>
-                🏃 {sprintObj.name}
+                {sprintObj.name}
               </span>
             )}
           </div>
@@ -324,7 +324,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                   cursor: 'pointer',
                 }}
               >
-                📝 Giải trình / Gia hạn
+                Giải trình / Gia hạn
               </button>
             )}
           </div>
@@ -428,12 +428,12 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', fontSize: '0.78rem' }}>
           {overdueTasks.length > 0 && (
             <span style={{ background: 'rgba(239,68,68,0.18)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.4)', padding: '3px 10px', borderRadius: '20px', fontWeight: 700 }}>
-              🚨 {overdueTasks.length} mục trễ hạn cần báo cáo
+              {overdueTasks.length} mục trễ hạn cần báo cáo
             </span>
           )}
           {warningTasks.length > 0 && (
             <span style={{ background: 'rgba(245,158,11,0.18)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.4)', padding: '3px 10px', borderRadius: '20px', fontWeight: 700 }}>
-              ⚠️ {warningTasks.length} mục sắp tới hạn
+              {warningTasks.length} mục sắp tới hạn
             </span>
           )}
         </div>
@@ -553,10 +553,10 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                       defaultValue="TASK"
                       style={{ padding: '11px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff', outline: 'none', fontWeight: 600 }}
                     >
-                      <option value="TASK">⚡ Công việc (Task)</option>
-                      <option value="TIMETABLE">📚 Thời khóa biểu (Lịch học)</option>
-                      <option value="WORK_SCHEDULE">💼 Lịch làm việc (Ca làm/Họp)</option>
-                      <option value="APPOINTMENT">📅 Lịch hẹn (Sự kiện/Gặp gỡ)</option>
+                      <option value="TASK">Công việc (Task)</option>
+                      <option value="TIMETABLE">Thời khóa biểu (Lịch học)</option>
+                      <option value="WORK_SCHEDULE">Lịch làm việc (Ca làm/Họp)</option>
+                      <option value="APPOINTMENT">Lịch hẹn (Sự kiện/Gặp gỡ)</option>
                     </select>
                     <select
                       name="energyLevel"
@@ -564,9 +564,9 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                       required
                       style={{ padding: '11px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff', outline: 'none' }}
                     >
-                      <option value="Low">🪫 Low Energy (Dễ)</option>
-                      <option value="Medium">🔋 Medium Energy (Vừa)</option>
-                      <option value="High">⚡ High Energy (Khó)</option>
+                      <option value="Low">Low Energy (Dễ)</option>
+                      <option value="Medium">Medium Energy (Vừa)</option>
+                      <option value="High">High Energy (Khó)</option>
                     </select>
                   </div>
 
@@ -650,7 +650,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                         <option value="">-- Không thuộc Sprint nào --</option>
                         {sprints.map(sp => (
                           <option key={sp.id} value={sp.id}>
-                            🏃 {sp.name} ({new Date(sp.startDate).toLocaleDateString('vi-VN')} - {new Date(sp.endDate).toLocaleDateString('vi-VN')})
+                            {sp.name} ({new Date(sp.startDate).toLocaleDateString('vi-VN')} - {new Date(sp.endDate).toLocaleDateString('vi-VN')})
                           </option>
                         ))}
                       </select>
@@ -791,7 +791,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
                           <div>
                             <h4 style={{ margin: 0, color: '#fff', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              🏃 {sprint.name}
+                              {sprint.name}
                             </h4>
                             <div style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
                               <Timer size={14} color="#f59e0b" />
@@ -915,7 +915,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
             {getWeekActiveSprints().length > 0 && (
               <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '14px', padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  🏃 Sprints Đang Chạy Trong Tuần Này ({getWeekActiveSprints().length})
+                  Sprints Đang Chạy Trong Tuần Này ({getWeekActiveSprints().length})
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                   {getWeekActiveSprints().map(sp => {
@@ -936,7 +936,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                           fontSize: '0.83rem',
                         }}
                       >
-                        <strong style={{ color: '#fff' }}>🏃 {sp.name}</strong>
+                        <strong style={{ color: '#fff' }}>{sp.name}</strong>
                         <span style={{ color: '#94a3b8' }}>
                           ({new Date(sp.startDate).toLocaleDateString('vi-VN')} → {new Date(sp.endDate).toLocaleDateString('vi-VN')})
                         </span>
@@ -1015,7 +1015,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                             }}
                             title={`Sprint: ${sp.name} (${new Date(sp.startDate).toLocaleDateString('vi-VN')} - ${new Date(sp.endDate).toLocaleDateString('vi-VN')})`}
                           >
-                            🏃 {sp.name}
+                            {sp.name}
                           </div>
                         ))}
                       </div>
@@ -1079,7 +1079,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
 
                               {task.location && (
                                 <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginLeft: '20px' }}>
-                                  📍 {task.location}
+                                  {task.location}
                                 </div>
                               )}
 

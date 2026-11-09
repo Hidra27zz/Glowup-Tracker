@@ -5,13 +5,13 @@ import { logNutrition } from '@/lib/actions/health.actions';
 import { smartAutoLogAction } from '@/app/dashboard-actions';
 
 const QUICK_MEAL_TEMPLATES = [
-  { label: '🍜 Phở bò', calories: 480, protein: 26, carbs: 62, fat: 12 },
-  { label: '🍱 Cơm tấm sườn', calories: 650, protein: 32, carbs: 75, fat: 22 },
-  { label: '🍗 200g Ức gà áp chảo', calories: 330, protein: 62, carbs: 0, fat: 7 },
-  { label: '🥚 2 Quả trứng luộc', calories: 155, protein: 13, carbs: 1, fat: 11 },
-  { label: '🥖 Bánh mì thịt', calories: 380, protein: 16, carbs: 46, fat: 14 },
-  { label: '🥗 Salad Eat Clean', calories: 320, protein: 24, carbs: 22, fat: 14 },
-  { label: '🥛 1 Muỗng Whey', calories: 120, protein: 25, carbs: 3, fat: 2 },
+  { label: 'Phở bò', calories: 480, protein: 26, carbs: 62, fat: 12 },
+  { label: 'Cơm tấm sườn', calories: 650, protein: 32, carbs: 75, fat: 22 },
+  { label: '200g Ức gà áp chảo', calories: 330, protein: 62, carbs: 0, fat: 7 },
+  { label: '2 Quả trứng luộc', calories: 155, protein: 13, carbs: 1, fat: 11 },
+  { label: 'Bánh mì thịt', calories: 380, protein: 16, carbs: 46, fat: 14 },
+  { label: 'Salad Eat Clean', calories: 320, protein: 24, carbs: 22, fat: 14 },
+  { label: '1 Muỗng Whey', calories: 120, protein: 25, carbs: 3, fat: 2 },
 ];
 
 export default function NutritionVault({
@@ -78,7 +78,7 @@ export default function NutritionVault({
     <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
         <div>
-          <h3 style={{ fontSize: '1.15rem', margin: 0 }}>🥗 Dinh Dưỡng & Macro Tự Động</h3>
+          <h3 style={{ fontSize: '1.15rem', margin: 0 }}>Dinh Dưỡng & Macro Tự Động</h3>
           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '2px 0 0 0' }}>
             Chọn món ăn 1-chạm hoặc nhập tên món để AI tự tính Calo & Protein
           </p>
@@ -95,7 +95,7 @@ export default function NutritionVault({
             cursor: 'pointer',
           }}
         >
-          {showManual ? 'Ẩn nhập thủ công' : '⚙️ Tự nhập số'}
+          {showManual ? 'Ẩn nhập thủ công' : 'Tự nhập số'}
         </button>
       </div>
 
@@ -141,7 +141,7 @@ export default function NutritionVault({
       {/* 1-Tap Food Chips (No Manual Calculation!) */}
       <div>
         <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-          ⚡ Bấm 1 chạm để cộng món ăn (Đã tính sẵn Calo & Protein):
+          Bấm 1 chạm để cộng món ăn (Đã tính sẵn Calo & Protein):
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
           {QUICK_MEAL_TEMPLATES.map((tpl, i) => (
@@ -188,7 +188,7 @@ export default function NutritionVault({
           className="glass-button"
           style={{ background: 'var(--accent-primary)', color: '#fff', border: 'none', fontWeight: 700, whiteSpace: 'nowrap' }}
         >
-          ⚡ AI Tự Tính
+          AI Tự Tính
         </button>
       </form>
 

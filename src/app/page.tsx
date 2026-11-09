@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { Flame, ShieldAlert, Zap, Clock, BrainCircuit, AlertTriangle, FileWarning } from 'lucide-react';
 import QuickActionForms from '@/components/dashboard/QuickActionForms';
 import HydrationTracker from '@/components/dashboard/HydrationTracker';
 import InteractiveTasks from '@/components/dashboard/InteractiveTasks';
@@ -16,14 +15,43 @@ import { getTaskTimeStatus, formatDateTimeRange } from '@/lib/utils/timeFormat';
 
 export const dynamic = 'force-dynamic';
 
+function Section({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <h3 style={{ margin: 0, fontSize: '1rem' }}>{title}</h3>
+        {action}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Stat({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
+  return (
+    <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '10px', padding: '14px 16px' }}>
+      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '6px' }}>{label}</div>
+      <div style={{ fontSize: '1.4rem', fontWeight: 700, color: color || 'var(--text-primary)', lineHeight: 1.1 }}>{value}</div>
+      {sub && <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{sub}</div>}
+    </div>
+  );
+}
+
 export default async function Dashboard() {
   const now = new Date();
   const startOfDay = new Date(now);
   startOfDay.setHours(0, 0, 0, 0);
 
-  const now2 = new Date();
-  const startOfWeek = new Date(now2);
-  startOfWeek.setDate(now2.getDate() - now2.getDay());
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay());
 
   const [
     todayMoodLog,
@@ -37,34 +65,17 @@ export default async function Dashboard() {
     sprints,
     todayDeepWorkAgg,
   ] = await Promise.all([
-    prisma.moodLog.findFirst({
-      where: { date: { gte: startOfDay } },
-    }),
-    prisma.task.findMany({
-      orderBy: { deadline: 'asc' },
-      take: 30,
-    }),
+    prisma.moodLog.findFirst({ where: { date: { gte: startOfDay } } }),
+    prisma.task.findMany({ orderBy: { deadline: 'asc' }, take: 30 }),
     prisma.financialTransaction.aggregate({
-      where: {
-        createdAt: { gte: startOfWeek },
-        type: 'expense',
-      },
+      where: { createdAt: { gte: startOfWeek }, type: 'expense' },
       _sum: { amount: true },
     }),
-    prisma.nutritionLog.findFirst({
-      where: { date: { gte: startOfDay } },
-    }),
+    prisma.nutritionLog.findFirst({ where: { date: { gte: startOfDay } } }),
     prisma.userSettings.findUnique({ where: { id: 'default' } }),
-    prisma.detoxSession.findFirst({
-      where: { endDate: null },
-      orderBy: { startDate: 'desc' },
-    }),
-    prisma.flashcard.count({
-      where: { nextReview: { lte: new Date() } },
-    }),
-    prisma.smartGoal.findMany({
-      orderBy: { deadline: 'asc' },
-    }),
+    prisma.detoxSession.findFirst({ where: { endDate: null }, orderBy: { startDate: 'desc' } }),
+    prisma.flashcard.count({ where: { nextReview: { lte: new Date() } } }),
+    prisma.smartGoal.findMany({ orderBy: { deadline: 'asc' } }),
     prisma.sprint.findMany({
       where: { isActive: true },
       include: { tasks: true },
@@ -80,19 +91,21 @@ export default async function Dashboard() {
   const totalDeepWorkMinutesToday = todayDeepWorkAgg._sum?.duration || 0;
 
   const primarySmartGoal = smartGoals[0];
-  const targetGoal = primarySmartGoal
-    ? `[SMART] ${primarySmartGoal.title} (${primarySmartGoal.currentValue}/${primarySmartGoal.targetValue} ${primarySmartGoal.unit})`
-    : settings?.bodyRecompGoal || 'Thiết lập Mục Tiêu SMART của bạn bên dưới';
-  const antiHabit = activeDetox?.notes || 'Không lướt TikTok / Short Video sau 23:00';
+  const goalTitle = primarySmartGoal
+    ? primarySmartGoal.title
+    : settings?.bodyRecompGoal || 'Chưa đặt mục tiêu chính';
+  const goalProgress = primarySmartGoal
+    ? Math.min(100, Math.round((primarySmartGoal.currentValue / (primarySmartGoal.targetValue || 1)) * 100))
+    : 0;
+  const antiHabit = activeDetox?.notes || 'Không lướt video ngắn sau 23:00';
   const fastingStartStr = settings?.fastingStart ? settings.fastingStart.toISOString() : null;
-
   const waterDrops = todayMoodLog?.hydration || 0;
 
   const todoTasks = tasks.filter((t) => t.status !== 'DONE');
   const coreTasks = todoTasks.slice(0, 4);
-  const closestDeadlineTask = coreTasks.length > 0 ? coreTasks[0] : null;
-  const closestTimeStatus = closestDeadlineTask
-    ? getTaskTimeStatus(closestDeadlineTask.startTime, closestDeadlineTask.deadline, closestDeadlineTask.status)
+  const closestTask = coreTasks[0] || null;
+  const closestStatus = closestTask
+    ? getTaskTimeStatus(closestTask.startTime, closestTask.deadline, closestTask.status)
     : null;
 
   const overdueTasks = todoTasks.filter((t) => getTaskTimeStatus(t.startTime, t.deadline, t.status).isOverdue);
@@ -101,440 +114,169 @@ export default async function Dashboard() {
   const spent = weeklyExpenses._sum.amount || 0;
   const budget = settings?.budgetGoal || 400000;
   const budgetPercent = Math.min((spent / budget) * 100, 100);
-  const budgetColor = spent > budget * 0.8 ? '#ef4444' : spent > budget * 0.6 ? '#f59e0b' : '#10b981';
+  const budgetColor = spent > budget * 0.8 ? 'var(--danger-color)' : spent > budget * 0.6 ? 'var(--warning-color)' : 'var(--success-color)';
 
   const calConsumed = todayNutrition?.calories || 0;
   const calGoal = settings?.goalCal || 1500;
-  const donutDasharray = `${Math.min((calConsumed / calGoal) * 100, 100)} 100`;
+  const calPercent = Math.min((calConsumed / calGoal) * 100, 100);
+
+  const dateLabel = now.toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', paddingBottom: '32px' }}>
-      {/* TRỢ LÝ AI TỰ ĐỘNG TÍNH TOÁN & GHI NHẬN 1-CHẠM (KHÔNG CẦN NHẬP LIỆU RỜI RẠC) */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Page header */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '8px' }}>
+        <div>
+          <h1 style={{ margin: 0 }}>Tổng quan</h1>
+          <p style={{ margin: '4px 0 0', fontSize: '0.9rem', textTransform: 'capitalize' }}>{dateLabel}</p>
+        </div>
+      </header>
+
+      {/* Quick capture */}
       <SmartAICommandBar />
 
-      {/* NHẬP LIỆU HÀNG LOẠT BẰNG EXCEL (7 SHEETS CHO TỪNG CHỨC NĂNG) */}
-      <ExcelImportHub />
-
-      {/* FLASHCARD ALERT */}
-      {dueFlashcardsCount > 0 && (
-        <Link href="/career" style={{ textDecoration: 'none' }}>
-          <div
-            style={{
-              background: 'linear-gradient(90deg, #ef4444, #f43f5e)',
-              padding: '14px 22px',
-              borderRadius: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              boxShadow: '0 10px 30px rgba(239,68,68,0.3)',
-              flexWrap: 'wrap',
-              gap: '12px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <BrainCircuit color="#fff" size={22} />
-              <span style={{ color: '#fff', fontWeight: 700, fontSize: '1rem' }}>Cảnh báo Spaced Repetition!</span>
-            </div>
-            <span
-              style={{
-                color: '#fff',
-                fontWeight: 600,
-                background: 'rgba(0,0,0,0.2)',
-                padding: '6px 16px',
-                borderRadius: '20px',
-                fontSize: '0.88rem',
-              }}
-            >
-              Bạn có {dueFlashcardsCount} thẻ cần ôn tập ngay →
-            </span>
-          </div>
-        </Link>
-      )}
-
-      {/* BÁO CÁO TRỄ HẠN & CẢNH BÁO SẮP TỚI TRÊN DASHBOARD */}
-      {(overdueTasks.length > 0 || warningTasks.length > 0) && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
+      {/* Alerts */}
+      {(dueFlashcardsCount > 0 || overdueTasks.length > 0 || warningTasks.length > 0) && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
           {overdueTasks.length > 0 && (
-            <div
-              style={{
-                background: 'linear-gradient(135deg, rgba(239,68,68,0.18), rgba(15,23,42,0.92))',
-                border: '1px solid rgba(239,68,68,0.45)',
-                borderRadius: '20px',
-                padding: '18px 22px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-              }}
+            <Link
+              href="/tasks"
+              className="glass-card"
+              style={{ borderLeft: '3px solid var(--danger-color)', padding: '14px 16px', display: 'block' }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ef4444', fontWeight: 800, fontSize: '1rem' }}>
-                  <FileWarning size={20} /> BÁO CÁO TRỄ HẠN ({overdueTasks.length} mục)
-                </div>
-                <Link href="/tasks" style={{ fontSize: '0.78rem', color: '#fca5a5', fontWeight: 700, textDecoration: 'underline' }}>
-                  Giải trình & Xử lý →
-                </Link>
+              <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--danger-color)', marginBottom: '6px' }}>
+                Trễ hạn · {overdueTasks.length} việc
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {overdueTasks.slice(0, 3).map((t) => {
-                  const st = getTaskTimeStatus(t.startTime, t.deadline, t.status);
-                  return (
-                    <div
-                      key={t.id}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        background: 'rgba(0,0,0,0.3)',
-                        padding: '8px 12px',
-                        borderRadius: '10px',
-                        fontSize: '0.85rem',
-                      }}
-                    >
-                      <span style={{ color: '#fff', fontWeight: 600 }}>{t.title}</span>
-                      <span style={{ color: '#ef4444', fontWeight: 700 }}>Quá hạn {st.overdueDurationText}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+              {overdueTasks.slice(0, 3).map((t) => {
+                const st = getTaskTimeStatus(t.startTime, t.deadline, t.status);
+                return (
+                  <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', fontSize: '0.85rem', padding: '3px 0' }}>
+                    <span style={{ color: 'var(--text-primary)' }}>{t.title}</span>
+                    <span style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{st.overdueDurationText}</span>
+                  </div>
+                );
+              })}
+              <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '6px' }}>Mở để giải trình</div>
+            </Link>
           )}
-
           {warningTasks.length > 0 && (
-            <div
-              style={{
-                background: 'linear-gradient(135deg, rgba(245,158,11,0.18), rgba(15,23,42,0.92))',
-                border: '1px solid rgba(245,158,11,0.45)',
-                borderRadius: '20px',
-                padding: '18px 22px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
-              }}
+            <Link
+              href="/tasks"
+              className="glass-card"
+              style={{ borderLeft: '3px solid var(--warning-color)', padding: '14px 16px', display: 'block' }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fbbf24', fontWeight: 800, fontSize: '1rem' }}>
-                  <AlertTriangle size={20} /> CẢNH BÁO SẮP TỚI ({warningTasks.length} mục)
-                </div>
-                <Link href="/tasks" style={{ fontSize: '0.78rem', color: '#fde68a', fontWeight: 700, textDecoration: 'underline' }}>
-                  Xem lịch →
-                </Link>
+              <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--warning-color)', marginBottom: '6px' }}>
+                Sắp đến hạn · {warningTasks.length} việc
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {warningTasks.slice(0, 3).map((t) => {
-                  const st = getTaskTimeStatus(t.startTime, t.deadline, t.status);
-                  return (
-                    <div
-                      key={t.id}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        background: 'rgba(0,0,0,0.3)',
-                        padding: '8px 12px',
-                        borderRadius: '10px',
-                        fontSize: '0.85rem',
-                      }}
-                    >
-                      <span style={{ color: '#fff', fontWeight: 600 }}>{t.title}</span>
-                      <span style={{ color: '#fbbf24', fontWeight: 700 }}>{st.badgeText}</span>
-                    </div>
-                  );
-                })}
+              {warningTasks.slice(0, 3).map((t) => {
+                const st = getTaskTimeStatus(t.startTime, t.deadline, t.status);
+                return (
+                  <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', fontSize: '0.85rem', padding: '3px 0' }}>
+                    <span style={{ color: 'var(--text-primary)' }}>{t.title}</span>
+                    <span style={{ color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>{st.badgeText}</span>
+                  </div>
+                );
+              })}
+            </Link>
+          )}
+          {dueFlashcardsCount > 0 && (
+            <Link
+              href="/career"
+              className="glass-card"
+              style={{ borderLeft: '3px solid var(--accent-color)', padding: '14px 16px', display: 'block' }}
+            >
+              <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--accent-color)', marginBottom: '6px' }}>
+                Ôn tập
               </div>
-            </div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                {dueFlashcardsCount} thẻ cần ôn hôm nay
+              </div>
+            </Link>
           )}
         </div>
       )}
 
-      {/* KHU VỰC 1: VIBE & ĐỘNG LỰC */}
-      <section style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
-        <div
-          style={{
-            background: 'rgba(15,23,42,0.85)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '22px',
-            overflow: 'hidden',
-            position: 'relative',
-            minHeight: '150px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 16px 36px rgba(0,0,0,0.35)',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'radial-gradient(circle at top right, rgba(59,130,246,0.15), transparent 60%)',
-            }}
-          />
-          <img
-            src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80"
-            alt="Motivation"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.25, position: 'absolute', mixBlendMode: 'overlay' }}
-          />
-          <div
-            style={{
-              position: 'relative',
-              zIndex: 1,
-              textAlign: 'center',
-              padding: '22px',
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-            }}
-          >
-            <h2
-              style={{
-                fontSize: '1.65rem',
-                margin: '0 0 6px 0',
-                color: '#fff',
-                fontWeight: 800,
-                letterSpacing: '0.3px',
-                textShadow: '0 4px 20px rgba(0,0,0,0.5)',
-              }}
-            >
-              {targetGoal}
-            </h2>
-            <p style={{ margin: 0, fontStyle: 'italic', color: '#94a3b8', fontSize: '0.95rem', fontWeight: 500 }}>
-              &ldquo;Specific • Measurable • Achievable • Relevant • Time-bound&rdquo;
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* KHU VỰC MỤC TIÊU SMART */}
-      <SmartGoalBoard goals={smartGoals} />
-
-      {/* KHU VỰC LỊCH TRÌNH TỔNG HỢP: THỜI KHÓA BIỂU, LỊCH LÀM VIỆC, LỊCH HẸN, SPRINTS */}
-      <DashboardScheduleHub tasks={tasks} sprints={sprints} />
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
-        {/* KHU VỰC 2: TRUNG TÂM TÁC CHIẾN */}
-        <section
-          style={{
-            background: 'rgba(15,23,42,0.85)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '24px',
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-          }}
-        >
-          <h3
-            style={{
-              margin: 0,
-              color: '#fff',
-              fontSize: '1.15rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-            }}
-          >
-            <Zap size={20} color="#3b82f6" /> Trung Tâm Tác Chiến
-          </h3>
-
-          {closestDeadlineTask && closestTimeStatus && (
-            <div
-              style={{
-                background: `linear-gradient(135deg, ${closestTimeStatus.bgColor}, rgba(15,23,42,0.6))`,
-                border: `1px solid ${closestTimeStatus.borderColor}`,
-                padding: '16px',
-                borderRadius: '18px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '14px',
-              }}
-            >
-              <div style={{ background: closestTimeStatus.bgColor, padding: '10px', borderRadius: '50%' }}>
-                <Clock size={24} color={closestTimeStatus.color} />
+      {/* Primary goal + KPIs */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+        <div className="glass-card" style={{ gridColumn: 'span 2', minWidth: '260px' }}>
+          <div className="section-title">Mục tiêu chính</div>
+          <div style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '12px' }}>{goalTitle}</div>
+          {primarySmartGoal && (
+            <>
+              <div style={{ height: '6px', background: 'var(--surface-3)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ width: `${goalProgress}%`, height: '100%', background: 'var(--accent-color)' }} />
               </div>
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    fontSize: '0.76rem',
-                    color: closestTimeStatus.color,
-                    textTransform: 'uppercase',
-                    fontWeight: 800,
-                    letterSpacing: '0.8px',
-                    marginBottom: '4px',
-                  }}
-                >
-                  {closestTimeStatus.isOverdue
-                    ? '🚨 Báo Cáo Trễ Hạn Ưu Tiên'
-                    : closestTimeStatus.isWarning
-                    ? '⚠️ Cảnh Báo Sắp Đến Hạn'
-                    : 'Tiến Độ Gần Nhất'}
-                </div>
-                <div style={{ fontSize: '1.05rem', color: '#fff', fontWeight: 700, lineHeight: 1.3 }}>
-                  {closestDeadlineTask.title}
-                </div>
-                <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginTop: '4px' }}>
-                  Khung giờ: {formatDateTimeRange(closestDeadlineTask.startTime, closestDeadlineTask.deadline)}
-                </div>
-                <div style={{ fontSize: '0.84rem', color: closestTimeStatus.color, marginTop: '4px', fontWeight: 700 }}>
-                  {closestTimeStatus.badgeText}
-                </div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '8px' }}>
+                {primarySmartGoal.currentValue} / {primarySmartGoal.targetValue} {primarySmartGoal.unit} · {goalProgress}%
               </div>
-            </div>
+            </>
           )}
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <h4 style={{ margin: '0 0 2px 0', fontSize: '0.9rem', color: '#94a3b8' }}>Danh sách tác chiến nhanh</h4>
-            <InteractiveTasks tasks={coreTasks} />
-
-            <div
-              style={{
-                marginTop: '6px',
-                padding: '14px',
-                background: 'linear-gradient(135deg, rgba(239,68,68,0.1), transparent)',
-                borderRadius: '14px',
-                border: '1px solid rgba(239,68,68,0.3)',
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'flex-start',
-              }}
-            >
-              <ShieldAlert size={20} color="#ef4444" style={{ flexShrink: 0, marginTop: '2px' }} />
-              <div>
-                <h4 style={{ margin: '0 0 4px 0', fontSize: '0.82rem', color: '#ef4444', fontWeight: 700, textTransform: 'uppercase' }}>
-                  Anti-Habit Today
-                </h4>
-                <p style={{ margin: 0, fontSize: '0.9rem', color: '#fca5a5', lineHeight: 1.4, fontWeight: 500 }}>{antiHabit}</p>
-              </div>
-            </div>
-
-            <InfoDietLog />
-          </div>
-        </section>
-
-        {/* KHU VỰC 3: CHỈ SỐ SINH TỒN & DEEP WORK ĐỒNG BỘ */}
-        <section
-          style={{
-            background: 'rgba(15,23,42,0.85)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '24px',
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '22px',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-          }}
-        >
-          <h3
-            style={{
-              margin: 0,
-              color: '#fff',
-              fontSize: '1.15rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-            }}
-          >
-            <Flame size={20} color="#10b981" /> Chỉ Số Sinh Tồn & Deep Work
-          </h3>
-
-          <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-            <div style={{ width: '100px', height: '100px', position: 'relative', flexShrink: 0 }}>
-              <svg
-                width="100%"
-                height="100%"
-                viewBox="0 0 36 36"
-                style={{ transform: 'rotate(-90deg)', filter: 'drop-shadow(0 0 8px rgba(16,185,129,0.4))' }}
-              >
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="rgba(255,255,255,0.05)"
-                  strokeWidth="3"
-                />
-                <path
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  fill="none"
-                  stroke="#10b981"
-                  strokeWidth="3"
-                  strokeDasharray={donutDasharray}
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'column',
-                }}
-              >
-                <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>{calConsumed}</span>
-                <span style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 600 }}>/ {calGoal}</span>
-              </div>
-            </div>
-
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  marginBottom: '10px',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  color: '#e2e8f0',
-                }}
-              >
-                <span>Ngân Sách Tuần</span>
-                <span style={{ color: budgetColor, fontWeight: 700 }}>
-                  {(spent / 1000).toFixed(0)}k / {(budget / 1000).toFixed(0)}k
-                </span>
-              </div>
-              <div
-                style={{
-                  width: '100%',
-                  height: '10px',
-                  background: 'rgba(255,255,255,0.05)',
-                  borderRadius: '6px',
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    width: `${budgetPercent}%`,
-                    height: '100%',
-                    background: budgetColor,
-                    transition: 'width 0.5s ease',
-                    boxShadow: '0 0 10px ' + budgetColor,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <QuickStatsForms />
-          <DashboardDeepWorkTimer totalMinutesToday={totalDeepWorkMinutesToday} />
-          <FastingWidget fastingStartStr={fastingStartStr} />
-          <HydrationTracker initialWaterDrops={waterDrops} />
-        </section>
+        </div>
+        <Stat label="Calo hôm nay" value={`${calConsumed}`} sub={`Mục tiêu ${calGoal} kcal · ${Math.round(calPercent)}%`} />
+        <Stat label="Chi tiêu tuần" value={`${(spent / 1000).toFixed(0)}k`} sub={`Ngân sách ${(budget / 1000).toFixed(0)}k · ${Math.round(budgetPercent)}%`} color={budgetColor} />
+        <Stat label="Tập trung hôm nay" value={`${totalDeepWorkMinutesToday} phút`} sub={`Nước uống: ${waterDrops} ly`} />
       </div>
 
-      {/* KHU VỰC 4: LOG NHANH */}
-      <section style={{ display: 'flex' }}>
-        <QuickActionForms />
-      </section>
+      <SmartGoalBoard goals={smartGoals} />
+
+      <DashboardScheduleHub tasks={tasks} sprints={sprints} />
+
+      {/* Work + vitals */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px', alignItems: 'start' }}>
+        <Section
+          title="Việc cần làm"
+          action={
+            <Link href="/tasks" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              Xem tất cả
+            </Link>
+          }
+        >
+          {closestTask && closestStatus && (
+            <div
+              style={{
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border)',
+                borderLeft: `3px solid ${closestStatus.color}`,
+                borderRadius: '10px',
+                padding: '12px 14px',
+              }}
+            >
+              <div style={{ fontSize: '0.74rem', color: closestStatus.color, fontWeight: 600, marginBottom: '4px' }}>
+                {closestStatus.isOverdue ? 'Trễ hạn' : closestStatus.isWarning ? 'Sắp đến hạn' : 'Việc gần nhất'}
+              </div>
+              <div style={{ fontWeight: 600 }}>{closestTask.title}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                {formatDateTimeRange(closestTask.startTime, closestTask.deadline)} · {closestStatus.badgeText}
+              </div>
+            </div>
+          )}
+
+          <InteractiveTasks tasks={coreTasks} />
+
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Thói quen cần tránh hôm nay</div>
+            <div style={{ fontSize: '0.9rem' }}>{antiHabit}</div>
+          </div>
+
+          <InfoDietLog />
+        </Section>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <Section title="Tập trung">
+            <DashboardDeepWorkTimer totalMinutesToday={totalDeepWorkMinutesToday} />
+          </Section>
+
+          <Section title="Ghi nhanh chỉ số">
+            <QuickStatsForms />
+            <HydrationTracker initialWaterDrops={waterDrops} />
+            <FastingWidget fastingStartStr={fastingStartStr} />
+          </Section>
+        </div>
+      </div>
+
+      <QuickActionForms />
+
+      <ExcelImportHub />
     </div>
   );
 }

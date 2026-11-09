@@ -95,7 +95,7 @@ export default function QuickStatsForms() {
           onClick={() => quickCalo(450, 'Bữa nhẹ / Sáng')}
           style={chipStyle('#10b981')}
         >
-          🍜 +450 kcal (Bữa sáng)
+          +450 kcal (Bữa sáng)
         </button>
         <button
           type="button"
@@ -103,7 +103,7 @@ export default function QuickStatsForms() {
           onClick={() => quickCalo(600, 'Bữa chính')}
           style={chipStyle('#10b981')}
         >
-          🍱 +600 kcal (Bữa chính)
+          +600 kcal (Bữa chính)
         </button>
         <button
           type="button"
@@ -111,7 +111,7 @@ export default function QuickStatsForms() {
           onClick={() => quickSpend(30000, 'Cà phê / Nước')}
           style={chipStyle('#f59e0b')}
         >
-          ☕ -30k Cà phê
+          -30k Cà phê
         </button>
         <button
           type="button"
@@ -119,7 +119,7 @@ export default function QuickStatsForms() {
           onClick={() => quickSpend(50000, 'Ăn uống')}
           style={chipStyle('#f59e0b')}
         >
-          🍽️ -50k Ăn trưa
+          -50k Ăn trưa
         </button>
       </div>
 
@@ -140,7 +140,7 @@ export default function QuickStatsForms() {
           justifyContent: 'space-between',
         }}
       >
-        <span>⚙️ Nhập số tùy chỉnh (Calo / Cân nặng / Chi tiêu)</span>
+        <span>Nhập số tùy chỉnh (Calo / Cân nặng / Chi tiêu)</span>
         {showManualInputs ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
       </button>
 
