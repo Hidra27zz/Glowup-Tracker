@@ -33,7 +33,7 @@ export default function DraggablePlayer() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setPosition({ x: Math.max(20, window.innerWidth - 360), y: Math.max(80, window.innerHeight - 440) });
+      setPosition({ x: Math.max(10, Math.min(window.innerWidth - 350, window.innerWidth - 360)), y: Math.max(80, window.innerHeight - 440) });
     }
   }, []);
 
@@ -114,7 +114,7 @@ export default function DraggablePlayer() {
       const dx = e.clientX - dragRef.current.startX;
       const dy = e.clientY - dragRef.current.startY;
       setPosition({
-        x: Math.max(10, Math.min(window.innerWidth - 260, dragRef.current.initialX + dx)),
+        x: Math.max(10, Math.min(window.innerWidth - 120, dragRef.current.initialX + dx)),
         y: Math.max(60, Math.min(window.innerHeight - 100, dragRef.current.initialY + dy)),
       });
     };
@@ -204,9 +204,9 @@ export default function DraggablePlayer() {
               onClick={stopSynth}
               title="Tắt sóng âm Focus"
               style={{
-                background: 'rgba(239, 68, 68, 0.2)',
-                border: '1px solid rgba(239, 68, 68, 0.4)',
-                color: '#f87171',
+                background: 'rgba(244, 109, 117, 0.2)',
+                border: '1px solid rgba(244, 109, 117, 0.4)',
+                color: '#f46d75',
                 borderRadius: '8px',
                 padding: '3px 7px',
                 fontSize: '0.72rem',
@@ -226,7 +226,7 @@ export default function DraggablePlayer() {
           position: 'fixed',
           left: `${position.x}px`,
           top: `${position.y}px`,
-          width: isMinimized ? '1px' : '330px',
+          width: isMinimized ? '1px' : 'min(330px, calc(100vw - 20px))',
           height: isMinimized ? '1px' : 'auto',
           opacity: isMinimized ? 0 : 1,
           pointerEvents: isMinimized ? 'none' : 'auto',
@@ -258,7 +258,7 @@ export default function DraggablePlayer() {
               <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-primary)' }}>
                 Nhạc tập trung
               </div>
-              <div style={{ fontSize: '0.68rem', color: '#10b981' }}>
+              <div style={{ fontSize: '0.68rem', color: '#3dd68c' }}>
                 Thu nhỏ hoặc chuyển trang, nhạc vẫn phát
               </div>
             </div>
@@ -288,9 +288,9 @@ export default function DraggablePlayer() {
               }}
               title="Tắt hẳn nhạc"
               style={{
-                background: 'rgba(239, 68, 68, 0.15)',
+                background: 'rgba(244, 109, 117, 0.15)',
                 border: 'none',
-                color: '#f87171',
+                color: '#f46d75',
                 cursor: 'pointer',
                 fontSize: '0.78rem',
                 padding: '4px 8px',
@@ -315,11 +315,11 @@ export default function DraggablePlayer() {
                 flex: 1,
                 padding: '7px 8px',
                 borderRadius: '8px',
-                border: '1px solid rgba(139, 92, 246, 0.4)',
+                border: '1px solid rgba(123, 140, 255, 0.4)',
                 background:
                   synthPlaying && synthMode === 'binaural'
                     ? 'var(--accent-primary)'
-                    : 'rgba(139, 92, 246, 0.1)',
+                    : 'rgba(123, 140, 255, 0.1)',
                 color: '#fff',
                 fontSize: '0.75rem',
                 fontWeight: 600,
@@ -334,9 +334,9 @@ export default function DraggablePlayer() {
                 flex: 1,
                 padding: '7px 8px',
                 borderRadius: '8px',
-                border: '1px solid rgba(59, 130, 246, 0.4)',
+                border: '1px solid rgba(91, 156, 255, 0.4)',
                 background:
-                  synthPlaying && synthMode === 'rain' ? '#3b82f6' : 'rgba(59, 130, 246, 0.1)',
+                  synthPlaying && synthMode === 'rain' ? '#5b9cff' : 'rgba(91, 156, 255, 0.1)',
                 color: '#fff',
                 fontSize: '0.75rem',
                 fontWeight: 600,

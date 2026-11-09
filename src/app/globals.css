@@ -1,27 +1,28 @@
 /* ==========================================================================
    GlowUp OS design system
-   Neutral dark surfaces, one accent colour, thin borders, tight radii.
+   Cool slate surfaces, one periwinkle accent, soft semantic colours.
+   Mobile first adjustments live at the bottom of this file.
    ========================================================================== */
 :root {
-  --bg-color: #0c0c0e;
-  --surface: #141418;
-  --surface-2: #1b1b20;
-  --surface-3: #232329;
-  --border: #2a2a31;
-  --border-strong: #3a3a43;
+  --bg-color: #0a0c11;
+  --surface: #11141b;
+  --surface-2: #171b24;
+  --surface-3: #1f2430;
+  --border: #252b38;
+  --border-strong: #343c4d;
 
-  --text-primary: #ececf0;
-  --text-secondary: #9a9aa6;
-  --text-muted: #6b6b76;
+  --text-primary: #e9ecf3;
+  --text-secondary: #9aa3b5;
+  --text-muted: #667085;
 
-  --accent-color: #6366f1;
-  --accent-primary: #6366f1;
-  --accent-hover: #5558e6;
-  --accent-soft: rgba(99, 102, 241, 0.14);
+  --accent-color: #7b8cff;
+  --accent-primary: #7b8cff;
+  --accent-hover: #6a7bf0;
+  --accent-soft: rgba(123, 140, 255, 0.14);
 
-  --success-color: #34d399;
-  --warning-color: #fbbf24;
-  --danger-color: #f87171;
+  --success-color: #3dd68c;
+  --warning-color: #f5b94a;
+  --danger-color: #f46d75;
 
   /* legacy aliases so older components keep working */
   --glass-bg: var(--surface);
@@ -43,10 +44,15 @@
 
 html {
   color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background-color: var(--bg-color);
+  background-image: radial-gradient(1100px 520px at 85% -8%, rgba(123, 140, 255, 0.09), transparent 62%),
+    radial-gradient(900px 480px at -5% 0%, rgba(61, 214, 140, 0.04), transparent 60%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: var(--font-family);
   font-size: 15px;
@@ -56,34 +62,141 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 ::selection {
   background: var(--accent-soft);
 }
 
+img,
+svg,
+video,
+canvas,
+iframe {
+  max-width: 100%;
+}
+
 /* ---------- Layout ---------- */
 .main-content {
   flex: 1;
-  padding: 32px 24px 64px;
+  padding: 32px 24px 72px;
   max-width: 1280px;
   margin: 0 auto;
   width: 100%;
+  min-width: 0;
 }
 
 .glass-nav {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
   min-height: var(--nav-height);
-  background: rgba(12, 12, 14, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(10, 12, 17, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   padding: 0 24px;
 }
+
+/* ---------- Navigation ---------- */
+.nav-inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  gap: 24px;
+  height: var(--nav-height);
+}
+
+.nav-brand {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.nav-links {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+}
+
+.nav-link.active {
+  color: var(--text-primary);
+  font-weight: 600;
+  border-bottom-color: var(--accent-color);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.nav-toggle-bars {
+  display: inline-block;
+  width: 14px;
+  height: 2px;
+  background: currentColor;
+  position: relative;
+  border-radius: 2px;
+}
+
+.nav-toggle-bars::before,
+.nav-toggle-bars::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 14px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+}
+
+.nav-toggle-bars::before { top: -5px; }
+.nav-toggle-bars::after { top: 5px; }
 
 /* ---------- Surfaces ---------- */
 .glass-card,
@@ -94,10 +207,11 @@ body {
   border-radius: var(--radius-md);
   padding: 20px;
   box-shadow: none;
+  min-width: 0;
 }
 
 .section-title {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -117,6 +231,7 @@ h1, h2, h3, h4 {
   margin-bottom: 8px;
   line-height: 1.25;
   letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
 }
 
 h1 { font-size: 1.75rem; }
@@ -130,9 +245,25 @@ p {
   color: var(--text-secondary);
 }
 
+pre,
+code {
+  max-width: 100%;
+}
+
+pre {
+  overflow-x: auto;
+}
+
+table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 /* ---------- Controls ---------- */
 button {
   font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button:focus-visible,
@@ -148,11 +279,12 @@ input,
 select,
 textarea {
   font-family: inherit;
+  max-width: 100%;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 input:focus,
@@ -165,6 +297,11 @@ textarea:focus {
 input::placeholder,
 textarea::placeholder {
   color: var(--text-muted);
+}
+
+select option {
+  background: var(--surface-2);
+  color: var(--text-primary);
 }
 
 .btn,
@@ -199,7 +336,8 @@ textarea::placeholder {
 .btn-primary {
   background: var(--accent-color);
   border-color: var(--accent-color);
-  color: #fff;
+  color: #0a0c11;
+  font-weight: 600;
 }
 
 .btn-primary:hover {
@@ -228,7 +366,18 @@ textarea::placeholder {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ---------- Content helpers ---------- */
+.theory-content {
+  overflow-wrap: anywhere;
+}
+
 .theory-content img {
   background-color: #f8fafc;
   padding: 4px;
@@ -249,11 +398,165 @@ textarea::placeholder {
   border: 1px solid var(--border);
 }
 
-@media (max-width: 720px) {
-  .main-content {
-    padding: 20px 14px 56px;
+/* Grid and flex children must be allowed to shrink */
+[style*="display: grid"] > *,
+[style*="display:grid"] > * {
+  min-width: 0;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+/* Tablet and below: collapse the nav into a menu */
+@media (max-width: 1080px) {
+  .nav-toggle {
+    display: inline-flex;
   }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    height: auto;
+    flex-direction: column;
+    gap: 0;
+    padding: 8px 16px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
+    max-height: calc(100vh - var(--nav-height));
+    overflow-y: auto;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-link {
+    padding: 13px 4px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+
+  .nav-link:last-child {
+    border-bottom: none;
+  }
+
+  .nav-link.active {
+    color: var(--accent-color);
+  }
+
+  .nav-actions {
+    margin-left: auto;
+  }
+}
+
+/* Tablet: unstack the heavier multi column layouts */
+@media (max-width: 900px) {
+  [style*="grid-template-columns: 1.3fr 1fr"],
+  [style*="grid-template-columns: 1.5fr 1fr"],
+  [style*="grid-template-columns: 1fr 2fr"],
+  [style*="grid-template-columns: 1fr 1.2fr"],
+  [style*="grid-template-columns: 2fr 1fr"],
+  [style*="grid-template-columns: 1fr 2fr 1fr"],
+  [style*="grid-template-columns: 2fr 1fr 1fr 1fr"],
+  [style*="grid-template-columns: 1fr 1fr 1fr auto"],
+  [style*="grid-template-columns: 1fr 1fr 120px"],
+  [style*="grid-template-columns: 2fr 1fr auto"],
+  [style*="grid-template-columns: 2fr 1fr 1.5fr 1fr auto"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  [style*="grid-column: span 2"] {
+    grid-column: auto !important;
+  }
+}
+
+/* Phone */
+@media (max-width: 720px) {
+  body {
+    font-size: 14.5px;
+  }
+
+  .main-content {
+    padding: 20px 14px 64px;
+  }
+
   .glass-nav {
     padding: 0 14px;
+  }
+
+  .nav-inner {
+    gap: 12px;
+  }
+
+  .glass-card,
+  .glass-panel,
+  .card {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  h1 { font-size: 1.45rem; }
+  h2 { font-size: 1.2rem; }
+  h3 { font-size: 1rem; }
+
+  /* Inline flex rows should wrap instead of overflowing */
+  [style*="display: flex"]:not([style*="flex-direction: column"]):not([style*="overflow-x"]):not([style*="overflow: hidden"]) {
+    flex-wrap: wrap;
+  }
+
+  /* Wide auto-fit grids fall back to a single column */
+  [style*="minmax(420px"],
+  [style*="minmax(400px"],
+  [style*="minmax(350px"],
+  [style*="minmax(340px"],
+  [style*="minmax(320px"],
+  [style*="minmax(300px"],
+  [style*="minmax(290px"],
+  [style*="minmax(280px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Minimum touch target for buttons and fields */
+  button,
+  .btn,
+  input,
+  select {
+    min-height: 38px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px !important; /* stops iOS zooming into focused fields */
+  }
+
+  /* Fixed floating widgets should never exceed the viewport */
+  [style*="position: fixed"][style*="width: 330px"],
+  [style*="position: fixed"][style*="width: 236px"] {
+    max-width: calc(100vw - 20px);
+  }
+
+  .spotify-player {
+    width: calc(100vw - 20px);
+    right: 10px;
+    bottom: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .nav-toggle-label {
+    display: none;
+  }
+
+  .nav-user-name {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

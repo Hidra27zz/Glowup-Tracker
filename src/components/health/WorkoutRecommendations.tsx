@@ -62,10 +62,10 @@ export default function WorkoutRecommendations({ cycle, sleepLog, workouts = [] 
     <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px', gridColumn: '1 / -1' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Video size={20} color="#ef4444" /> Smart Workout Suggestions
+          <Video size={20} color="#f46d75" /> Smart Workout Suggestions
         </h3>
         {energyLevel === 'low' ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem', color: '#60a5fa', background: 'rgba(96, 165, 250, 0.1)', padding: '4px 8px', borderRadius: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem', color: '#7db2ff', background: 'rgba(96, 165, 250, 0.1)', padding: '4px 8px', borderRadius: '4px' }}>
             <Coffee size={14} /> Trạng thái phục hồi (Low Energy)
           </div>
         ) : (

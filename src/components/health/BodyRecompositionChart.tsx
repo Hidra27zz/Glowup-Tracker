@@ -61,14 +61,14 @@ export default function BodyRecompositionChart({ metrics, goal }: Props) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h3 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '10px', color: '#fff', fontSize: '1.2rem' }}>
-            <div style={{ background: 'rgba(59,130,246,0.15)', padding: '8px', borderRadius: '10px' }}>
-              <Activity size={22} color="#3b82f6" />
+            <div style={{ background: 'rgba(91, 156, 255,0.15)', padding: '8px', borderRadius: '10px' }}>
+              <Activity size={22} color="#5b9cff" />
             </div>
             Body Recomposition
           </h3>
           {isEditingGoal ? (
-            <form onSubmit={saveSmartBodyGoal} style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.4)', marginTop: '8px' }}>
-              <div style={{ fontSize: '0.78rem', color: '#60a5fa', fontWeight: 700 }}>Đặt mục tiêu SMART (Specific - Measurable - Achievable - Time-bound)</div>
+            <form onSubmit={saveSmartBodyGoal} style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '12px', border: '1px solid rgba(91, 156, 255,0.4)', marginTop: '8px' }}>
+              <div style={{ fontSize: '0.78rem', color: '#7db2ff', fontWeight: 700 }}>Đặt mục tiêu SMART (Specific - Measurable - Achievable - Time-bound)</div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <input value={smartFields.specific} onChange={e => setSmartFields({...smartFields, specific: e.target.value})} placeholder="[S] Cụ thể (VD: Giảm mỡ bụng)" required style={{ flex: '2 1 160px', padding: '6px 10px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem' }} />
                 <input type="number" step="0.1" value={smartFields.currentKg} onChange={e => setSmartFields({...smartFields, currentKg: e.target.value})} placeholder="Hiện tại (kg)" required style={{ width: '90px', padding: '6px 10px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem' }} />
@@ -77,7 +77,7 @@ export default function BodyRecompositionChart({ metrics, goal }: Props) {
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <input value={smartFields.actionPlan} onChange={e => setSmartFields({...smartFields, actionPlan: e.target.value})} placeholder="[A/R] Hành động khả thi" required style={{ flex: '2 1 180px', padding: '6px 10px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem' }} />
                 <input type="date" value={smartFields.deadline} onChange={e => setSmartFields({...smartFields, deadline: e.target.value})} required style={{ padding: '6px 10px', borderRadius: '8px', background: 'rgba(0,0,0,0.3)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.85rem', colorScheme: 'dark' }} />
-                <button type="submit" style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}>Lưu SMART</button>
+                <button type="submit" style={{ background: '#5b9cff', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.82rem' }}>Lưu SMART</button>
                 <button type="button" onClick={() => setIsEditingGoal(false)} style={{ background: 'transparent', color: '#94a3b8', border: 'none', padding: '6px 10px', cursor: 'pointer', fontSize: '0.82rem' }}>Hủy</button>
               </div>
             </form>
@@ -89,7 +89,7 @@ export default function BodyRecompositionChart({ metrics, goal }: Props) {
         </div>
         <button 
           onClick={() => setShowInput(!showInput)}
-          style={{ background: 'rgba(59,130,246,0.1)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)', padding: '8px 14px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s' }}
+          style={{ background: 'rgba(91, 156, 255,0.1)', color: '#7db2ff', border: '1px solid rgba(91, 156, 255,0.3)', padding: '8px 14px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s' }}
         >
           <Plus size={16} /> Ghi Log
         </button>
@@ -104,7 +104,7 @@ export default function BodyRecompositionChart({ metrics, goal }: Props) {
             <input name="waist" type="number" step="0.1" placeholder="Eo (cm)" style={{ flex: '1 1 100px', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
             <input name="hips" type="number" step="0.1" placeholder="Hông (cm)" style={{ flex: '1 1 100px', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
           </div>
-          <button type="submit" disabled={loading} style={{ background: '#3b82f6', color: '#fff', fontWeight: 700, border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', alignSelf: 'flex-start', marginTop: '4px' }}>
+          <button type="submit" disabled={loading} style={{ background: '#5b9cff', color: '#fff', fontWeight: 700, border: 'none', padding: '10px 24px', borderRadius: '8px', cursor: 'pointer', alignSelf: 'flex-start', marginTop: '4px' }}>
             {loading ? 'Đang lưu...' : 'Lưu chỉ số đo'}
           </button>
         </form>
@@ -117,14 +117,14 @@ export default function BodyRecompositionChart({ metrics, goal }: Props) {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
               <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} dy={10} />
               <YAxis yAxisId="left" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} domain={['dataMin - 2', 'dataMax + 2']} dx={-10} />
-              <YAxis yAxisId="right" orientation="right" stroke="#f59e0b" fontSize={12} tickLine={false} axisLine={false} domain={['dataMin - 1', 'dataMax + 1']} dx={10} />
+              <YAxis yAxisId="right" orientation="right" stroke="#f5b94a" fontSize={12} tickLine={false} axisLine={false} domain={['dataMin - 1', 'dataMax + 1']} dx={10} />
               <Tooltip 
                 contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}
                 itemStyle={{ color: '#fff', fontSize: '0.9rem' }}
                 labelStyle={{ color: '#94a3b8', marginBottom: '8px', fontSize: '0.85rem' }}
               />
-              <Line yAxisId="left" type="monotone" dataKey="weight" name="Cân nặng (kg)" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#0f172a' }} activeDot={{ r: 6, strokeWidth: 0 }} />
-              <Line yAxisId="right" type="monotone" dataKey="bodyFat" name="Mỡ (%)" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4, fill: '#f59e0b', strokeWidth: 2, stroke: '#0f172a' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+              <Line yAxisId="left" type="monotone" dataKey="weight" name="Cân nặng (kg)" stroke="#5b9cff" strokeWidth={3} dot={{ r: 4, fill: '#5b9cff', strokeWidth: 2, stroke: '#0f172a' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+              <Line yAxisId="right" type="monotone" dataKey="bodyFat" name="Mỡ (%)" stroke="#f5b94a" strokeWidth={3} dot={{ r: 4, fill: '#f5b94a', strokeWidth: 2, stroke: '#0f172a' }} activeDot={{ r: 6, strokeWidth: 0 }} />
             </LineChart>
           </ResponsiveContainer>
         ) : (

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Kanban,
   Timer,
@@ -22,6 +23,8 @@ import {
   Target,
   Clock,
   MapPin,
+  Upload,
+  Download,
 } from 'lucide-react';
 import { Task, Sprint } from '@prisma/client';
 import {
@@ -38,6 +41,7 @@ import {
   formatDateTimeRange,
   TASK_CATEGORIES,
   getCategoryMeta,
+  matchesCategoryFilter,
 } from '@/lib/utils/timeFormat';
 import SmartGoalBoard, { SmartGoalItem } from '@/components/dashboard/SmartGoalBoard';
 
@@ -53,23 +57,50 @@ interface Props {
 }
 
 const TABS = [
-  { id: 'energy', label: 'Tasks & Lịch Trình', icon: BatteryCharging, accent: '#3b82f6' },
-  { id: 'sprint', label: 'Sprint Manager', icon: Kanban, accent: '#f59e0b' },
-  { id: 'calendar', label: 'Calendar View', icon: Calendar, accent: '#10b981' },
-  { id: 'smart', label: 'Mục Tiêu SMART', icon: Target, accent: '#a855f7' },
+  { id: 'calendar', label: 'Calendar (TKB & Làm Việc)', icon: Calendar, accent: '#7b8cff' },
+  { id: 'energy', label: 'Danh Sách & Năng Lượng', icon: BatteryCharging, accent: '#3dd68c' },
+  { id: 'sprint', label: 'Sprint Manager', icon: Kanban, accent: '#f5b94a' },
+  { id: 'smart', label: 'Mục Tiêu SMART', icon: Target, accent: '#a5b1ff' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
 
 export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = [] }: Props) {
-  const [activeTab, setActiveTab] = useState<TabId>('energy');
+  const router = useRouter();
+  const scheduleFileRef = useRef<HTMLInputElement | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>('calendar');
   const [loading, setLoading] = useState(false);
+  const [importingFile, setImportingFile] = useState(false);
+  const [importMsg, setImportMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [weekOffset, setWeekOffset] = useState(0);
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [reportingTaskId, setReportingTaskId] = useState<string | null>(null);
   const [overdueReason, setOverdueReason] = useState('');
   const [rescheduleDate, setRescheduleDate] = useState('');
   const currentTab = TABS.find(t => t.id === activeTab)!;
+
+  const handleScheduleUpload = async (file: File | null) => {
+    if (!file) return;
+    setImportingFile(true);
+    setImportMsg(null);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/schedule/import', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        setImportMsg({ ok: false, text: data.error || 'Không thể import file lịch trình.' });
+      } else {
+        setImportMsg({ ok: true, text: data.message });
+        router.refresh();
+      }
+    } catch (e: any) {
+      setImportMsg({ ok: false, text: e?.message || 'Lỗi kết nối khi import file.' });
+    } finally {
+      setImportingFile(false);
+      if (scheduleFileRef.current) scheduleFileRef.current.value = '';
+    }
+  };
 
   const toLocalISO = (d: Date) =>
     new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -86,15 +117,15 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
   const recEnergy = getEnergyRecommendation();
 
   const getEnergyIcon = (level: string) => {
-    if (level === 'Low') return <BatteryLow size={16} color="#3b82f6" />;
-    if (level === 'Medium') return <BatteryMedium size={16} color="#f59e0b" />;
-    return <BatteryFull size={16} color="#ef4444" />;
+    if (level === 'Low') return <BatteryLow size={16} color="#5b9cff" />;
+    if (level === 'Medium') return <BatteryMedium size={16} color="#f5b94a" />;
+    return <BatteryFull size={16} color="#f46d75" />;
   };
 
   const getEnergyColor = (level: string) => {
-    if (level === 'Low') return '#3b82f6';
-    if (level === 'Medium') return '#f59e0b';
-    return '#ef4444';
+    if (level === 'Low') return '#5b9cff';
+    if (level === 'Medium') return '#f5b94a';
+    return '#f46d75';
   };
 
   const activeSprint = sprints.find(s => s.isActive);
@@ -142,7 +173,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
   const getTasksForDate = (date: Date) => {
     return tasks
       .filter(t => {
-        if (categoryFilter !== 'ALL' && (t.category || 'TASK') !== categoryFilter) return false;
+        if (!matchesCategoryFilter(t.category, categoryFilter)) return false;
         const start = t.startTime ? new Date(t.startTime) : new Date(t.deadline);
         const end = new Date(t.deadline);
         return isSameDay(start, date) || isSameDay(end, date) || isDateInRange(date, start, end);
@@ -210,9 +241,9 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
         key={task.id}
         style={{
           background: timeStatus.isOverdue
-            ? 'rgba(239,68,68,0.06)'
+            ? 'rgba(244, 109, 117,0.06)'
             : timeStatus.isWarning
-            ? 'rgba(245,158,11,0.06)'
+            ? 'rgba(245, 185, 74,0.06)'
             : 'rgba(255,255,255,0.02)',
           padding: '16px',
           borderRadius: '14px',
@@ -235,7 +266,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                 border: 'none',
                 padding: 0,
                 cursor: effectivelyBlocked ? 'not-allowed' : 'pointer',
-                color: task.status === 'DONE' ? '#10b981' : timeStatus.color,
+                color: task.status === 'DONE' ? '#3dd68c' : timeStatus.color,
                 display: 'flex',
                 opacity: effectivelyBlocked && task.status !== 'DONE' ? 0.5 : 1,
               }}
@@ -252,13 +283,13 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
               {task.title}
               {task.isCoreTask && (
                 <span title="Core Task" style={{ display: 'inline', marginLeft: '6px' }}>
-                  <Flame size={14} color="#ef4444" style={{ verticalAlign: 'middle' }} />
+                  <Flame size={14} color="#f46d75" style={{ verticalAlign: 'middle' }} />
                 </span>
               )}
             </span>
 
             {sprintObj && (
-              <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.15)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)' }}>
+              <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '6px', background: 'rgba(245, 185, 74,0.15)', color: '#f5b94a', border: '1px solid rgba(245, 185, 74,0.3)' }}>
                 {sprintObj.name}
               </span>
             )}
@@ -273,12 +304,12 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
 
         {task.location && (
           <div style={{ marginLeft: '26px', fontSize: '0.8rem', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <MapPin size={13} color="#38bdf8" /> Địa điểm / Phòng: {task.location}
+            <MapPin size={13} color="#6cc4ff" /> Địa điểm / Phòng: {task.location}
           </div>
         )}
 
         {effectivelyBlocked && blockingTask && (
-          <div style={{ marginLeft: '26px', fontSize: '0.8rem', color: '#ef4444', background: 'rgba(239,68,68,0.1)', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', width: 'fit-content' }}>
+          <div style={{ marginLeft: '26px', fontSize: '0.8rem', color: '#f46d75', background: 'rgba(244, 109, 117,0.1)', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', width: 'fit-content' }}>
             Bị block bởi: {blockingTask.title}
           </div>
         )}
@@ -314,9 +345,9 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                 type="button"
                 onClick={() => setReportingTaskId(reportingTaskId === task.id ? null : task.id)}
                 style={{
-                  background: 'rgba(239,68,68,0.2)',
-                  border: '1px solid rgba(239,68,68,0.4)',
-                  color: '#fca5a5',
+                  background: 'rgba(244, 109, 117,0.2)',
+                  border: '1px solid rgba(244, 109, 117,0.4)',
+                  color: '#f9a3a8',
                   padding: '4px 10px',
                   borderRadius: '8px',
                   fontSize: '0.75rem',
@@ -332,22 +363,22 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
 
         {/* Hiển thị báo cáo trễ đã lưu nếu có */}
         {task.overdueNote && (
-          <div style={{ marginLeft: '26px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(239,68,68,0.1)', border: '1px dashed rgba(239,68,68,0.35)', fontSize: '0.8rem', color: '#fca5a5' }}>
+          <div style={{ marginLeft: '26px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(244, 109, 117,0.1)', border: '1px dashed rgba(244, 109, 117,0.35)', fontSize: '0.8rem', color: '#f9a3a8' }}>
             <strong>Báo cáo trễ hạn:</strong> {task.overdueNote}
           </div>
         )}
 
         {/* Form Báo cáo trễ hạn & Gia hạn */}
         {reportingTaskId === task.id && (
-          <div style={{ marginLeft: '26px', marginTop: '6px', padding: '12px', borderRadius: '10px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(239,68,68,0.35)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ fontSize: '0.8rem', color: '#fca5a5', fontWeight: 700 }}>
+          <div style={{ marginLeft: '26px', marginTop: '6px', padding: '12px', borderRadius: '10px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(244, 109, 117,0.35)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ fontSize: '0.8rem', color: '#f9a3a8', fontWeight: 700 }}>
               Báo cáo nguyên nhân trễ hạn & Đặt lại thời hạn mới (nếu cần):
             </div>
             <input
               value={overdueReason}
               onChange={e => setOverdueReason(e.target.value)}
               placeholder="Nguyên nhân trễ hạn & hướng khắc phục..."
-              style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(15,23,42,0.9)', color: '#fff', fontSize: '0.85rem', outline: 'none' }}
+              style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'var(--surface)', color: '#fff', fontSize: '0.85rem', outline: 'none' }}
             />
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Gia hạn đến (tùy chọn):</span>
@@ -355,13 +386,13 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                 type="datetime-local"
                 value={rescheduleDate}
                 onChange={e => setRescheduleDate(e.target.value)}
-                style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(15,23,42,0.9)', color: '#fff', fontSize: '0.82rem', colorScheme: 'dark' }}
+                style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'var(--surface)', color: '#fff', fontSize: '0.82rem', colorScheme: 'dark' }}
               />
               <button
                 type="button"
                 onClick={() => handleOverdueSubmit(task.id)}
                 disabled={loading || !overdueReason.trim()}
-                style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem' }}
+                style={{ background: '#f46d75', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem' }}
               >
                 Gửi Báo Cáo
               </button>
@@ -374,11 +405,11 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
 
   const filteredTodoTasks = tasks
     .filter(t => t.status !== 'DONE')
-    .filter(t => categoryFilter === 'ALL' || (t.category || 'TASK') === categoryFilter);
+    .filter(t => matchesCategoryFilter(t.category, categoryFilter));
 
   const filteredDoneTasks = tasks
     .filter(t => t.status === 'DONE')
-    .filter(t => categoryFilter === 'ALL' || (t.category || 'TASK') === categoryFilter);
+    .filter(t => matchesCategoryFilter(t.category, categoryFilter));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '80vh' }}>
@@ -427,12 +458,12 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
         {/* Quick stats badges */}
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', fontSize: '0.78rem' }}>
           {overdueTasks.length > 0 && (
-            <span style={{ background: 'rgba(239,68,68,0.18)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.4)', padding: '3px 10px', borderRadius: '20px', fontWeight: 700 }}>
+            <span style={{ background: 'rgba(244, 109, 117,0.18)', color: '#f46d75', border: '1px solid rgba(244, 109, 117,0.4)', padding: '3px 10px', borderRadius: '20px', fontWeight: 700 }}>
               {overdueTasks.length} mục trễ hạn cần báo cáo
             </span>
           )}
           {warningTasks.length > 0 && (
-            <span style={{ background: 'rgba(245,158,11,0.18)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.4)', padding: '3px 10px', borderRadius: '20px', fontWeight: 700 }}>
+            <span style={{ background: 'rgba(245, 185, 74,0.18)', color: '#f5b94a', border: '1px solid rgba(245, 185, 74,0.4)', padding: '3px 10px', borderRadius: '20px', fontWeight: 700 }}>
               {warningTasks.length} mục sắp tới hạn
             </span>
           )}
@@ -445,8 +476,8 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
         {(overdueTasks.length > 0 || warningTasks.length > 0) && activeTab !== 'smart' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '24px' }}>
             {overdueTasks.length > 0 && (
-              <div style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.14), rgba(15,23,42,0.9))', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '16px', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ef4444', fontWeight: 800, fontSize: '0.95rem' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(244, 109, 117,0.14), var(--surface))', border: '1px solid rgba(244, 109, 117,0.4)', borderRadius: '16px', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f46d75', fontWeight: 800, fontSize: '0.95rem' }}>
                   <FileWarning size={20} /> BÁO CÁO TRỄ HẠN ({overdueTasks.length} công việc/lịch trình)
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '120px', overflowY: 'auto' }}>
@@ -455,7 +486,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                     return (
                       <div key={t.id} style={{ fontSize: '0.83rem', color: '#fecaca', display: 'flex', justifyContent: 'space-between', gap: '8px', background: 'rgba(0,0,0,0.25)', padding: '6px 10px', borderRadius: '8px' }}>
                         <span style={{ fontWeight: 600 }}>{t.title}</span>
-                        <span style={{ color: '#ef4444', fontWeight: 700, flexShrink: 0 }}>Trễ {st.overdueDurationText}</span>
+                        <span style={{ color: '#f46d75', fontWeight: 700, flexShrink: 0 }}>Trễ {st.overdueDurationText}</span>
                       </div>
                     );
                   })}
@@ -464,17 +495,17 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
             )}
 
             {warningTasks.length > 0 && (
-              <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.14), rgba(15,23,42,0.9))', border: '1px solid rgba(245,158,11,0.4)', borderRadius: '16px', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fbbf24', fontWeight: 800, fontSize: '0.95rem' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(245, 185, 74,0.14), var(--surface))', border: '1px solid rgba(245, 185, 74,0.4)', borderRadius: '16px', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f5b94a', fontWeight: 800, fontSize: '0.95rem' }}>
                   <AlertTriangle size={20} /> CẢNH BÁO SẮP TỚI ({warningTasks.length} mục trong 24h tới)
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '120px', overflowY: 'auto' }}>
                   {warningTasks.map(t => {
                     const st = getTaskTimeStatus(t.startTime, t.deadline, t.status, now);
                     return (
-                      <div key={t.id} style={{ fontSize: '0.83rem', color: '#fde68a', display: 'flex', justifyContent: 'space-between', gap: '8px', background: 'rgba(0,0,0,0.25)', padding: '6px 10px', borderRadius: '8px' }}>
+                      <div key={t.id} style={{ fontSize: '0.83rem', color: '#f9d68a', display: 'flex', justifyContent: 'space-between', gap: '8px', background: 'rgba(0,0,0,0.25)', padding: '6px 10px', borderRadius: '8px' }}>
                         <span style={{ fontWeight: 600 }}>{t.title}</span>
-                        <span style={{ color: '#fbbf24', fontWeight: 700, flexShrink: 0 }}>{st.badgeText}</span>
+                        <span style={{ color: '#f5b94a', fontWeight: 700, flexShrink: 0 }}>{st.badgeText}</span>
                       </div>
                     );
                   })}
@@ -487,13 +518,13 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
         {/* --- ENERGY BOARD TAB --- */}
         {activeTab === 'energy' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', padding: '18px 20px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ background: 'rgba(91, 156, 255,0.1)', border: '1px solid rgba(91, 156, 255,0.3)', padding: '18px 20px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
               <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                <div style={{ background: 'rgba(59,130,246,0.2)', padding: '12px', borderRadius: '50%' }}>
-                  <Zap size={24} color="#3b82f6" />
+                <div style={{ background: 'rgba(91, 156, 255,0.2)', padding: '12px', borderRadius: '50%' }}>
+                  <Zap size={24} color="#5b9cff" />
                 </div>
                 <div>
-                  <h3 style={{ margin: '0 0 4px 0', color: '#3b82f6', fontSize: '1.05rem' }}>
+                  <h3 style={{ margin: '0 0 4px 0', color: '#5b9cff', fontSize: '1.05rem' }}>
                     Mức năng lượng hiện tại: {currentEnergy}/10
                   </h3>
                   <p style={{ margin: 0, color: '#93c5fd', fontSize: '0.88rem' }}>
@@ -510,7 +541,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                     padding: '6px 12px',
                     borderRadius: '20px',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    background: categoryFilter === 'ALL' ? '#3b82f6' : 'rgba(255,255,255,0.04)',
+                    background: categoryFilter === 'ALL' ? '#5b9cff' : 'rgba(255,255,255,0.04)',
                     color: '#fff',
                     fontSize: '0.8rem',
                     fontWeight: 600,
@@ -550,13 +581,12 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                   <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: '10px' }}>
                     <select
                       name="category"
-                      defaultValue="TASK"
+                      defaultValue="SCHEDULE"
                       style={{ padding: '11px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#fff', outline: 'none', fontWeight: 600 }}
                     >
-                      <option value="TASK">Công việc (Task)</option>
-                      <option value="TIMETABLE">Thời khóa biểu (Lịch học)</option>
-                      <option value="WORK_SCHEDULE">Lịch làm việc (Ca làm/Họp)</option>
-                      <option value="APPOINTMENT">Lịch hẹn (Sự kiện/Gặp gỡ)</option>
+                      <option value="SCHEDULE">Thời khóa biểu & Lịch làm việc</option>
+                      <option value="APPOINTMENT">Lịch hẹn & Sự kiện</option>
+                      <option value="TASK">Công việc / Deadline</option>
                     </select>
                     <select
                       name="energyLevel"
@@ -645,7 +675,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                       <select
                         name="sprintId"
                         defaultValue={activeSprint?.id || ''}
-                        style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid rgba(245,158,11,0.3)', background: '#0f172a', color: '#fbbf24', outline: 'none', fontSize: '0.85rem' }}
+                        style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid rgba(245, 185, 74,0.3)', background: '#0f172a', color: '#f5b94a', outline: 'none', fontSize: '0.85rem' }}
                       >
                         <option value="">-- Không thuộc Sprint nào --</option>
                         {sprints.map(sp => (
@@ -660,7 +690,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                   <button
                     type="submit"
                     disabled={loading}
-                    style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', marginTop: '4px' }}
+                    style={{ background: '#5b9cff', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', marginTop: '4px' }}
                   >
                     {loading ? 'Đang lưu...' : 'Tạo Lịch / Task Mới'}
                   </button>
@@ -736,7 +766,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                   {/* Chọn các task có sẵn để đưa vào Sprint */}
                   {todoTasks.length > 0 && (
                     <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <label style={{ fontSize: '0.78rem', color: '#fbbf24', fontWeight: 700, display: 'block', marginBottom: '8px' }}>
+                      <label style={{ fontSize: '0.78rem', color: '#f5b94a', fontWeight: 700, display: 'block', marginBottom: '8px' }}>
                         Chọn công việc đưa vào Sprint này (tùy chọn):
                       </label>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '140px', overflowY: 'auto' }}>
@@ -753,7 +783,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                   <button
                     type="submit"
                     disabled={loading}
-                    style={{ background: '#f59e0b', color: '#0f172a', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', marginTop: '4px' }}
+                    style={{ background: '#f5b94a', color: '#0f172a', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s', marginTop: '4px' }}
                   >
                     {loading ? 'Đang tạo...' : 'Bắt đầu Sprint & Hiện lên Calendar'}
                   </button>
@@ -782,7 +812,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                           background: 'rgba(255,255,255,0.025)',
                           padding: '20px',
                           borderRadius: '16px',
-                          border: `1px solid ${sprintTimeStatus.isOverdue ? 'rgba(239,68,68,0.4)' : 'rgba(245,158,11,0.35)'}`,
+                          border: `1px solid ${sprintTimeStatus.isOverdue ? 'rgba(244, 109, 117,0.4)' : 'rgba(245, 185, 74,0.35)'}`,
                           display: 'flex',
                           flexDirection: 'column',
                           gap: '12px',
@@ -794,7 +824,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                               {sprint.name}
                             </h4>
                             <div style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-                              <Timer size={14} color="#f59e0b" />
+                              <Timer size={14} color="#f5b94a" />
                               {formatDateTimeRange(sprint.startDate, sprint.endDate)}
                             </div>
                           </div>
@@ -805,7 +835,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                             </span>
                             <button
                               onClick={() => deleteSprint(sprint.id)}
-                              style={{ background: 'rgba(239,68,68,0.1)', border: 'none', color: '#ef4444', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
+                              style={{ background: 'rgba(244, 109, 117,0.1)', border: 'none', color: '#f46d75', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
                               title="Xóa Sprint"
                             >
                               <Trash2 size={15} />
@@ -815,10 +845,10 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#cbd5e1' }}>
                           <span>Tiến độ công việc ({done}/{total} tasks)</span>
-                          <strong style={{ color: '#fbbf24' }}>{progress}%</strong>
+                          <strong style={{ color: '#f5b94a' }}>{progress}%</strong>
                         </div>
                         <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px', overflow: 'hidden' }}>
-                          <div style={{ width: `${progress}%`, height: '100%', background: '#f59e0b', transition: 'width 0.3s' }} />
+                          <div style={{ width: `${progress}%`, height: '100%', background: '#f5b94a', transition: 'width 0.3s' }} />
                         </div>
 
                         {sprintTasks.length > 0 ? (
@@ -830,9 +860,9 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <button
                                       onClick={() => updateTaskStatus(t.id, t.status === 'DONE' ? 'TODO' : 'DONE')}
-                                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: t.status === 'DONE' ? '#10b981' : '#94a3b8', display: 'flex' }}
+                                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: t.status === 'DONE' ? '#3dd68c' : '#94a3b8', display: 'flex' }}
                                     >
-                                      {t.status === 'DONE' ? <CheckCircle size={14} color="#10b981" /> : <Circle size={14} />}
+                                      {t.status === 'DONE' ? <CheckCircle size={14} color="#3dd68c" /> : <Circle size={14} />}
                                     </button>
                                     <span style={{ textDecoration: t.status === 'DONE' ? 'line-through' : 'none' }}>{t.title}</span>
                                   </div>
@@ -880,16 +910,85 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
         {/* --- CALENDAR TAB --- */}
         {activeTab === 'calendar' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
               <div>
-                <h3 style={{ margin: 0, color: '#fff', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Calendar size={20} color="#10b981" /> Lịch Tổng Hợp Tuần (Sprints • Thời Khóa Biểu • Làm Việc • Lịch Hẹn)
+                <h3 style={{ margin: 0, color: '#fff', fontSize: '1.18rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Calendar size={20} color="#7b8cff" /> Calendar: Thời Khóa Biểu & Lịch Làm Việc • Lịch Hẹn • Sprint
                 </h3>
                 <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#94a3b8' }}>
-                  Hiển thị đầy đủ các Sprint đang chạy và mọi công việc/lịch trình theo khung giờ bắt đầu - kết thúc.
+                  Gộp chung Thời khóa biểu và Lịch làm việc theo cấu trúc Calendar 7 ngày, hỗ trợ import trực tiếp từ file schedule (.xlsx, .ics, .csv).
                 </p>
               </div>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <input
+                  ref={scheduleFileRef}
+                  type="file"
+                  accept=".xlsx,.ics,.csv,.tsv,.json"
+                  onChange={e => handleScheduleUpload(e.target.files?.[0] || null)}
+                  style={{ display: 'none' }}
+                />
+                <button
+                  type="button"
+                  disabled={importingFile}
+                  onClick={() => scheduleFileRef.current?.click()}
+                  style={{
+                    background: '#3dd68c',
+                    color: '#09110d',
+                    border: 'none',
+                    padding: '7px 13px',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    cursor: importingFile ? 'wait' : 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <Upload size={14} />
+                  {importingFile ? 'Đang import...' : 'Import File Schedule (.xlsx / .ics)'}
+                </button>
+
+                <a
+                  href="/api/schedule/template?format=xlsx"
+                  download="Mau_Lich_Calendar_GlowUp.xlsx"
+                  style={{
+                    background: 'rgba(123, 140, 255, 0.14)',
+                    border: '1px solid rgba(123, 140, 255, 0.35)',
+                    color: '#a5b1ff',
+                    padding: '7px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                >
+                  <Download size={13} /> Mẫu Excel
+                </a>
+
+                <a
+                  href="/api/schedule/template?format=ics"
+                  download="Mau_Lich_Calendar_GlowUp.ics"
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#cbd5e1',
+                    padding: '7px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}
+                >
+                  <Download size={13} /> Mẫu .ics
+                </a>
+
                 <button
                   onClick={() => setWeekOffset(prev => prev - 1)}
                   style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
@@ -898,7 +997,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                 </button>
                 <button
                   onClick={() => setWeekOffset(0)}
-                  style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.35)', color: '#10b981', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem' }}
+                  style={{ background: 'rgba(123, 140, 255, 0.16)', border: '1px solid rgba(123, 140, 255, 0.38)', color: '#a5b1ff', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.82rem' }}
                 >
                   Tuần này
                 </button>
@@ -911,10 +1010,54 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
               </div>
             </div>
 
+            {importMsg && (
+              <div
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  background: importMsg.ok ? 'rgba(61, 214, 140, 0.12)' : 'rgba(244, 109, 117, 0.12)',
+                  border: `1px solid ${importMsg.ok ? 'rgba(61, 214, 140, 0.35)' : 'rgba(244, 109, 117, 0.35)'}`,
+                  color: importMsg.ok ? '#3dd68c' : '#f46d75',
+                }}
+              >
+                {importMsg.text}
+              </div>
+            )}
+
+            {/* BỘ LỌC NHANH TRÊN CALENDAR */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              {[
+                { id: 'ALL', label: 'Tất cả lịch trình' },
+                { id: 'SCHEDULE', label: 'Thời khóa biểu & Làm việc' },
+                { id: 'APPOINTMENT', label: 'Lịch hẹn & Sự kiện' },
+                { id: 'TASK', label: 'Công việc / Deadline' },
+              ].map(f => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setCategoryFilter(f.id)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    border: categoryFilter === f.id ? '1px solid #7b8cff' : '1px solid rgba(255,255,255,0.08)',
+                    background: categoryFilter === f.id ? 'rgba(123, 140, 255, 0.16)' : 'rgba(255,255,255,0.02)',
+                    color: categoryFilter === f.id ? '#a5b1ff' : '#94a3b8',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
             {/* SPRINT TIMELINE BANNERS TRONG TUẦN */}
             {getWeekActiveSprints().length > 0 && (
-              <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '14px', padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <div style={{ background: 'rgba(245, 185, 74,0.08)', border: '1px solid rgba(245, 185, 74,0.3)', borderRadius: '14px', padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f5b94a', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   Sprints Đang Chạy Trong Tuần Này ({getWeekActiveSprints().length})
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
@@ -926,8 +1069,8 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                       <div
                         key={sp.id}
                         style={{
-                          background: 'rgba(15,23,42,0.85)',
-                          border: '1px solid rgba(245,158,11,0.4)',
+                          background: 'var(--surface)',
+                          border: '1px solid rgba(245, 185, 74,0.4)',
                           borderRadius: '10px',
                           padding: '8px 14px',
                           display: 'flex',
@@ -940,7 +1083,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                         <span style={{ color: '#94a3b8' }}>
                           ({new Date(sp.startDate).toLocaleDateString('vi-VN')} → {new Date(sp.endDate).toLocaleDateString('vi-VN')})
                         </span>
-                        <span style={{ background: 'rgba(245,158,11,0.2)', color: '#fbbf24', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                        <span style={{ background: 'rgba(245, 185, 74,0.2)', color: '#f5b94a', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
                           {pct}% ({spDone}/{spTasks.length} tasks)
                         </span>
                       </div>
@@ -962,8 +1105,8 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                   <div
                     key={idx}
                     style={{
-                      background: isToday ? 'rgba(16,185,129,0.05)' : 'rgba(255,255,255,0.02)',
-                      border: isToday ? '1px solid rgba(16,185,129,0.35)' : '1px solid rgba(255,255,255,0.05)',
+                      background: isToday ? 'rgba(61, 214, 140,0.05)' : 'rgba(255,255,255,0.02)',
+                      border: isToday ? '1px solid rgba(61, 214, 140,0.35)' : '1px solid rgba(255,255,255,0.05)',
                       borderRadius: '16px',
                       display: 'flex',
                       flexDirection: 'column',
@@ -974,16 +1117,16 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                     <div
                       style={{
                         padding: '14px',
-                        borderBottom: isToday ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(255,255,255,0.05)',
+                        borderBottom: isToday ? '1px solid rgba(61, 214, 140,0.2)' : '1px solid rgba(255,255,255,0.05)',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        background: isToday ? 'rgba(16,185,129,0.12)' : 'transparent',
+                        background: isToday ? 'rgba(61, 214, 140,0.12)' : 'transparent',
                         borderRadius: '16px 16px 0 0',
                       }}
                     >
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: '0.78rem', color: isToday ? '#10b981' : '#94a3b8', fontWeight: 700 }}>
+                        <span style={{ fontSize: '0.78rem', color: isToday ? '#3dd68c' : '#94a3b8', fontWeight: 700 }}>
                           {dayNames[day.getDay()]} ({day.getDate()}/{day.getMonth() + 1})
                         </span>
                         <span style={{ fontSize: '1.15rem', color: '#fff', fontWeight: 800 }}>
@@ -1002,9 +1145,9 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                           <div
                             key={sp.id}
                             style={{
-                              background: 'linear-gradient(90deg, rgba(245,158,11,0.25), rgba(245,158,11,0.1))',
-                              border: '1px solid rgba(245,158,11,0.4)',
-                              color: '#fbbf24',
+                              background: 'linear-gradient(90deg, rgba(245, 185, 74,0.25), rgba(245, 185, 74,0.1))',
+                              border: '1px solid rgba(245, 185, 74,0.4)',
+                              color: '#f5b94a',
                               padding: '4px 8px',
                               borderRadius: '6px',
                               fontSize: '0.72rem',
@@ -1042,9 +1185,9 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                               key={task.id}
                               style={{
                                 background: st.isOverdue
-                                  ? 'rgba(239,68,68,0.1)'
+                                  ? 'rgba(244, 109, 117,0.1)'
                                   : st.isWarning
-                                  ? 'rgba(245,158,11,0.08)'
+                                  ? 'rgba(245, 185, 74,0.08)'
                                   : 'rgba(255,255,255,0.03)',
                                 border: `1px solid ${st.borderColor}`,
                                 borderLeft: `3px solid ${cat.color}`,
@@ -1068,7 +1211,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
                                 <button
                                   onClick={() => updateTaskStatus(task.id, isDone ? 'TODO' : 'DONE')}
-                                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: isDone ? '#10b981' : '#94a3b8', flexShrink: 0, marginTop: '2px' }}
+                                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: isDone ? '#3dd68c' : '#94a3b8', flexShrink: 0, marginTop: '2px' }}
                                 >
                                   {isDone ? <CheckCircle size={14} /> : <Circle size={14} />}
                                 </button>

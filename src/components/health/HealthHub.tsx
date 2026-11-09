@@ -24,28 +24,28 @@ const TABS = [
     label: 'Fitness & Workout',
     sublabel: 'Blueprint & Tập luyện',
     icon: Activity,
-    accent: '#ef4444',
+    accent: '#f46d75',
   },
   {
     id: 'metrics',
     label: 'Body Metrics',
     sublabel: 'Cân nặng & Chỉ số',
     icon: HeartPulse,
-    accent: '#3b82f6',
+    accent: '#5b9cff',
   },
   {
     id: 'nutrition',
     label: 'Nutrition & Fasting',
     sublabel: 'Dinh dưỡng & Nước',
     icon: Apple,
-    accent: '#10b981',
+    accent: '#3dd68c',
   },
   {
     id: 'recovery',
     label: 'Sleep & Recovery',
     sublabel: 'Phục hồi & Nhịp sinh học',
     icon: Moon,
-    accent: '#a855f7',
+    accent: '#a5b1ff',
   },
 ] as const;
 

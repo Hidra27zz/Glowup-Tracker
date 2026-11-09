@@ -71,9 +71,9 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
             onClick={() => setTimerState({ showMiniPopup: !state.showMiniPopup })}
             title="Chỉ thu nhỏ thành cửa sổ vuông nổi khi bạn cần chuyển sang trang khác"
             style={{
-              background: state.showMiniPopup ? 'rgba(239, 68, 68, 0.16)' : 'rgba(139, 92, 246, 0.14)',
-              border: `1px solid ${state.showMiniPopup ? 'rgba(239, 68, 68, 0.4)' : 'rgba(139, 92, 246, 0.35)'}`,
-              color: state.showMiniPopup ? '#fca5a5' : 'var(--accent-primary)',
+              background: state.showMiniPopup ? 'rgba(244, 109, 117, 0.16)' : 'rgba(123, 140, 255, 0.14)',
+              border: `1px solid ${state.showMiniPopup ? 'rgba(244, 109, 117, 0.4)' : 'rgba(123, 140, 255, 0.35)'}`,
+              color: state.showMiniPopup ? '#f9a3a8' : 'var(--accent-primary)',
               borderRadius: '8px',
               padding: '4px 9px',
               fontSize: '0.72rem',
@@ -140,7 +140,7 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
         >
           {mounted ? formatTimerMMSS(state.remainingSeconds) : '25:00'}
         </div>
-        <div style={{ fontSize: '0.78rem', color: state.isRunning ? '#10b981' : 'var(--text-secondary)', marginBottom: '12px', fontWeight: 600 }}>
+        <div style={{ fontSize: '0.78rem', color: state.isRunning ? '#3dd68c' : 'var(--text-secondary)', marginBottom: '12px', fontWeight: 600 }}>
           {state.isRunning ? 'Đang đồng bộ trên toàn hệ thống...' : 'Sẵn sàng vào trạng thái dòng chảy'}
         </div>
 
@@ -175,7 +175,7 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
             <button
               onClick={() => pauseUnifiedTimer()}
               className="glass-button"
-              style={{ flex: 1, justifyContent: 'center', background: 'rgba(245, 158, 11, 0.2)', borderColor: '#f59e0b', color: '#fbbf24', fontWeight: 700 }}
+              style={{ flex: 1, justifyContent: 'center', background: 'rgba(245, 185, 74, 0.2)', borderColor: '#f5b94a', color: '#f5b94a', fontWeight: 700 }}
             >
               Tạm dừng
             </button>
@@ -196,7 +196,7 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
                 resetUnifiedTimer();
               }}
               className="glass-button"
-              style={{ background: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', color: '#10b981', fontSize: '0.82rem', fontWeight: 700 }}
+              style={{ background: 'rgba(61, 214, 140, 0.2)', borderColor: '#3dd68c', color: '#3dd68c', fontSize: '0.82rem', fontWeight: 700 }}
             >
               Lưu ({elapsedMinutes}p)
             </button>

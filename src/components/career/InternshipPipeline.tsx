@@ -18,11 +18,11 @@ interface Props {
 }
 
 const STATUSES = [
-  { id: 'CV_SENT', label: 'CV Sent', color: '#3b82f6' },
-  { id: 'HR_CALL', label: 'HR Call', color: '#f59e0b' },
-  { id: 'INTERVIEW', label: 'Interview', color: '#8b5cf6' },
-  { id: 'OFFER', label: 'Offer', color: '#10b981' },
-  { id: 'REJECTED', label: 'Rejected', color: '#ef4444' }
+  { id: 'CV_SENT', label: 'CV Sent', color: '#5b9cff' },
+  { id: 'HR_CALL', label: 'HR Call', color: '#f5b94a' },
+  { id: 'INTERVIEW', label: 'Interview', color: '#7b8cff' },
+  { id: 'OFFER', label: 'Offer', color: '#3dd68c' },
+  { id: 'REJECTED', label: 'Rejected', color: '#f46d75' }
 ] as const;
 
 export default function InternshipPipeline({ applications }: Props) {
@@ -85,7 +85,7 @@ export default function InternshipPipeline({ applications }: Props) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h3 style={{ margin: '0 0 8px 0', color: '#fff', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Briefcase size={22} color="#f43f5e" /> Internship Pipeline
+            <Briefcase size={22} color="#f46d75" /> Internship Pipeline
           </h3>
           <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem' }}>Quản lý lộ trình ứng tuyển. Kéo thả để cập nhật trạng thái.</p>
         </div>
@@ -96,7 +96,7 @@ export default function InternshipPipeline({ applications }: Props) {
           <input name="company" placeholder="Tên công ty (VD: Google)" required style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} />
           <input name="position" placeholder="Vị trí (VD: Frontend Intern)" required style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} />
           <input name="notes" placeholder="Ghi chú thêm..." style={{ flex: 2, padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} />
-          <button type="submit" disabled={loading} style={{ background: '#f43f5e', color: '#fff', border: 'none', padding: '0 20px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button type="submit" disabled={loading} style={{ background: '#f46d75', color: '#fff', border: 'none', padding: '0 20px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Plus size={18} /> Thêm
           </button>
         </form>

@@ -31,7 +31,7 @@ export default function WorkoutLogger({ workouts = [] }: Props) {
     <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>
         <h3 style={{ margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Dumbbell size={20} color="#8b5cf6" /> Combat & Workout Logger
+          <Dumbbell size={20} color="#7b8cff" /> Combat & Workout Logger
         </h3>
         <p style={{ margin: 0, fontSize: '0.9rem' }}>Ghi nhận cường độ tập luyện (RPE)</p>
       </div>
@@ -74,14 +74,14 @@ export default function WorkoutLogger({ workouts = [] }: Props) {
             min="1" 
             max="10" 
             defaultValue="5"
-            style={{ flex: 1, accentColor: '#8b5cf6' }}
+            style={{ flex: 1, accentColor: '#7b8cff' }}
           />
         </div>
         <button 
           type="submit" 
           disabled={loading}
           className="btn btn-primary" 
-          style={{ width: '100%', display: 'flex', gap: '8px', background: '#8b5cf6', opacity: loading ? 0.7 : 1 }}
+          style={{ width: '100%', display: 'flex', gap: '8px', background: '#7b8cff', opacity: loading ? 0.7 : 1 }}
         >
           {loading ? 'Đang lưu...' : 'Ghi Log'} <Send size={16} />
         </button>
@@ -95,7 +95,7 @@ export default function WorkoutLogger({ workouts = [] }: Props) {
               <div key={w.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '10px 12px', borderRadius: '8px' }}>
                 <div>
                   <div style={{ fontWeight: 500, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Activity size={14} color="#8b5cf6" /> {w.title}
+                    <Activity size={14} color="#7b8cff" /> {w.title}
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                     {w.type} • {new Date(w.date).toLocaleDateString('vi-VN')}

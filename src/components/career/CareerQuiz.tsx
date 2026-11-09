@@ -68,8 +68,8 @@ export default function CareerQuiz({ questions }: Props) {
             background: 'rgba(0,0,0,0.2)', 
             border: answeredState 
               ? answeredState.isCorrect 
-                ? '1px solid rgba(16, 185, 129, 0.4)' 
-                : '1px solid rgba(239, 68, 68, 0.4)'
+                ? '1px solid rgba(61, 214, 140, 0.4)' 
+                : '1px solid rgba(244, 109, 117, 0.4)'
               : '1px solid var(--glass-border)',
             padding: '24px', 
             borderRadius: '16px',
@@ -80,7 +80,7 @@ export default function CareerQuiz({ questions }: Props) {
             {answeredState && (
               <div style={{
                 position: 'absolute', top: 0, left: 0, width: '4px', height: '100%',
-                background: answeredState.isCorrect ? '#10b981' : '#ef4444'
+                background: answeredState.isCorrect ? '#3dd68c' : '#f46d75'
               }} />
             )}
 
@@ -104,13 +104,13 @@ export default function CareerQuiz({ questions }: Props) {
 
                   if (answeredState) {
                     if (opt === q.correctAnswer) {
-                      btnBg = 'rgba(16, 185, 129, 0.1)';
-                      btnBorder = '1px solid #10b981';
-                      icon = <CheckCircle2 size={18} color="#10b981" />;
+                      btnBg = 'rgba(61, 214, 140, 0.1)';
+                      btnBorder = '1px solid #3dd68c';
+                      icon = <CheckCircle2 size={18} color="#3dd68c" />;
                     } else if (isSelected && !answeredState.isCorrect) {
-                      btnBg = 'rgba(239, 68, 68, 0.1)';
-                      btnBorder = '1px solid #ef4444';
-                      icon = <XCircle size={18} color="#ef4444" />;
+                      btnBg = 'rgba(244, 109, 117, 0.1)';
+                      btnBorder = '1px solid #f46d75';
+                      icon = <XCircle size={18} color="#f46d75" />;
                     }
                   }
 
@@ -152,7 +152,7 @@ export default function CareerQuiz({ questions }: Props) {
                     <button 
                       onClick={() => handleSubmitText(q)}
                       className="btn"
-                      style={{ background: '#38bdf8', color: '#0f172a', fontWeight: 'bold', padding: '0 20px' }}
+                      style={{ background: '#6cc4ff', color: '#0f172a', fontWeight: 'bold', padding: '0 20px' }}
                     >
                       Trả lời
                     </button>
@@ -160,7 +160,7 @@ export default function CareerQuiz({ questions }: Props) {
                 </div>
 
                 {answeredState && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: answeredState.isCorrect ? '#10b981' : '#ef4444', fontWeight: 500 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: answeredState.isCorrect ? '#3dd68c' : '#f46d75', fontWeight: 500 }}>
                     {answeredState.isCorrect ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
                     {answeredState.isCorrect ? 'Chính xác! Bạn đã tìm đúng từ khóa.' : `Sai rồi. Các từ khóa được chấp nhận: ${(q.correctAnswer as string[]).join(', ')}`}
                   </div>
@@ -170,8 +170,8 @@ export default function CareerQuiz({ questions }: Props) {
 
             {/* Render Explanation */}
             {answeredState && (
-              <div style={{ marginTop: '20px', marginLeft: '48px', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', borderLeft: '3px solid #38bdf8', animation: 'fadeIn 0.3s' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#38bdf8', marginBottom: '8px', fontWeight: 'bold', fontSize: '0.9rem' }}>
+              <div style={{ marginTop: '20px', marginLeft: '48px', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', borderLeft: '3px solid #6cc4ff', animation: 'fadeIn 0.3s' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6cc4ff', marginBottom: '8px', fontWeight: 'bold', fontSize: '0.9rem' }}>
                   <HelpCircle size={16} /> Giải thích chi tiết
                 </div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
@@ -184,8 +184,8 @@ export default function CareerQuiz({ questions }: Props) {
       })}
 
       {allAnswered && (
-        <div style={{ padding: '24px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10b981', borderRadius: '16px', textAlign: 'center', animation: 'fadeIn 0.5s' }}>
-          <h2 style={{ color: '#10b981', margin: '0 0 8px 0' }}>Kết quả bài kiểm tra</h2>
+        <div style={{ padding: '24px', background: 'rgba(61, 214, 140, 0.1)', border: '1px solid #3dd68c', borderRadius: '16px', textAlign: 'center', animation: 'fadeIn 0.5s' }}>
+          <h2 style={{ color: '#3dd68c', margin: '0 0 8px 0' }}>Kết quả bài kiểm tra</h2>
           <div style={{ fontSize: '2rem', fontWeight: 900, color: '#fff', marginBottom: '16px' }}>
             {getScore()} / {questions.length}
           </div>

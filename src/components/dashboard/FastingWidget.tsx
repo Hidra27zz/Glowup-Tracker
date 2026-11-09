@@ -51,22 +51,22 @@ export default function FastingWidget({ fastingStartStr }: { fastingStartStr: st
   return (
     <div style={{ position: 'relative', background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {toastMsg && (
-        <div style={{ position: 'absolute', top: '-40px', right: 0, background: 'rgba(16,185,129,0.95)', color: '#fff', padding: '6px 16px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', zIndex: 10 }}>
+        <div style={{ position: 'absolute', top: '-40px', right: 0, background: 'rgba(61, 214, 140,0.95)', color: '#fff', padding: '6px 16px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', zIndex: 10 }}>
           <Check size={14} /> {toastMsg}
         </div>
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h4 style={{ margin: 0, fontSize: '1rem', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <UtensilsCrossed size={18} color="#f43f5e" /> Fasting 16:8
+          <UtensilsCrossed size={18} color="#f46d75" /> Fasting 16:8
         </h4>
         <button 
           onClick={handleToggle} 
           disabled={isPending}
           style={{ 
-            background: fastingStartStr ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)', 
-            color: fastingStartStr ? '#ef4444' : '#10b981', 
-            border: `1px solid ${fastingStartStr ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'}`,
+            background: fastingStartStr ? 'rgba(244, 109, 117,0.15)' : 'rgba(61, 214, 140,0.15)', 
+            color: fastingStartStr ? '#f46d75' : '#3dd68c', 
+            border: `1px solid ${fastingStartStr ? 'rgba(244, 109, 117,0.3)' : 'rgba(61, 214, 140,0.3)'}`,
             padding: '6px 16px', 
             borderRadius: '12px', 
             cursor: isPending ? 'wait' : 'pointer', 
@@ -84,7 +84,7 @@ export default function FastingWidget({ fastingStartStr }: { fastingStartStr: st
             {elapsedString}
           </div>
           <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
-            <div style={{ width: `${progressPercent}%`, height: '100%', background: 'linear-gradient(90deg, #f43f5e, #fb923c)', transition: 'width 1s linear' }}></div>
+            <div style={{ width: `${progressPercent}%`, height: '100%', background: 'linear-gradient(90deg, #f46d75, #fb923c)', transition: 'width 1s linear' }}></div>
           </div>
         </div>
       ) : (

@@ -11,9 +11,9 @@ export interface UnifiedTimerState {
 }
 
 export const TIMER_MODE_CONFIG: Record<TimerMode, { label: string; minutes: number; color: string }> = {
-  pomodoro: { label: 'Pomodoro', minutes: 25, color: '#ef4444' },
-  deepwork: { label: 'Deep Work', minutes: 60, color: '#3b82f6' },
-  hyperfocus: { label: 'Hyperfocus', minutes: 90, color: '#a855f7' },
+  pomodoro: { label: 'Pomodoro', minutes: 25, color: '#f46d75' },
+  deepwork: { label: 'Deep Work', minutes: 60, color: '#5b9cff' },
+  hyperfocus: { label: 'Hyperfocus', minutes: 90, color: '#a5b1ff' },
 };
 
 const STORAGE_KEY = 'glowup_unified_timer_v2';

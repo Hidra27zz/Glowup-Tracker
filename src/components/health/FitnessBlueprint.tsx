@@ -67,11 +67,11 @@ export default function FitnessBlueprint({ initialBlueprint }: Props) {
   };
 
   return (
-    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '20px', gridColumn: '1 / -1', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9))', border: '1px solid rgba(96, 165, 250, 0.2)' }}>
+    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '20px', gridColumn: '1 / -1', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.7), var(--surface))', border: '1px solid rgba(96, 165, 250, 0.2)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ background: 'rgba(96, 165, 250, 0.2)', padding: '10px', borderRadius: '12px' }}>
-            <Target size={24} color="#60a5fa" />
+            <Target size={24} color="#7db2ff" />
           </div>
           <div>
             <h2 style={{ margin: 0, fontSize: '1.2rem', color: '#fff' }}>GlowUp Blueprint</h2>
@@ -86,7 +86,7 @@ export default function FitnessBlueprint({ initialBlueprint }: Props) {
             onClick={handleClear}
             disabled={loading}
             className="btn"
-            style={{ background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.5)', color: '#ef4444', display: 'flex', gap: '4px', padding: '6px 12px' }}
+            style={{ background: 'transparent', border: '1px solid rgba(244, 109, 117, 0.5)', color: '#f46d75', display: 'flex', gap: '4px', padding: '6px 12px' }}
           >
             <X size={16} /> Hủy Kế Hoạch
           </button>
@@ -111,7 +111,7 @@ export default function FitnessBlueprint({ initialBlueprint }: Props) {
             disabled={loading || !prompt.trim()}
             className="btn"
             style={{ 
-              background: '#60a5fa', color: '#0f172a', fontWeight: 'bold', 
+              background: '#7db2ff', color: '#0f172a', fontWeight: 'bold', 
               padding: '0 24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px',
               opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer'
             }}
@@ -127,10 +127,10 @@ export default function FitnessBlueprint({ initialBlueprint }: Props) {
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', gap: '12px' }}>
               <span style={{ background: 'rgba(255,255,255,0.1)', padding: '6px 16px', borderRadius: '20px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <MapPin size={14} color="#f43f5e" /> Vùng tập trung: <strong>{blueprint.focusArea}</strong>
+                <MapPin size={14} color="#f46d75" /> Vùng tập trung: <strong>{blueprint.focusArea}</strong>
               </span>
               <span style={{ background: 'rgba(255,255,255,0.1)', padding: '6px 16px', borderRadius: '20px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Target size={14} color="#10b981" /> Chiến lược: <strong>{blueprint.goalType}</strong>
+                <Target size={14} color="#3dd68c" /> Chiến lược: <strong>{blueprint.goalType}</strong>
               </span>
             </div>
             
@@ -139,7 +139,7 @@ export default function FitnessBlueprint({ initialBlueprint }: Props) {
                 onClick={handleSave}
                 disabled={loading}
                 className="btn btn-primary"
-                style={{ background: '#10b981', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px' }}
+                style={{ background: '#3dd68c', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 16px' }}
               >
                 <Check size={16} /> {loading ? 'Đang lưu...' : 'Áp Dụng Lộ Trình Này'}
               </button>
@@ -149,7 +149,7 @@ export default function FitnessBlueprint({ initialBlueprint }: Props) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
             {/* Dinh dưỡng */}
             <div style={{ background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <h3 style={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981' }}>
+              <h3 style={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px', color: '#3dd68c' }}>
                 <Apple size={20} /> Chiến lược Dinh dưỡng
               </h3>
               <ul style={{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '12px', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
@@ -194,7 +194,7 @@ export default function FitnessBlueprint({ initialBlueprint }: Props) {
           {/* Video Playlist */}
           {videos.length > 0 && (
             <div style={{ marginTop: '10px' }}>
-              <h3 style={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px', color: '#ef4444' }}>
+              <h3 style={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px', color: '#f46d75' }}>
                 <Video size={20} /> Playlist Dành Riêng Cho Bạn
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>

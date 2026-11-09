@@ -89,32 +89,32 @@ export default function SkillTree({ skills }: Props) {
 
   const getCategoryIcon = (category: string) => {
     switch(category) {
-      case 'Frontend': return <Layout size={16} color="#38bdf8" />;
-      case 'Backend': return <Terminal size={16} color="#a855f7" />;
-      case 'Data': return <Database size={16} color="#10b981" />;
+      case 'Frontend': return <Layout size={16} color="#6cc4ff" />;
+      case 'Backend': return <Terminal size={16} color="#a5b1ff" />;
+      case 'Data': return <Database size={16} color="#3dd68c" />;
       case 'Cloud': return <Cloud size={16} color="#0ea5e9" />;
       case 'Core': return <Cpu size={16} color="#facc15" />;
-      default: return <Code2 size={16} color="#a78bfa" />;
+      default: return <Code2 size={16} color="#a5b1ff" />;
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch(category) {
-      case 'Frontend': return '#38bdf8';
-      case 'Backend': return '#a855f7';
-      case 'Data': return '#10b981';
+      case 'Frontend': return '#6cc4ff';
+      case 'Backend': return '#a5b1ff';
+      case 'Data': return '#3dd68c';
       case 'Cloud': return '#0ea5e9';
       case 'Core': return '#facc15';
-      default: return '#a78bfa';
+      default: return '#a5b1ff';
     }
   };
 
   const getSourceIcon = (source: string) => {
-    if (source === 'YouTube') return <Youtube size={14} color="#f87171" />;
+    if (source === 'YouTube') return <Youtube size={14} color="#f46d75" />;
     if (source === 'GitHub') return <Github size={14} color="#f8fafc" />;
-    if (source === 'Dev.to') return <Layout size={14} color="#10b981" />;
-    if (source === 'Google') return <Search size={14} color="#38bdf8" />;
-    return <ExternalLink size={14} color="#38bdf8" />;
+    if (source === 'Dev.to') return <Layout size={14} color="#3dd68c" />;
+    if (source === 'Google') return <Search size={14} color="#6cc4ff" />;
+    return <ExternalLink size={14} color="#6cc4ff" />;
   };
 
   const inputStyle: React.CSSProperties = {
@@ -129,8 +129,8 @@ export default function SkillTree({ skills }: Props) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ background: 'linear-gradient(135deg, rgba(56,189,248,0.25), rgba(168,85,247,0.15))', padding: '14px', borderRadius: '16px', border: '1px solid rgba(56,189,248,0.2)' }}>
-            <Network size={26} color="#38bdf8" />
+          <div style={{ background: 'linear-gradient(135deg, rgba(108, 196, 255,0.25), rgba(168,85,247,0.15))', padding: '14px', borderRadius: '16px', border: '1px solid rgba(108, 196, 255,0.2)' }}>
+            <Network size={26} color="#6cc4ff" />
           </div>
           <div>
             <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>Quản lý Kỹ năng</h2>
@@ -140,7 +140,7 @@ export default function SkillTree({ skills }: Props) {
 
         <button 
           onClick={() => setShowInput(!showInput)}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(56,189,248,0.1)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '12px', padding: '10px 18px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.9rem' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(108, 196, 255,0.1)', color: '#6cc4ff', border: '1px solid rgba(108, 196, 255,0.3)', borderRadius: '12px', padding: '10px 18px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.9rem' }}
         >
           <Plus size={16} /> Thêm Kỹ năng mới
         </button>
@@ -164,7 +164,7 @@ export default function SkillTree({ skills }: Props) {
             </select>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', justifyContent: 'flex-end' }}>
-            <button type="submit" disabled={loading} style={{ background: '#38bdf8', color: '#0f172a', border: 'none', borderRadius: '10px', padding: '10px 24px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', height: '40px' }}>
+            <button type="submit" disabled={loading} style={{ background: '#6cc4ff', color: '#0f172a', border: 'none', borderRadius: '10px', padding: '10px 24px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', height: '40px' }}>
               {loading ? 'Đang thêm...' : 'Lưu'}
             </button>
           </div>
@@ -271,9 +271,9 @@ export default function SkillTree({ skills }: Props) {
                           </a>
                           <button 
                             onClick={() => handleCompleteResource(skill.id, resource.id, skill.name)}
-                            style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399', fontSize: '0.8rem', fontWeight: 700, padding: '8px', marginTop: '6px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'background 0.2s' }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.15)'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'}
+                            style={{ background: 'rgba(61, 214, 140, 0.1)', border: '1px solid rgba(61, 214, 140, 0.3)', color: '#3dd68c', fontSize: '0.8rem', fontWeight: 700, padding: '8px', marginTop: '6px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'background 0.2s' }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(61, 214, 140, 0.15)'}
+                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(61, 214, 140, 0.1)'}
                           >
                             <ChevronRight size={14} /> Đánh dấu hoàn thành
                           </button>

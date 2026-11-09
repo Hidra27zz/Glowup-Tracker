@@ -80,9 +80,9 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
           <button
             onClick={() => setTimerState({ showMiniPopup: !state.showMiniPopup })}
             style={{
-              background: state.showMiniPopup ? 'rgba(239, 68, 68, 0.16)' : 'rgba(139, 92, 246, 0.14)',
-              border: `1px solid ${state.showMiniPopup ? 'rgba(239, 68, 68, 0.4)' : 'rgba(139, 92, 246, 0.35)'}`,
-              color: state.showMiniPopup ? '#fca5a5' : 'var(--accent-primary)',
+              background: state.showMiniPopup ? 'rgba(244, 109, 117, 0.16)' : 'rgba(123, 140, 255, 0.14)',
+              border: `1px solid ${state.showMiniPopup ? 'rgba(244, 109, 117, 0.4)' : 'rgba(123, 140, 255, 0.35)'}`,
+              color: state.showMiniPopup ? '#f9a3a8' : 'var(--accent-primary)',
               borderRadius: '8px',
               padding: '5px 10px',
               fontSize: '0.78rem',
@@ -136,7 +136,7 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
         >
           {mounted ? formatTimerMMSS(state.remainingSeconds) : '25:00'}
         </div>
-        <div style={{ fontSize: '0.9rem', color: state.isRunning ? '#10b981' : 'var(--text-secondary)', marginBottom: '20px', fontWeight: 600 }}>
+        <div style={{ fontSize: '0.9rem', color: state.isRunning ? '#3dd68c' : 'var(--text-secondary)', marginBottom: '20px', fontWeight: 600 }}>
           {state.isRunning ? 'Đang tập trung cao độ (Đã bật Pop-up khi chuyển tab)' : 'Sẵn sàng'}
         </div>
 
@@ -167,8 +167,8 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
             style={{
               padding: '12px 28px',
               fontSize: '1rem',
-              background: state.isRunning ? 'rgba(245, 158, 11, 0.2)' : activeConfig.color,
-              borderColor: state.isRunning ? '#f59e0b' : 'transparent',
+              background: state.isRunning ? 'rgba(245, 185, 74, 0.2)' : activeConfig.color,
+              borderColor: state.isRunning ? '#f5b94a' : 'transparent',
               color: '#fff',
               fontWeight: 700,
             }}
@@ -187,9 +187,9 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
               className="glass-button"
               style={{
                 padding: '12px 20px',
-                background: 'rgba(16, 185, 129, 0.2)',
-                borderColor: '#10b981',
-                color: '#10b981',
+                background: 'rgba(61, 214, 140, 0.2)',
+                borderColor: '#3dd68c',
+                color: '#3dd68c',
                 fontWeight: 700,
               }}
             >
@@ -229,7 +229,7 @@ export default function DeepWorkTimer({ recentSessions }: { recentSessions: any[
                   style={{
                     fontWeight: 700,
                     color: 'var(--accent-primary)',
-                    background: 'rgba(139, 92, 246, 0.1)',
+                    background: 'rgba(123, 140, 255, 0.1)',
                     padding: '4px 10px',
                     borderRadius: '12px',
                     fontSize: '0.85rem',

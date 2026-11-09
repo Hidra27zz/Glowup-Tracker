@@ -112,7 +112,7 @@ export default function NutritionVault({
             style={{
               width: `${calProgress}%`,
               height: '100%',
-              background: 'linear-gradient(90deg, #10b981, #3b82f6)',
+              background: 'linear-gradient(90deg, #3dd68c, #5b9cff)',
               transition: 'width 0.3s ease',
             }}
           />
@@ -121,18 +121,18 @@ export default function NutritionVault({
 
       {/* Macros Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', textAlign: 'center' }}>
-        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '12px', borderRadius: '8px' }}>
-          <div style={{ fontSize: '0.75rem', color: '#f87171', fontWeight: 600 }}>PROTEIN</div>
+        <div style={{ background: 'rgba(244, 109, 117, 0.1)', border: '1px solid rgba(244, 109, 117, 0.2)', padding: '12px', borderRadius: '8px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#f46d75', fontWeight: 600 }}>PROTEIN</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 700, margin: '4px 0' }}>{Math.round(p)}g</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Mục tiêu: 150g</div>
         </div>
-        <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '12px', borderRadius: '8px' }}>
-          <div style={{ fontSize: '0.75rem', color: '#60a5fa', fontWeight: 600 }}>CARBS</div>
+        <div style={{ background: 'rgba(91, 156, 255, 0.1)', border: '1px solid rgba(91, 156, 255, 0.2)', padding: '12px', borderRadius: '8px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#7db2ff', fontWeight: 600 }}>CARBS</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 700, margin: '4px 0' }}>{Math.round(c)}g</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Mục tiêu: 200g</div>
         </div>
-        <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 130, 11, 0.2)', padding: '12px', borderRadius: '8px' }}>
-          <div style={{ fontSize: '0.75rem', color: '#fbbf24', fontWeight: 600 }}>FAT</div>
+        <div style={{ background: 'rgba(245, 185, 74, 0.1)', border: '1px solid rgba(245, 130, 11, 0.2)', padding: '12px', borderRadius: '8px' }}>
+          <div style={{ fontSize: '0.75rem', color: '#f5b94a', fontWeight: 600 }}>FAT</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 700, margin: '4px 0' }}>{Math.round(f)}g</div>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Mục tiêu: 70g</div>
         </div>
@@ -160,7 +160,7 @@ export default function NutritionVault({
                 cursor: 'pointer',
               }}
             >
-              {tpl.label} <span style={{ color: '#10b981', fontWeight: 700 }}>+{tpl.calories}cal / {tpl.protein}g P</span>
+              {tpl.label} <span style={{ color: '#3dd68c', fontWeight: 700 }}>+{tpl.calories}cal / {tpl.protein}g P</span>
             </button>
           ))}
         </div>

@@ -71,7 +71,7 @@ export default function QuickStatsForms() {
             position: 'absolute',
             top: '-38px',
             right: 0,
-            background: 'rgba(16,185,129,0.95)',
+            background: 'rgba(61, 214, 140,0.95)',
             color: '#fff',
             padding: '5px 14px',
             borderRadius: '10px',
@@ -93,7 +93,7 @@ export default function QuickStatsForms() {
           type="button"
           disabled={isPending}
           onClick={() => quickCalo(450, 'Bữa nhẹ / Sáng')}
-          style={chipStyle('#10b981')}
+          style={chipStyle('#3dd68c')}
         >
           +450 kcal (Bữa sáng)
         </button>
@@ -101,7 +101,7 @@ export default function QuickStatsForms() {
           type="button"
           disabled={isPending}
           onClick={() => quickCalo(600, 'Bữa chính')}
-          style={chipStyle('#10b981')}
+          style={chipStyle('#3dd68c')}
         >
           +600 kcal (Bữa chính)
         </button>
@@ -109,7 +109,7 @@ export default function QuickStatsForms() {
           type="button"
           disabled={isPending}
           onClick={() => quickSpend(30000, 'Cà phê / Nước')}
-          style={chipStyle('#f59e0b')}
+          style={chipStyle('#f5b94a')}
         >
           -30k Cà phê
         </button>
@@ -117,7 +117,7 @@ export default function QuickStatsForms() {
           type="button"
           disabled={isPending}
           onClick={() => quickSpend(50000, 'Ăn uống')}
-          style={chipStyle('#f59e0b')}
+          style={chipStyle('#f5b94a')}
         >
           -50k Ăn trưa
         </button>
@@ -155,7 +155,7 @@ export default function QuickStatsForms() {
               disabled={isPending}
               style={inputStyle}
             />
-            <button type="submit" disabled={isPending} style={btnStyle('#10b981')}>
+            <button type="submit" disabled={isPending} style={btnStyle('#3dd68c')}>
               <Plus size={16} /> Calo
             </button>
           </form>
@@ -170,7 +170,7 @@ export default function QuickStatsForms() {
               disabled={isPending}
               style={inputStyle}
             />
-            <button type="submit" disabled={isPending} style={btnStyle('#38bdf8')}>
+            <button type="submit" disabled={isPending} style={btnStyle('#6cc4ff')}>
               <Scale size={16} /> Kg
             </button>
           </form>
@@ -191,7 +191,7 @@ export default function QuickStatsForms() {
               disabled={isPending}
               style={{ ...inputStyle, flex: 1, minWidth: '110px' }}
             />
-            <button type="submit" disabled={isPending} style={btnStyle('#f59e0b')}>
+            <button type="submit" disabled={isPending} style={btnStyle('#f5b94a')}>
               <Plus size={16} /> Lưu
             </button>
           </form>

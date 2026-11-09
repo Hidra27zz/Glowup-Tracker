@@ -26,8 +26,8 @@ export default function InformationDiet({ logs }: Props) {
   const totalValue = logs.reduce((acc, log) => acc + log.valuableTime, 0);
   
   const pieData = [
-    { name: 'Junk Content', value: totalJunk, color: '#ef4444' },
-    { name: 'Value Content', value: totalValue, color: '#10b981' },
+    { name: 'Junk Content', value: totalJunk, color: '#f46d75' },
+    { name: 'Value Content', value: totalValue, color: '#3dd68c' },
   ];
 
   const ratio = totalValue === 0 ? 0 : (totalJunk / totalValue).toFixed(1);
@@ -47,17 +47,17 @@ export default function InformationDiet({ logs }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginTop: '12px' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: '#fca5a5', fontWeight: 600 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: '#f9a3a8', fontWeight: 600 }}>
               <Smartphone size={16} /> Junk Time (phút)
             </label>
-            <input type="number" name="junkTime" placeholder="VD: 60" required style={{ padding: '12px', borderRadius: '10px', border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.05)', color: '#fff', outline: 'none' }} />
+            <input type="number" name="junkTime" placeholder="VD: 60" required style={{ padding: '12px', borderRadius: '10px', border: '1px solid rgba(244, 109, 117,0.2)', background: 'rgba(244, 109, 117,0.05)', color: '#fff', outline: 'none' }} />
           </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: '#6ee7b7', fontWeight: 600 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: '#8ae8b8', fontWeight: 600 }}>
               <BookOpen size={16} /> Value Time (phút)
             </label>
-            <input type="number" name="valuableTime" placeholder="VD: 120" required style={{ padding: '12px', borderRadius: '10px', border: '1px solid rgba(16,185,129,0.2)', background: 'rgba(16,185,129,0.05)', color: '#fff', outline: 'none' }} />
+            <input type="number" name="valuableTime" placeholder="VD: 120" required style={{ padding: '12px', borderRadius: '10px', border: '1px solid rgba(61, 214, 140,0.2)', background: 'rgba(61, 214, 140,0.05)', color: '#fff', outline: 'none' }} />
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -65,7 +65,7 @@ export default function InformationDiet({ logs }: Props) {
             <input name="notes" placeholder="VD: Cuốn quá lướt TikTok mất 1 tiếng" style={{ padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} />
           </div>
 
-          <button type="submit" disabled={loading} style={{ background: 'linear-gradient(135deg, #ec4899, #f43f5e)', color: '#fff', border: 'none', borderRadius: '12px', padding: '14px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', transition: 'all 0.2s', marginTop: '8px' }}>
+          <button type="submit" disabled={loading} style={{ background: 'linear-gradient(135deg, #ec4899, #f46d75)', color: '#fff', border: 'none', borderRadius: '12px', padding: '14px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', transition: 'all 0.2s', marginTop: '8px' }}>
             {loading ? 'Đang lưu...' : <><Plus size={18} /> Ghi log hôm nay</>}
           </button>
         </form>
@@ -84,7 +84,7 @@ export default function InformationDiet({ logs }: Props) {
                     ))}
                   </Pie>
                   <Tooltip 
-                    contentStyle={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} 
+                    contentStyle={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} 
                     itemStyle={{ color: '#fff' }} 
                     formatter={(value: any) => value + ' phút'}
                   />
@@ -93,9 +93,9 @@ export default function InformationDiet({ logs }: Props) {
               <div style={{ marginTop: '16px', fontSize: '0.9rem', color: '#cbd5e1', textAlign: 'center', lineHeight: 1.6 }}>
                 Bạn dành <strong>{ratio}x</strong> thời gian cho thông tin rác so với thông tin giá trị.<br/>
                 {Number(ratio) > 1 ? (
-                  <span style={{ color: '#ef4444', fontWeight: 600 }}>Cảnh báo: Cần giảm tải giải trí ngay!</span>
+                  <span style={{ color: '#f46d75', fontWeight: 600 }}>Cảnh báo: Cần giảm tải giải trí ngay!</span>
                 ) : (
-                  <span style={{ color: '#10b981', fontWeight: 600 }}>Tuyệt vời: Bạn đang hấp thụ tri thức tốt.</span>
+                  <span style={{ color: '#3dd68c', fontWeight: 600 }}>Tuyệt vời: Bạn đang hấp thụ tri thức tốt.</span>
                 )}
               </div>
             </>

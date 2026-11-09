@@ -65,9 +65,9 @@ export function getTaskTimeStatus(
       state: 'DONE',
       badgeText: 'Đã hoàn thành',
       detailText: formatDateTimeRange(startTime, deadline),
-      color: '#10b981',
-      bgColor: 'rgba(16,185,129,0.12)',
-      borderColor: 'rgba(16,185,129,0.35)',
+      color: '#3dd68c',
+      bgColor: 'rgba(61, 214, 140,0.12)',
+      borderColor: 'rgba(61, 214, 140,0.35)',
       isOverdue: false,
       isWarning: false,
     };
@@ -85,9 +85,9 @@ export function getTaskTimeStatus(
       state: 'OVERDUE',
       badgeText: `BÁO CÁO TRỄ: Quá hạn ${overdueDuration}`,
       detailText: formatDateTimeRange(startTime, deadline),
-      color: '#ef4444',
-      bgColor: 'rgba(239,68,68,0.15)',
-      borderColor: 'rgba(239,68,68,0.45)',
+      color: '#f46d75',
+      bgColor: 'rgba(244, 109, 117,0.15)',
+      borderColor: 'rgba(244, 109, 117,0.45)',
       isOverdue: true,
       isWarning: false,
       overdueDurationText: overdueDuration,
@@ -102,11 +102,11 @@ export function getTaskTimeStatus(
     const remaining = formatDurationDiff(diffToEnd);
     return {
       state: 'WARNING',
-      badgeText: `⚠️ Sắp tới hạn (còn ${remaining})`,
+      badgeText: `Sắp tới hạn (còn ${remaining})`,
       detailText: formatDateTimeRange(startTime, deadline),
-      color: '#f59e0b',
-      bgColor: 'rgba(245,158,11,0.15)',
-      borderColor: 'rgba(245,158,11,0.45)',
+      color: '#f5b94a',
+      bgColor: 'rgba(245, 185, 74,0.15)',
+      borderColor: 'rgba(245, 185, 74,0.45)',
       isOverdue: false,
       isWarning: true,
     };
@@ -116,11 +116,11 @@ export function getTaskTimeStatus(
     const untilStart = formatDurationDiff(diffToStart);
     return {
       state: 'WARNING',
-      badgeText: `⚠️ Sắp bắt đầu sau ${untilStart}`,
+      badgeText: `Sắp bắt đầu sau ${untilStart}`,
       detailText: formatDateTimeRange(startTime, deadline),
-      color: '#f59e0b',
-      bgColor: 'rgba(245,158,11,0.15)',
-      borderColor: 'rgba(245,158,11,0.45)',
+      color: '#f5b94a',
+      bgColor: 'rgba(245, 185, 74,0.15)',
+      borderColor: 'rgba(245, 185, 74,0.45)',
       isOverdue: false,
       isWarning: true,
     };
@@ -133,9 +133,9 @@ export function getTaskTimeStatus(
       state: 'ACTIVE',
       badgeText: `Đang diễn ra • Còn ${remaining}`,
       detailText: formatDateTimeRange(startTime, deadline),
-      color: '#38bdf8',
-      bgColor: 'rgba(56,189,248,0.12)',
-      borderColor: 'rgba(56,189,248,0.35)',
+      color: '#6cc4ff',
+      bgColor: 'rgba(108, 196, 255,0.12)',
+      borderColor: 'rgba(108, 196, 255,0.35)',
       isOverdue: false,
       isWarning: false,
     };
@@ -156,12 +156,29 @@ export function getTaskTimeStatus(
 }
 
 export const TASK_CATEGORIES = [
-  { id: 'TASK', label: 'Công việc / Task', color: '#3b82f6', icon: '⚡' },
-  { id: 'TIMETABLE', label: 'Thời khóa biểu', color: '#a855f7', icon: '📚' },
-  { id: 'WORK_SCHEDULE', label: 'Lịch làm việc', color: '#10b981', icon: '💼' },
-  { id: 'APPOINTMENT', label: 'Lịch hẹn', color: '#ec4899', icon: '📅' },
+  { id: 'SCHEDULE', label: 'Thời khóa biểu & Làm việc', color: '#7b8cff', icon: '' },
+  { id: 'APPOINTMENT', label: 'Lịch hẹn & Sự kiện', color: '#3dd68c', icon: '' },
+  { id: 'TASK', label: 'Công việc / Deadline', color: '#5b9cff', icon: '' },
 ] as const;
 
+export function normalizeScheduleCategory(category?: string | null): 'SCHEDULE' | 'APPOINTMENT' | 'TASK' {
+  if (!category) return 'TASK';
+  const upper = category.toUpperCase().trim();
+  if (upper === 'TIMETABLE' || upper === 'WORK_SCHEDULE' || upper === 'SCHEDULE') {
+    return 'SCHEDULE';
+  }
+  if (upper === 'APPOINTMENT') {
+    return 'APPOINTMENT';
+  }
+  return 'TASK';
+}
+
+export function matchesCategoryFilter(taskCategory?: string | null, filter?: string): boolean {
+  if (!filter || filter === 'ALL') return true;
+  return normalizeScheduleCategory(taskCategory) === normalizeScheduleCategory(filter);
+}
+
 export function getCategoryMeta(category?: string | null) {
-  return TASK_CATEGORIES.find(c => c.id === category) || TASK_CATEGORIES[0];
+  const norm = normalizeScheduleCategory(category);
+  return TASK_CATEGORIES.find(c => c.id === norm) || TASK_CATEGORIES[0];
 }

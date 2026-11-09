@@ -28,6 +28,7 @@ export default function TopNav() {
   const pathname = usePathname();
   const [timer, setTimer] = useState<UnifiedTimerState | null>(null);
   const [currentUser, setCurrentUser] = useState<SessionUser | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setTimer(getTimerState());
@@ -45,6 +46,11 @@ export default function TopNav() {
     return () => window.removeEventListener('glowup-auth-changed', fetchUser);
   }, [pathname]);
 
+  // Close the mobile menu whenever the route changes
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   useEffect(() => {
     if (!timer?.isRunning || !timer.endTime) return;
     const id = setInterval(() => setTimer(getTimerState()), 1000);
@@ -52,43 +58,16 @@ export default function TopNav() {
   }, [timer?.isRunning, timer?.endTime]);
 
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+  const current = NAV_ITEMS.find((i) => isActive(i.href));
 
   return (
-    <nav className="glass-nav">
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          width: '100%',
-          maxWidth: '1280px',
-          margin: '0 auto',
-          gap: '28px',
-          height: 'var(--nav-height)',
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            fontSize: '1rem',
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            color: 'var(--text-primary)',
-            whiteSpace: 'nowrap',
-          }}
-        >
+    <nav className="glass-nav" aria-label="Điều hướng chính">
+      <div className="nav-inner">
+        <Link href="/" className="nav-brand">
           GlowUp<span style={{ color: 'var(--accent-color)' }}>.</span>
         </Link>
 
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'stretch',
-            gap: '2px',
-            height: '100%',
-            flex: 1,
-            overflowX: 'auto',
-          }}
-        >
+        <div className={`nav-links${menuOpen ? ' open' : ''}`}>
           {NAV_ITEMS.map((item) => {
             const active = isActive(item.href);
             return (
@@ -96,19 +75,7 @@ export default function TopNav() {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                style={{
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0 12px',
-                  fontSize: '0.875rem',
-                  fontWeight: active ? 600 : 500,
-                  color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  whiteSpace: 'nowrap',
-                  borderBottom: `2px solid ${active ? 'var(--accent-color)' : 'transparent'}`,
-                  marginBottom: '-1px',
-                  transition: 'color 0.15s ease',
-                }}
+                className={`nav-link${active ? ' active' : ''}`}
               >
                 {item.label}
               </Link>
@@ -116,7 +83,7 @@ export default function TopNav() {
           })}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="nav-actions">
           {timer && (timer.isRunning || timer.remainingSeconds < timer.durationMinutes * 60) && (
             <button
               onClick={() => setTimerState({ showMiniPopup: !timer.showMiniPopup })}
@@ -125,7 +92,7 @@ export default function TopNav() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '6px 12px',
+                padding: '6px 10px',
                 borderRadius: '8px',
                 background: 'var(--surface-2)',
                 border: `1px solid ${timer.isRunning ? 'var(--success-color)' : 'var(--border)'}`,
@@ -136,17 +103,13 @@ export default function TopNav() {
                 whiteSpace: 'nowrap',
               }}
             >
-              <span style={{ fontFamily: 'ui-monospace, monospace' }}>
-                {formatTimerMMSS(timer.remainingSeconds)}
-              </span>
-              <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>
-                {timer.isRunning ? 'Đang chạy' : 'Tạm dừng'}
-              </span>
+              <span style={{ fontFamily: 'ui-monospace, monospace' }}>{formatTimerMMSS(timer.remainingSeconds)}</span>
             </button>
           )}
 
           <Link
             href="/login"
+            className="nav-user-name"
             style={{
               padding: '7px 14px',
               borderRadius: '8px',
@@ -155,11 +118,22 @@ export default function TopNav() {
               whiteSpace: 'nowrap',
               background: currentUser ? 'var(--surface-2)' : 'var(--accent-color)',
               border: `1px solid ${currentUser ? 'var(--border)' : 'var(--accent-color)'}`,
-              color: currentUser ? 'var(--text-primary)' : '#fff',
+              color: currentUser ? 'var(--text-primary)' : '#0a0c11',
             }}
           >
             {currentUser ? currentUser.name : 'Đăng nhập'}
           </Link>
+
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-expanded={menuOpen}
+            aria-label="Mở menu"
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <span className="nav-toggle-bars" aria-hidden="true" />
+            <span className="nav-toggle-label">{current ? current.label : 'Menu'}</span>
+          </button>
         </div>
       </div>
     </nav>

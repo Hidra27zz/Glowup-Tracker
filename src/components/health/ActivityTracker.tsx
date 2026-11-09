@@ -121,7 +121,7 @@ export default function ActivityTracker() {
       padding: '24px',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(34,197,94,0.1)', color: '#4ade80', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(34,197,94,0.1)', color: '#3dd68c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Activity size={24} />
         </div>
         <div>
@@ -136,8 +136,8 @@ export default function ActivityTracker() {
             padding: '8px 16px',
             borderRadius: '99px',
             border: 'none',
-            background: isTracking ? 'rgba(239,68,68,0.15)' : 'linear-gradient(135deg, #22c55e, #16a34a)',
-            color: isTracking ? '#fca5a5' : '#fff',
+            background: isTracking ? 'rgba(244, 109, 117,0.15)' : 'linear-gradient(135deg, #22c55e, #16a34a)',
+            color: isTracking ? '#f9a3a8' : '#fff',
             fontWeight: 700,
             cursor: 'pointer',
             display: 'flex',
@@ -151,20 +151,20 @@ export default function ActivityTracker() {
       </div>
 
       {error && (
-        <div style={{ padding: '12px', borderRadius: '8px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5', marginBottom: '20px', fontSize: '0.85rem' }}>
+        <div style={{ padding: '12px', borderRadius: '8px', background: 'rgba(244, 109, 117,0.1)', border: '1px solid rgba(244, 109, 117,0.3)', color: '#f9a3a8', marginBottom: '20px', fontSize: '0.85rem' }}>
           {error}
         </div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
         <div style={{ background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '16px', textAlign: 'center' }}>
-          <Footprints size={28} color="#38bdf8" style={{ marginBottom: '12px' }} />
+          <Footprints size={28} color="#6cc4ff" style={{ marginBottom: '12px' }} />
           <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f1f5f9' }}>{steps}</div>
           <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase' }}>Bước chân</div>
         </div>
 
         <div style={{ background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '16px', textAlign: 'center' }}>
-          <Map size={28} color="#a855f7" style={{ marginBottom: '12px' }} />
+          <Map size={28} color="#a5b1ff" style={{ marginBottom: '12px' }} />
           <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f1f5f9' }}>{distance.toFixed(2)}</div>
           <div style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase' }}>Kilometers</div>
         </div>
@@ -177,17 +177,17 @@ export default function ActivityTracker() {
       </div>
       
       {isTracking && (
-        <div style={{ marginTop: '20px', textAlign: 'center', color: '#4ade80', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4ade80', animation: 'pulse 1.5s infinite' }}></span>
+        <div style={{ marginTop: '20px', textAlign: 'center', color: '#3dd68c', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#3dd68c', animation: 'pulse 1.5s infinite' }}></span>
           Đang đọc dữ liệu từ cảm biến...
         </div>
       )}
       
       <style jsx>{`
         @keyframes pulse {
-          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
-          70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
-          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(61, 214, 140, 0.7); }
+          70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(61, 214, 140, 0); }
+          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(61, 214, 140, 0); }
         }
       `}</style>
     </div>

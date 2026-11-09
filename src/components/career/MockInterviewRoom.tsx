@@ -28,14 +28,14 @@ type Phase = 'setup' | 'loading' | 'interview' | 'evaluating' | 'report';
 const TOTAL_SECONDS = 30 * 60;
 
 const TYPE_META: Record<string, { label: string; color: string; Icon: React.ElementType }> = {
-  behavioral:       { label: 'Behavioral',    color: '#a78bfa', Icon: Users },
-  technical_theory: { label: 'Technical',     color: '#38bdf8', Icon: Cpu },
-  coding:           { label: 'Coding',        color: '#34d399', Icon: Code },
+  behavioral:       { label: 'Behavioral',    color: '#a5b1ff', Icon: Users },
+  technical_theory: { label: 'Technical',     color: '#6cc4ff', Icon: Cpu },
+  coding:           { label: 'Coding',        color: '#3dd68c', Icon: Code },
   system_design:    { label: 'System Design', color: '#fb923c', Icon: Layout },
 };
 
 const scoreColor = (s: number) =>
-  s >= 8 ? '#34d399' : s >= 6 ? '#facc15' : s >= 4 ? '#fb923c' : '#f87171';
+  s >= 8 ? '#3dd68c' : s >= 6 ? '#facc15' : s >= 4 ? '#fb923c' : '#f46d75';
 
 const fmt = (s: number) =>
   `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -143,7 +143,7 @@ export default function MockInterviewRoom() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.25), rgba(236,72,153,0.15))', padding: '14px', borderRadius: '16px', border: '1px solid rgba(168,85,247,0.2)' }}>
-            <Mic size={26} color="#a855f7" />
+            <Mic size={26} color="#a5b1ff" />
           </div>
           <div>
             <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>Mock Interview Room</h2>
@@ -153,9 +153,9 @@ export default function MockInterviewRoom() {
 
         {/* Stats chips */}
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <StatChip label="Behavioral"    count={3}  color="#a78bfa" Icon={Users} />
-          <StatChip label="Technical"     count={10} color="#38bdf8" Icon={Cpu} />
-          <StatChip label="Coding"        count={5}  color="#34d399" Icon={Code} />
+          <StatChip label="Behavioral"    count={3}  color="#a5b1ff" Icon={Users} />
+          <StatChip label="Technical"     count={10} color="#6cc4ff" Icon={Cpu} />
+          <StatChip label="Coding"        count={5}  color="#3dd68c" Icon={Code} />
           <StatChip label="System Design" count={4}  color="#fb923c" Icon={Layout} />
         </div>
 
@@ -188,7 +188,7 @@ export default function MockInterviewRoom() {
         </div>
 
         <button onClick={handleStart}
-          style={{ background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: '#fff', border: 'none', borderRadius: '14px', padding: '15px 28px', fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'opacity 0.2s' }}
+          style={{ background: 'linear-gradient(135deg, #a5b1ff, #ec4899)', color: '#fff', border: 'none', borderRadius: '14px', padding: '15px 28px', fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'opacity 0.2s' }}
           onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
           onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
           <Mic size={18} /> Bắt đầu Phỏng Vấn
@@ -203,7 +203,7 @@ export default function MockInterviewRoom() {
   if (phase === 'loading' || phase === 'evaluating') {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 40px', gap: '16px', minHeight: '400px' }}>
-        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(168,85,247,0.2)', borderTop: '3px solid #a855f7', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(168,85,247,0.2)', borderTop: '3px solid #a5b1ff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700 }}>
           {phase === 'loading' ? 'AI đang chuẩn bị câu hỏi...' : 'Đang phân tích câu trả lời...'}
         </div>
@@ -230,11 +230,11 @@ export default function MockInterviewRoom() {
         {/* Status bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <div style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.2)', color: '#a78bfa', padding: '6px 14px', borderRadius: '8px', fontSize: '0.82rem', fontWeight: 600 }}>{session.role}</div>
+            <div style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.2)', color: '#a5b1ff', padding: '6px 14px', borderRadius: '8px', fontSize: '0.82rem', fontWeight: 600 }}>{session.role}</div>
             <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: '#64748b', padding: '6px 14px', borderRadius: '8px', fontSize: '0.82rem' }}>{session.level}</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: timerWarn ? '#f87171' : '#34d399', fontWeight: 700, fontSize: '1.05rem', fontVariantNumeric: 'tabular-nums', background: timerWarn ? 'rgba(248,113,113,0.1)' : 'rgba(52,211,153,0.08)', padding: '6px 14px', borderRadius: '8px', border: `1px solid ${timerWarn ? 'rgba(248,113,113,0.3)' : 'rgba(52,211,153,0.2)'}` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: timerWarn ? '#f46d75' : '#3dd68c', fontWeight: 700, fontSize: '1.05rem', fontVariantNumeric: 'tabular-nums', background: timerWarn ? 'rgba(244, 109, 117,0.1)' : 'rgba(52,211,153,0.08)', padding: '6px 14px', borderRadius: '8px', border: `1px solid ${timerWarn ? 'rgba(244, 109, 117,0.3)' : 'rgba(52,211,153,0.2)'}` }}>
               <Timer size={15} /> {fmt(secondsLeft)}
             </div>
             <div style={{ color: '#64748b', fontSize: '0.85rem' }}>
@@ -245,7 +245,7 @@ export default function MockInterviewRoom() {
 
         {/* Progress bar */}
         <div style={{ height: '3px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
-          <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, #a855f7, #ec4899)', transition: 'width 0.4s ease', borderRadius: '2px' }} />
+          <div style={{ width: `${progress}%`, height: '100%', background: 'linear-gradient(90deg, #a5b1ff, #ec4899)', transition: 'width 0.4s ease', borderRadius: '2px' }} />
         </div>
 
         {/* Two-column layout: question left, answer right */}
@@ -264,7 +264,7 @@ export default function MockInterviewRoom() {
             {/* Follow-up */}
             {showFollowUp && aiFeedback?.followUp && (
               <div style={{ background: 'rgba(168,85,247,0.07)', padding: '14px 16px', borderRadius: '10px', border: '1px solid rgba(168,85,247,0.2)', color: '#c084fc', fontSize: '0.88rem', lineHeight: 1.6 }}>
-                <div style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', color: '#a855f7' }}>Follow-up</div>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', color: '#a5b1ff' }}>Follow-up</div>
                 {aiFeedback.followUp}
               </div>
             )}
@@ -273,7 +273,7 @@ export default function MockInterviewRoom() {
             {q.codeTemplate && (
               <div style={{ background: '#0a0f1e', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
                 <div style={{ background: 'rgba(255,255,255,0.04)', padding: '8px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span style={{ color: '#38bdf8', fontSize: '0.75rem', fontWeight: 700 }}>{q.language?.toUpperCase() || 'CODE'}</span>
+                  <span style={{ color: '#6cc4ff', fontSize: '0.75rem', fontWeight: 700 }}>{q.language?.toUpperCase() || 'CODE'}</span>
                 </div>
                 <pre style={{ margin: 0, padding: '14px', color: '#94a3b8', fontSize: '0.8rem', fontFamily: 'monospace', whiteSpace: 'pre-wrap', lineHeight: 1.65, overflowX: 'auto' }}>{q.codeTemplate}</pre>
               </div>
@@ -283,10 +283,10 @@ export default function MockInterviewRoom() {
             {q.hint && (
               <>
                 <button onClick={() => setShowHint(!showHint)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', background: showHint ? 'rgba(251,191,36,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${showHint ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.07)'}`, color: showHint ? '#fbbf24' : '#64748b', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, width: 'fit-content', transition: 'all 0.2s' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', background: showHint ? 'rgba(245, 185, 74,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${showHint ? 'rgba(245, 185, 74,0.3)' : 'rgba(255,255,255,0.07)'}`, color: showHint ? '#f5b94a' : '#64748b', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, width: 'fit-content', transition: 'all 0.2s' }}>
                   <Lightbulb size={14} /> {showHint ? 'Ẩn gợi ý' : 'Xem gợi ý'}
                 </button>
-                {showHint && <div style={{ background: 'rgba(251,191,36,0.06)', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(251,191,36,0.15)', color: '#d4a820', fontSize: '0.85rem', lineHeight: 1.65 }}>{q.hint}</div>}
+                {showHint && <div style={{ background: 'rgba(245, 185, 74,0.06)', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(245, 185, 74,0.15)', color: '#d4a820', fontSize: '0.85rem', lineHeight: 1.65 }}>{q.hint}</div>}
               </>
             )}
           </div>
@@ -323,12 +323,12 @@ export default function MockInterviewRoom() {
             <div style={{ display: 'flex', gap: '10px' }}>
               {!aiFeedback ? (
                 <button onClick={handleSubmit} disabled={submitting || !userInput.trim()}
-                  style={{ flex: 1, background: 'linear-gradient(135deg, #a855f7, #ec4899)', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: userInput.trim() && !submitting ? 'pointer' : 'not-allowed', opacity: userInput.trim() && !submitting ? 1 : 0.45, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  style={{ flex: 1, background: 'linear-gradient(135deg, #a5b1ff, #ec4899)', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: userInput.trim() && !submitting ? 'pointer' : 'not-allowed', opacity: userInput.trim() && !submitting ? 1 : 0.45, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                   <Send size={15} /> {submitting ? 'Đang đánh giá...' : 'Nộp câu trả lời'}
                 </button>
               ) : (
                 <button onClick={advance}
-                  style={{ flex: 1, background: 'linear-gradient(135deg, #10b981, #0ea5e9)', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  style={{ flex: 1, background: 'linear-gradient(135deg, #3dd68c, #0ea5e9)', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                   {currentIdx + 1 >= session.questions.length ? <><CheckCircle size={15} /> Xem Kết Quả</> : <><ChevronRight size={15} /> Câu tiếp theo</>}
                 </button>
               )}
@@ -383,17 +383,17 @@ export default function MockInterviewRoom() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
           <div style={{ background: 'rgba(52,211,153,0.05)', borderRadius: '14px', padding: '18px', border: '1px solid rgba(52,211,153,0.15)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '12px' }}>
-              <CheckCircle size={15} color="#34d399" />
-              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Điểm mạnh</span>
+              <CheckCircle size={15} color="#3dd68c" />
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#3dd68c', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Điểm mạnh</span>
             </div>
             <ul style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
               {report.strengths.map((s, i) => <li key={i} style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.6 }}>{s}</li>)}
             </ul>
           </div>
-          <div style={{ background: 'rgba(248,113,113,0.05)', borderRadius: '14px', padding: '18px', border: '1px solid rgba(248,113,113,0.15)' }}>
+          <div style={{ background: 'rgba(244, 109, 117,0.05)', borderRadius: '14px', padding: '18px', border: '1px solid rgba(244, 109, 117,0.15)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '12px' }}>
-              <XCircle size={15} color="#f87171" />
-              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f87171', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Cần cải thiện</span>
+              <XCircle size={15} color="#f46d75" />
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f46d75', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Cần cải thiện</span>
             </div>
             <ul style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
               {report.weaknesses.map((s, i) => <li key={i} style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.6 }}>{s}</li>)}
@@ -432,11 +432,11 @@ export default function MockInterviewRoom() {
         {reportTab === 'overview' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <TrendingUp size={14} color="#a855f7" /> Bước tiếp theo
+              <TrendingUp size={14} color="#a5b1ff" /> Bước tiếp theo
             </div>
             {report.nextSteps.map((step, i) => (
               <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ background: 'rgba(168,85,247,0.18)', color: '#a855f7', width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.78rem', flexShrink: 0 }}>{i + 1}</div>
+                <div style={{ background: 'rgba(168,85,247,0.18)', color: '#a5b1ff', width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.78rem', flexShrink: 0 }}>{i + 1}</div>
                 <div style={{ color: '#94a3b8', fontSize: '0.87rem', lineHeight: 1.65, paddingTop: '3px' }}>{step}</div>
               </div>
             ))}
@@ -470,7 +470,7 @@ export default function MockInterviewRoom() {
                     {qf.feedback}
                   </div>
                   {qf.idealAnswer && (
-                    <div style={{ background: 'rgba(52,211,153,0.05)', borderRadius: '7px', padding: '9px 12px', borderLeft: '2px solid #34d399', color: '#6ee7b7', fontSize: '0.82rem', lineHeight: 1.6 }}>
+                    <div style={{ background: 'rgba(52,211,153,0.05)', borderRadius: '7px', padding: '9px 12px', borderLeft: '2px solid #3dd68c', color: '#8ae8b8', fontSize: '0.82rem', lineHeight: 1.6 }}>
                       <strong>Câu trả lời lý tưởng:</strong> {qf.idealAnswer}
                     </div>
                   )}

@@ -72,11 +72,11 @@ const SAMPLE_BLUEPRINT: BlueprintType = {
 };
 
 const getSourceIcon = (source: string) => {
-  if (source === 'YouTube') return <Video size={14} color="#f87171" />;
+  if (source === 'YouTube') return <Video size={14} color="#f46d75" />;
   if (source === 'GitHub') return <Code size={14} color="#f8fafc" />;
-  if (source === 'Dev.to') return <Layout size={14} color="#10b981" />;
-  if (source === 'Google') return <Search size={14} color="#38bdf8" />;
-  return <ExternalLink size={14} color="#38bdf8" />;
+  if (source === 'Dev.to') return <Layout size={14} color="#3dd68c" />;
+  if (source === 'Google') return <Search size={14} color="#6cc4ff" />;
+  return <ExternalLink size={14} color="#6cc4ff" />;
 };
 
 export default function CareerBlueprint() {
@@ -125,8 +125,8 @@ export default function CareerBlueprint() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.25), rgba(56,189,248,0.15))', padding: '14px', borderRadius: '16px', border: '1px solid rgba(168,85,247,0.2)' }}>
-          <Compass size={26} color="#a855f7" />
+        <div style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.25), rgba(108, 196, 255,0.15))', padding: '14px', borderRadius: '16px', border: '1px solid rgba(168,85,247,0.2)' }}>
+          <Compass size={26} color="#a5b1ff" />
         </div>
         <div>
           <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#fff' }}>Career Mentor</h2>
@@ -141,7 +141,7 @@ export default function CareerBlueprint() {
           
           <div style={{ background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#e2e8f0', fontWeight: 600, fontSize: '0.95rem' }}>
-              <Search size={18} color="#a855f7" /> Nhập Yêu Cầu (JD)
+              <Search size={18} color="#a5b1ff" /> Nhập Yêu Cầu (JD)
             </div>
             <textarea 
               value={prompt}
@@ -152,38 +152,38 @@ export default function CareerBlueprint() {
               style={inputStyle}
             />
             <button onClick={handleGenerate} disabled={loading || !prompt.trim()} 
-              style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6)', color: '#fff', border: 'none', borderRadius: '10px', padding: '14px', fontWeight: 700, fontSize: '0.95rem', cursor: prompt.trim() && !loading ? 'pointer' : 'not-allowed', opacity: prompt.trim() && !loading ? 1 : 0.6, transition: 'all 0.2s' }}>
+              style={{ background: 'linear-gradient(135deg, #a5b1ff, #5b9cff)', color: '#fff', border: 'none', borderRadius: '10px', padding: '14px', fontWeight: 700, fontSize: '0.95rem', cursor: prompt.trim() && !loading ? 'pointer' : 'not-allowed', opacity: prompt.trim() && !loading ? 1 : 0.6, transition: 'all 0.2s' }}>
               {loading ? 'Đang phân tích...' : 'Phân tích & Lên Lộ Trình'}
             </button>
           </div>
 
           {blueprint && (
             <div style={{ background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.3s ease' }}>
-              <div style={{ borderLeft: '3px solid #a855f7', paddingLeft: '16px' }}>
+              <div style={{ borderLeft: '3px solid #a5b1ff', paddingLeft: '16px' }}>
                 <h3 style={{ margin: '0 0 6px 0', color: '#fff', fontSize: '1.1rem' }}>Mục tiêu: <span style={{ color: '#c084fc' }}>{blueprint.focusArea}</span></h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#94a3b8' }}>
                   Lộ trình được thiết kế bám sát JD của bạn
-                  {usedSample && <span style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700 }}>DEMO DATA</span>}
+                  {usedSample && <span style={{ background: 'rgba(245, 185, 74,0.15)', color: '#f5b94a', padding: '2px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700 }}>DEMO DATA</span>}
                 </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(59,130,246,0.05)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.15)' }}>
-                  <div style={{ color: '#60a5fa', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}><BookOpen size={16} /> Level 1: Cơ bản</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(91, 156, 255,0.05)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(91, 156, 255,0.15)' }}>
+                  <div style={{ color: '#7db2ff', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}><BookOpen size={16} /> Level 1: Cơ bản</div>
                   <ul style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {blueprint.pathway.basic.map((item, i) => <li key={i}>{item}</li>)}
                   </ul>
                 </div>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(245,158,11,0.05)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(245,158,11,0.15)' }}>
-                  <div style={{ color: '#fbbf24', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}><BookOpen size={16} /> Level 2: Trung cấp</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(245, 185, 74,0.05)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(245, 185, 74,0.15)' }}>
+                  <div style={{ color: '#f5b94a', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}><BookOpen size={16} /> Level 2: Trung cấp</div>
                   <ul style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {blueprint.pathway.intermediate.map((item, i) => <li key={i}>{item}</li>)}
                   </ul>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(239,68,68,0.05)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(239,68,68,0.15)' }}>
-                  <div style={{ color: '#f87171', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}><BookOpen size={16} /> Level 3: Nâng cao</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(244, 109, 117,0.05)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(244, 109, 117,0.15)' }}>
+                  <div style={{ color: '#f46d75', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}><BookOpen size={16} /> Level 3: Nâng cao</div>
                   <ul style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {blueprint.pathway.advanced.map((item, i) => <li key={i}>{item}</li>)}
                   </ul>
@@ -215,8 +215,8 @@ export default function CareerBlueprint() {
               {activeTab === 'theory' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', animation: 'fadeIn 0.2s' }}>
                   {blueprint.theoryReview?.map((theory, idx) => (
-                    <div key={idx} style={{ background: 'rgba(245,158,11,0.05)', padding: '16px', borderRadius: '12px', borderLeft: '3px solid #f59e0b', borderRight: '1px solid rgba(245,158,11,0.1)', borderTop: '1px solid rgba(245,158,11,0.1)', borderBottom: '1px solid rgba(245,158,11,0.1)' }}>
-                      <h4 style={{ margin: '0 0 10px 0', color: '#fbbf24', fontSize: '0.95rem' }}>{theory.title}</h4>
+                    <div key={idx} style={{ background: 'rgba(245, 185, 74,0.05)', padding: '16px', borderRadius: '12px', borderLeft: '3px solid #f5b94a', borderRight: '1px solid rgba(245, 185, 74,0.1)', borderTop: '1px solid rgba(245, 185, 74,0.1)', borderBottom: '1px solid rgba(245, 185, 74,0.1)' }}>
+                      <h4 style={{ margin: '0 0 10px 0', color: '#f5b94a', fontSize: '0.95rem' }}>{theory.title}</h4>
                       <p style={{ margin: 0, color: '#cbd5e1', lineHeight: 1.65, fontSize: '0.85rem' }}>{theory.content}</p>
                     </div>
                   ))}
@@ -250,7 +250,7 @@ export default function CareerBlueprint() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', animation: 'fadeIn 0.2s' }}>
                   {resources.length === 0 && <div style={{ color: '#64748b', fontSize: '0.85rem', gridColumn: '1 / -1', textAlign: 'center', padding: '20px' }}>Không tìm thấy tài liệu mở rộng.</div>}
                   {resources.map((resource, idx) => (
-                    <a key={idx} href={resource.url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(0,0,0,0.25)', borderRadius: '12px', padding: '12px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(56,189,248,0.4)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'}>
+                    <a key={idx} href={resource.url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'rgba(0,0,0,0.25)', borderRadius: '12px', padding: '12px', textDecoration: 'none', border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(108, 196, 255,0.4)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'}>
                       {resource.thumbnail && (
                         <div style={{ position: 'relative' }}>
                           <img src={resource.thumbnail} alt={resource.title} style={{ width: '100%', borderRadius: '6px', aspectRatio: '16/9', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.05)' }} />

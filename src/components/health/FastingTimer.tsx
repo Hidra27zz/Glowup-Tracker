@@ -61,7 +61,7 @@ export default function FastingTimer({ fastingStart }: Props) {
     <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Timer size={20} color="#8b5cf6" /> Intermittent Fasting
+          <Timer size={20} color="#7b8cff" /> Intermittent Fasting
         </h3>
         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>16:8 Protocol</div>
       </div>
@@ -81,7 +81,7 @@ export default function FastingTimer({ fastingStart }: Props) {
             <circle 
               cx="75" cy="75" r="65" 
               fill="none" 
-              stroke={progress >= 100 ? "var(--success-color)" : "#8b5cf6"} 
+              stroke={progress >= 100 ? "var(--success-color)" : "#7b8cff"} 
               strokeWidth="10" 
               strokeDasharray={408.4} // 2 * pi * r
               strokeDashoffset={408.4 - (408.4 * progress) / 100}
@@ -115,9 +115,9 @@ export default function FastingTimer({ fastingStart }: Props) {
         disabled={loading}
         className="btn"
         style={{ 
-          background: isFasting ? 'transparent' : '#8b5cf6', 
-          border: isFasting ? '1px solid #8b5cf6' : 'none',
-          color: isFasting ? '#8b5cf6' : '#fff',
+          background: isFasting ? 'transparent' : '#7b8cff', 
+          border: isFasting ? '1px solid #7b8cff' : 'none',
+          color: isFasting ? '#7b8cff' : '#fff',
           display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
           opacity: loading ? 0.7 : 1
         }}

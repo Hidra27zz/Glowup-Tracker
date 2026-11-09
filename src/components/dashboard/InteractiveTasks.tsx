@@ -61,9 +61,9 @@ export default function InteractiveTasks({ tasks }: { tasks: any[] }) {
                 gap: '12px',
                 padding: '14px 18px',
                 background: timeStatus.isOverdue
-                  ? 'rgba(239,68,68,0.08)'
+                  ? 'rgba(244, 109, 117,0.08)'
                   : timeStatus.isWarning
-                  ? 'rgba(245,158,11,0.08)'
+                  ? 'rgba(245, 185, 74,0.08)'
                   : 'rgba(255,255,255,0.03)',
                 border: `1px solid ${timeStatus.borderColor}`,
                 borderRadius: '16px',
@@ -83,7 +83,7 @@ export default function InteractiveTasks({ tasks }: { tasks: any[] }) {
                     border: 'none',
                     padding: 0,
                     cursor: isPending ? 'wait' : 'pointer',
-                    color: isDone ? '#10b981' : timeStatus.color,
+                    color: isDone ? '#3dd68c' : timeStatus.color,
                     display: 'flex',
                     flexShrink: 0,
                   }}
@@ -123,12 +123,12 @@ export default function InteractiveTasks({ tasks }: { tasks: any[] }) {
                   onClick={() => handleDelete(task.id)}
                   disabled={isPending}
                   style={{
-                    background: 'rgba(239,68,68,0.1)',
+                    background: 'rgba(244, 109, 117,0.1)',
                     border: 'none',
                     padding: '6px',
                     borderRadius: '8px',
                     cursor: isPending ? 'wait' : 'pointer',
-                    color: '#ef4444',
+                    color: '#f46d75',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -175,7 +175,7 @@ export default function InteractiveTasks({ tasks }: { tasks: any[] }) {
             background: 'rgba(0,0,0,0.35)',
             padding: '14px',
             borderRadius: '16px',
-            border: '1px solid rgba(59,130,246,0.35)',
+            border: '1px solid rgba(91, 156, 255,0.35)',
           }}
         >
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -242,7 +242,7 @@ export default function InteractiveTasks({ tasks }: { tasks: any[] }) {
             <button
               type="submit"
               disabled={isPending}
-              style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: 700, cursor: isPending ? 'wait' : 'pointer' }}
+              style={{ background: '#5b9cff', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: 700, cursor: isPending ? 'wait' : 'pointer' }}
             >
               Lưu Lịch / Task
             </button>

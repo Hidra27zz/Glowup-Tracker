@@ -37,13 +37,13 @@ export default function InventoryTracker({ items }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s ease' }}>
       
-      <div style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.3)', padding: '24px', borderRadius: '16px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-        <div style={{ background: 'rgba(139,92,246,0.2)', padding: '10px', borderRadius: '12px' }}>
-          <ShoppingCart size={24} color="#8b5cf6" />
+      <div style={{ background: 'rgba(123, 140, 255,0.1)', border: '1px solid rgba(123, 140, 255,0.3)', padding: '24px', borderRadius: '16px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+        <div style={{ background: 'rgba(123, 140, 255,0.2)', padding: '10px', borderRadius: '12px' }}>
+          <ShoppingCart size={24} color="#7b8cff" />
         </div>
         <div>
-          <h3 style={{ margin: '0 0 8px 0', color: '#8b5cf6', fontSize: '1.1rem' }}>Cost-Per-Use & PAO Tracker</h3>
-          <p style={{ margin: 0, color: '#c4b5fd', fontSize: '0.9rem', lineHeight: 1.5 }}>
+          <h3 style={{ margin: '0 0 8px 0', color: '#7b8cff', fontSize: '1.1rem' }}>Cost-Per-Use & PAO Tracker</h3>
+          <p style={{ margin: 0, color: '#bcc5ff', fontSize: '0.9rem', lineHeight: 1.5 }}>
             Theo dõi giá trị chia cho số lần sử dụng của đồ đạc để thấy rõ ROI.
             Tính toán Period After Opening (PAO) cho mỹ phẩm để tránh dùng đồ hết hạn.
           </p>
@@ -55,7 +55,7 @@ export default function InventoryTracker({ items }: Props) {
           <input name="name" placeholder="Tên sản phẩm (VD: Retinol 1%, Áo khoác da)" required style={{ flex: '1 1 200px', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} />
           <input name="cost" type="number" placeholder="Giá mua (VNĐ)" required style={{ flex: '1 1 120px', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} />
           <input name="paoMonths" type="number" placeholder="PAO (số tháng, VD: 12)" style={{ flex: '1 1 120px', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} title="Hạn sử dụng sau khi mở nắp (tháng)" />
-          <button type="submit" disabled={loading} style={{ background: '#8b5cf6', color: '#fff', border: 'none', padding: '0 20px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button type="submit" disabled={loading} style={{ background: '#7b8cff', color: '#fff', border: 'none', padding: '0 20px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Plus size={18} /> Thêm đồ
           </button>
         </form>
@@ -101,19 +101,19 @@ export default function InventoryTracker({ items }: Props) {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: '#e2e8f0', background: 'rgba(255,255,255,0.05)', padding: '4px 10px', borderRadius: '8px' }}>
                     Số lần dùng: <strong>{item.uses}</strong>
-                    <button onClick={() => handleIncrementUse(item.id)} style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: '0 0 0 6px', display: 'flex' }}>
+                    <button onClick={() => handleIncrementUse(item.id)} style={{ background: 'none', border: 'none', color: '#3dd68c', cursor: 'pointer', padding: '0 0 0 6px', display: 'flex' }}>
                       <ArrowUpCircle size={16} />
                     </button>
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(139,92,246,0.1)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(139,92,246,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', color: '#c4b5fd' }}>Cost Per Use (CPU)</span>
-                  <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#8b5cf6' }}>{costPerUse.toLocaleString(undefined, { maximumFractionDigits: 0 })}đ / lần</span>
+                <div style={{ background: 'rgba(123, 140, 255,0.1)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(123, 140, 255,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.85rem', color: '#bcc5ff' }}>Cost Per Use (CPU)</span>
+                  <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#7b8cff' }}>{costPerUse.toLocaleString(undefined, { maximumFractionDigits: 0 })}đ / lần</span>
                 </div>
 
                 {item.paoMonths && item.openedAt && (
-                  <div style={{ marginTop: '4px', fontSize: '0.85rem', padding: '10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', background: isExpired ? 'rgba(239,68,68,0.1)' : isExpiringSoon ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.03)', color: isExpired ? '#ef4444' : isExpiringSoon ? '#f59e0b' : '#94a3b8', border: `1px solid ${isExpired ? 'rgba(239,68,68,0.3)' : isExpiringSoon ? 'rgba(245,158,11,0.3)' : 'transparent'}` }}>
+                  <div style={{ marginTop: '4px', fontSize: '0.85rem', padding: '10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', background: isExpired ? 'rgba(244, 109, 117,0.1)' : isExpiringSoon ? 'rgba(245, 185, 74,0.1)' : 'rgba(255,255,255,0.03)', color: isExpired ? '#f46d75' : isExpiringSoon ? '#f5b94a' : '#94a3b8', border: `1px solid ${isExpired ? 'rgba(244, 109, 117,0.3)' : isExpiringSoon ? 'rgba(245, 185, 74,0.3)' : 'transparent'}` }}>
                     {isExpired ? <EyeOff size={16} /> : isExpiringSoon ? <AlertTriangle size={16} /> : null}
                     {isExpired ? (
                       `Đã hết hạn PAO từ ${expirationDateStr}`

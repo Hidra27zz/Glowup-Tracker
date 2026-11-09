@@ -17,10 +17,10 @@ interface Props {
 }
 
 const TABS = [
-  { id: 'matrix', label: 'Energy & Mood', icon: Brain, accent: '#a855f7' },
-  { id: 'detox', label: 'Dopamine Detox', icon: ShieldAlert, accent: '#ef4444' },
-  { id: 'diet', label: 'Information Diet', icon: BookOpen, accent: '#38bdf8' },
-  { id: 'history', label: 'History', icon: History, accent: '#10b981' },
+  { id: 'matrix', label: 'Energy & Mood', icon: Brain, accent: '#a5b1ff' },
+  { id: 'detox', label: 'Dopamine Detox', icon: ShieldAlert, accent: '#f46d75' },
+  { id: 'diet', label: 'Information Diet', icon: BookOpen, accent: '#6cc4ff' },
+  { id: 'history', label: 'History', icon: History, accent: '#3dd68c' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
@@ -65,13 +65,13 @@ export default function MentalHub({ moodLogs, detoxHistory, infoDietLogs, active
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s ease', maxWidth: '800px', margin: '0 auto' }}>
             
             {burnoutWarning && (
-              <div style={{ padding: '20px', borderRadius: '16px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fff', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                <div style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '10px', borderRadius: '12px' }}>
-                  <ShieldAlert size={28} color="#ef4444" />
+              <div style={{ padding: '20px', borderRadius: '16px', background: 'rgba(244, 109, 117, 0.1)', border: '1px solid rgba(244, 109, 117, 0.3)', color: '#fff', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                <div style={{ background: 'rgba(244, 109, 117, 0.2)', padding: '10px', borderRadius: '12px' }}>
+                  <ShieldAlert size={28} color="#f46d75" />
                 </div>
                 <div>
-                  <h3 style={{ color: '#ef4444', margin: '0 0 8px 0', fontSize: '1.1rem' }}>Burnout Radar Alert</h3>
-                  <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.5, color: '#fca5a5' }}>
+                  <h3 style={{ color: '#f46d75', margin: '0 0 8px 0', fontSize: '1.1rem' }}>Burnout Radar Alert</h3>
+                  <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.5, color: '#f9a3a8' }}>
                     Năng lượng trung bình gần đây của bạn khá thấp ({avgEnergy?.toFixed(1)}/10). Hệ thống khuyến nghị kích hoạt chế độ <strong>Dopamine Detox</strong> và giảm tải công việc trong 48 giờ tới để não bộ phục hồi.
                   </p>
                 </div>
@@ -81,7 +81,7 @@ export default function MentalHub({ moodLogs, detoxHistory, infoDietLogs, active
             <div style={{ background: 'rgba(255,255,255,0.02)', padding: '32px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
               <h3 style={{ margin: '0 0 24px 0', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.2rem', color: '#fff' }}>
                 <div style={{ background: 'rgba(168,85,247,0.15)', padding: '8px', borderRadius: '10px' }}>
-                  <Brain size={22} color="#a855f7" />
+                  <Brain size={22} color="#a5b1ff" />
                 </div>
                 Energy - Mood Matrix
               </h3>
@@ -91,9 +91,9 @@ export default function MentalHub({ moodLogs, detoxHistory, infoDietLogs, active
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: '#cbd5e1', fontWeight: 600 }}>
-                      <Battery size={16} color="#3b82f6" /> Energy Level (1-10)
+                      <Battery size={16} color="#5b9cff" /> Energy Level (1-10)
                     </label>
-                    <input type="range" name="energy" min="1" max="10" defaultValue="5" style={{ width: '100%', accentColor: '#3b82f6' }} />
+                    <input type="range" name="energy" min="1" max="10" defaultValue="5" style={{ width: '100%', accentColor: '#5b9cff' }} />
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748b' }}>
                       <span>Kiệt sức</span>
                       <span>Sung mãn</span>
@@ -102,9 +102,9 @@ export default function MentalHub({ moodLogs, detoxHistory, infoDietLogs, active
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', color: '#cbd5e1', fontWeight: 600 }}>
-                      <Sparkles size={16} color="#f59e0b" /> Mood (1-10)
+                      <Sparkles size={16} color="#f5b94a" /> Mood (1-10)
                     </label>
-                    <input type="range" name="mood" min="1" max="10" defaultValue="5" style={{ width: '100%', accentColor: '#f59e0b' }} />
+                    <input type="range" name="mood" min="1" max="10" defaultValue="5" style={{ width: '100%', accentColor: '#f5b94a' }} />
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748b' }}>
                       <span>Tệ hại</span>
                       <span>Tuyệt vời</span>
@@ -133,7 +133,7 @@ export default function MentalHub({ moodLogs, detoxHistory, infoDietLogs, active
                   />
                 </div>
 
-                <button type="submit" style={{ background: 'linear-gradient(135deg, #a855f7, #c084fc)', color: '#fff', border: 'none', borderRadius: '12px', padding: '16px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', transition: 'opacity 0.2s' }}>
+                <button type="submit" style={{ background: 'linear-gradient(135deg, #a5b1ff, #c084fc)', color: '#fff', border: 'none', borderRadius: '12px', padding: '16px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', transition: 'opacity 0.2s' }}>
                   Lưu Nhật ký
                 </button>
               </form>
@@ -168,10 +168,10 @@ export default function MentalHub({ moodLogs, detoxHistory, infoDietLogs, active
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 600 }}>{log.date.toLocaleDateString('vi-VN')}</div>
                     <div style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', gap: '12px' }}>
-                      <span style={{ color: log.energy > 6 ? '#10b981' : log.energy < 4 ? '#ef4444' : '#f59e0b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ color: log.energy > 6 ? '#3dd68c' : log.energy < 4 ? '#f46d75' : '#f5b94a', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Battery size={14} /> {log.energy}
                       </span>
-                      <span style={{ color: log.mood > 6 ? '#10b981' : log.mood < 4 ? '#ef4444' : '#38bdf8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ color: log.mood > 6 ? '#3dd68c' : log.mood < 4 ? '#f46d75' : '#6cc4ff', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <Sparkles size={14} /> {log.mood}
                       </span>
                       {log.socialBattery && (
@@ -182,7 +182,7 @@ export default function MentalHub({ moodLogs, detoxHistory, infoDietLogs, active
                     </div>
                   </div>
                   {log.notes && (
-                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', fontSize: '0.9rem', color: '#e2e8f0', lineHeight: 1.6, borderLeft: '3px solid #a855f7' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '10px', fontSize: '0.9rem', color: '#e2e8f0', lineHeight: 1.6, borderLeft: '3px solid #a5b1ff' }}>
                       {log.notes}
                     </div>
                   )}

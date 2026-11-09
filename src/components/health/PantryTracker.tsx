@@ -211,8 +211,8 @@ export default function PantryTracker({ items }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.2rem', color: '#fff' }}>
-          <div style={{ background: 'rgba(16,185,129,0.15)', padding: '8px', borderRadius: '10px' }}>
-            <Refrigerator size={22} color="#10b981" />
+          <div style={{ background: 'rgba(61, 214, 140,0.15)', padding: '8px', borderRadius: '10px' }}>
+            <Refrigerator size={22} color="#3dd68c" />
           </div>
           Quản Lý Tủ Lạnh & Nguyên Liệu ({items.length})
         </h3>
@@ -224,9 +224,9 @@ export default function PantryTracker({ items }: Props) {
               setShowInput(false);
             }}
             style={{
-              background: 'rgba(245,158,11,0.15)',
-              color: '#fbbf24',
-              border: '1px solid rgba(245,158,11,0.35)',
+              background: 'rgba(245, 185, 74,0.15)',
+              color: '#f5b94a',
+              border: '1px solid rgba(245, 185, 74,0.35)',
               borderRadius: '10px',
               padding: '8px 14px',
               fontSize: '0.85rem',
@@ -246,9 +246,9 @@ export default function PantryTracker({ items }: Props) {
               setShowBillModal(false);
             }}
             style={{
-              background: 'rgba(16,185,129,0.12)',
-              color: '#34d399',
-              border: '1px solid rgba(16,185,129,0.3)',
+              background: 'rgba(61, 214, 140,0.12)',
+              color: '#3dd68c',
+              border: '1px solid rgba(61, 214, 140,0.3)',
               borderRadius: '10px',
               padding: '8px 14px',
               fontSize: '0.85rem',
@@ -266,10 +266,10 @@ export default function PantryTracker({ items }: Props) {
 
       {/* ── MODAL NHẬP NGUYÊN LIỆU TỪ BILL MUA SẮM ── */}
       {showBillModal && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', background: 'rgba(0,0,0,0.35)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(245,158,11,0.35)', animation: 'fadeIn 0.2s' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', background: 'rgba(0,0,0,0.35)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(245, 185, 74,0.35)', animation: 'fadeIn 0.2s' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
             <div>
-              <h4 style={{ margin: 0, color: '#fbbf24', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h4 style={{ margin: 0, color: '#f5b94a', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Receipt size={18} /> Nhập Nguyên Liệu Hàng Loạt Từ Bill Mua Sắm / Siêu Thị
               </h4>
               <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
@@ -284,7 +284,7 @@ export default function PantryTracker({ items }: Props) {
               }}
               style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#e2e8f0', padding: '6px 12px', borderRadius: '8px', fontSize: '0.78rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
             >
-              <Sparkles size={14} color="#fbbf24" /> Dùng thử Bill mẫu
+              <Sparkles size={14} color="#f5b94a" /> Dùng thử Bill mẫu
             </button>
           </div>
 
@@ -293,12 +293,12 @@ export default function PantryTracker({ items }: Props) {
             value={billText}
             onChange={e => setBillText(e.target.value)}
             placeholder={`Ví dụ:\nỨc gà phi lê 500g - 42.000đ\nTrứng gà 10 quả - 35k\nBông cải xanh 1 cây - 25.000đ\nSữa tươi không đường 1 lít - 34k`}
-            style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(15,23,42,0.9)', color: '#fff', fontSize: '0.88rem', outline: 'none', fontFamily: 'inherit' }}
+            style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.12)', background: 'var(--surface)', color: '#fff', fontSize: '0.88rem', outline: 'none', fontFamily: 'inherit' }}
           />
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
             <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.2)', padding: '8px 14px', borderRadius: '10px', color: '#cbd5e1', fontSize: '0.82rem', cursor: 'pointer' }}>
-              <Upload size={15} color="#38bdf8" />
+              <Upload size={15} color="#6cc4ff" />
               <span>Tải ảnh / file hóa đơn (.txt, .png, .jpg)</span>
               <input type="file" accept=".txt,image/*" onChange={handleReceiptFileUpload} style={{ display: 'none' }} />
             </label>
@@ -309,12 +309,12 @@ export default function PantryTracker({ items }: Props) {
                 type="date"
                 value={billPurchaseDate}
                 onChange={e => setBillPurchaseDate(e.target.value)}
-                style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(15,23,42,0.9)', color: '#fff', colorScheme: 'dark', fontSize: '0.82rem' }}
+                style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'var(--surface)', color: '#fff', colorScheme: 'dark', fontSize: '0.82rem' }}
               />
               <button
                 type="button"
                 onClick={() => handleParseBill()}
-                style={{ background: '#f59e0b', color: '#0f172a', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem' }}
+                style={{ background: '#f5b94a', color: '#0f172a', border: 'none', padding: '8px 16px', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '0.85rem' }}
               >
                 Phân Tích Bill ({parsedBillItems.length > 0 ? `${parsedBillItems.length} món` : 'Chạy'})
               </button>
@@ -325,11 +325,11 @@ export default function PantryTracker({ items }: Props) {
           {parsedBillItems.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34d399' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#3dd68c' }}>
                   Đã nhận diện {parsedBillItems.length} nguyên liệu từ Bill:
                 </span>
                 {totalBillPrice > 0 && (
-                  <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#fbbf24' }}>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f5b94a' }}>
                     Tổng tiền Bill: {totalBillPrice.toLocaleString('vi-VN')}đ
                   </span>
                 )}
@@ -366,7 +366,7 @@ export default function PantryTracker({ items }: Props) {
                         next[idx].daysToExpire = CATEGORY_MAP[cat]?.days || 7;
                         setParsedBillItems(next);
                       }}
-                      style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#38bdf8', fontSize: '0.78rem' }}
+                      style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: '#0f172a', color: '#6cc4ff', fontSize: '0.78rem' }}
                     >
                       <option value="fresh">Rau củ / Trứng (7d)</option>
                       <option value="meat_fridge">Thịt/Cá mát (5d)</option>
@@ -383,12 +383,12 @@ export default function PantryTracker({ items }: Props) {
                         setParsedBillItems(next);
                       }}
                       placeholder="Giá (đ)"
-                      style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fbbf24', fontSize: '0.8rem' }}
+                      style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#f5b94a', fontSize: '0.8rem' }}
                     />
                     <button
                       type="button"
                       onClick={() => setParsedBillItems(parsedBillItems.filter((_, i) => i !== idx))}
-                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}
+                      style={{ background: 'none', border: 'none', color: '#f46d75', cursor: 'pointer', padding: '4px' }}
                     >
                       <X size={15} />
                     </button>
@@ -406,7 +406,7 @@ export default function PantryTracker({ items }: Props) {
                   type="button"
                   disabled={loading}
                   onClick={handleConfirmBillImport}
-                  style={{ background: '#10b981', color: '#0f172a', border: 'none', padding: '10px 20px', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem' }}
+                  style={{ background: '#3dd68c', color: '#0f172a', border: 'none', padding: '10px 20px', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem' }}
                 >
                   {loading ? 'Đang nhập vào tủ lạnh...' : `Xác Nhận Nhập ${parsedBillItems.length} Nguyên Liệu Vào Tủ Lạnh`}
                 </button>
@@ -422,7 +422,7 @@ export default function PantryTracker({ items }: Props) {
           <input name="name" required placeholder="Tên thực phẩm (VD: Ức gà, Rau cải)" style={{ padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <input name="quantity" placeholder="Số lượng (VD: 500g, 1 bó)" style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
-            <select name="category" style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(15, 23, 42, 0.9)', color: '#fff', outline: 'none', fontSize: '0.9rem' }}>
+            <select name="category" style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)', background: 'var(--surface)', color: '#fff', outline: 'none', fontSize: '0.9rem' }}>
               <option value="fresh">Rau củ / Trứng (Mát) - 7d</option>
               <option value="meat_fridge">Thịt/Cá (Mát) - 5d</option>
               <option value="meat_freezer">Thịt/Cá (Đông) - 20d</option>
@@ -431,7 +431,7 @@ export default function PantryTracker({ items }: Props) {
             </select>
           </div>
           <input name="purchaseDate" type="date" title="Ngày mua" defaultValue={new Date().toISOString().split('T')[0]} style={{ padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none', colorScheme: 'dark', fontSize: '0.9rem' }} />
-          <button type="submit" disabled={loading} style={{ background: '#10b981', color: '#0f172a', fontWeight: 700, border: 'none', borderRadius: '10px', padding: '12px', fontSize: '0.9rem', cursor: 'pointer', marginTop: '4px' }}>
+          <button type="submit" disabled={loading} style={{ background: '#3dd68c', color: '#0f172a', fontWeight: 700, border: 'none', borderRadius: '10px', padding: '12px', fontSize: '0.9rem', cursor: 'pointer', marginTop: '4px' }}>
             {loading ? 'Đang lưu...' : 'Lưu vào tủ lạnh'}
           </button>
         </form>
@@ -460,7 +460,7 @@ export default function PantryTracker({ items }: Props) {
                   padding: '14px',
                   borderRadius: '12px',
                   border: '1px solid rgba(255,255,255,0.04)',
-                  borderLeft: isExpired ? '4px solid #ef4444' : isExpiringSoon ? '4px solid #f59e0b' : '4px solid #10b981',
+                  borderLeft: isExpired ? '4px solid #f46d75' : isExpiringSoon ? '4px solid #f5b94a' : '4px solid #3dd68c',
                 }}
               >
                 <div>
@@ -473,12 +473,12 @@ export default function PantryTracker({ items }: Props) {
                           value={editValue}
                           onChange={e => setEditValue(e.target.value)}
                           onKeyDown={e => e.key === 'Enter' && handleSaveEdit(item.id)}
-                          style={{ padding: '4px 8px', width: '90px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #3b82f6', background: 'rgba(0,0,0,0.5)', color: '#fff', outline: 'none' }}
+                          style={{ padding: '4px 8px', width: '90px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #5b9cff', background: 'rgba(0,0,0,0.5)', color: '#fff', outline: 'none' }}
                         />
-                        <button onClick={() => handleSaveEdit(item.id)} style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', color: '#10b981', cursor: 'pointer', padding: '4px', borderRadius: '6px' }}>
+                        <button onClick={() => handleSaveEdit(item.id)} style={{ background: 'rgba(61, 214, 140,0.1)', border: '1px solid rgba(61, 214, 140,0.3)', color: '#3dd68c', cursor: 'pointer', padding: '4px', borderRadius: '6px' }}>
                           <Check size={16} />
                         </button>
-                        <button onClick={() => setEditingId(null)} style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', cursor: 'pointer', padding: '4px', borderRadius: '6px' }}>
+                        <button onClick={() => setEditingId(null)} style={{ background: 'rgba(244, 109, 117,0.1)', border: '1px solid rgba(244, 109, 117,0.3)', color: '#f46d75', cursor: 'pointer', padding: '4px', borderRadius: '6px' }}>
                           <X size={16} />
                         </button>
                       </div>
@@ -487,7 +487,7 @@ export default function PantryTracker({ items }: Props) {
                     )}
                   </div>
                   {item.expiresAt && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: isExpired ? '#ef4444' : isExpiringSoon ? '#f59e0b' : '#64748b', marginTop: '6px', fontWeight: isExpired || isExpiringSoon ? 600 : 400 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: isExpired ? '#f46d75' : isExpiringSoon ? '#f5b94a' : '#64748b', marginTop: '6px', fontWeight: isExpired || isExpiringSoon ? 600 : 400 }}>
                       {(isExpired || isExpiringSoon) && <AlertTriangle size={14} />}
                       {isExpired
                         ? `Đã quá hạn ${Math.abs(days!)} ngày - Cần kiểm tra/loại bỏ`

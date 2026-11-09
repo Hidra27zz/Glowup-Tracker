@@ -168,17 +168,17 @@ export default function FlashcardVault({ decks }: Props) {
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                               <h4 style={{ margin: 0, color: '#fff', fontSize: '1rem' }}>{deck.name}</h4>
-                              {dueCount > 0 && <span style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444', fontSize: '0.65rem', padding: '2px 8px', borderRadius: '20px', fontWeight: 700, border: '1px solid rgba(239,68,68,0.3)' }}>{dueCount} due</span>}
+                              {dueCount > 0 && <span style={{ background: 'rgba(244, 109, 117,0.15)', color: '#f46d75', fontSize: '0.65rem', padding: '2px 8px', borderRadius: '20px', fontWeight: 700, border: '1px solid rgba(244, 109, 117,0.3)' }}>{dueCount} due</span>}
                             </div>
                             <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>{deck.cards.length} cards</div>
                           </div>
-                          <button onClick={() => deleteFlashcardDeck(deck.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px', opacity: 0.6, transition: 'opacity 0.2s' }} onMouseEnter={e => e.currentTarget.style.opacity='1'} onMouseLeave={e => e.currentTarget.style.opacity='0.6'}>
+                          <button onClick={() => deleteFlashcardDeck(deck.id)} style={{ background: 'none', border: 'none', color: '#f46d75', cursor: 'pointer', padding: '4px', opacity: 0.6, transition: 'opacity 0.2s' }} onMouseEnter={e => e.currentTarget.style.opacity='1'} onMouseLeave={e => e.currentTarget.style.opacity='0.6'}>
                             <Trash2 size={16} />
                           </button>
                         </div>
 
                         <div style={{ display: 'flex', gap: '8px' }}>
-                          <button onClick={() => startStudy(deck.id)} disabled={deck.cards.length === 0} style={{ flex: 1, background: dueCount > 0 ? 'linear-gradient(135deg, #ef4444, #f43f5e)' : 'rgba(236,72,153,0.15)', color: dueCount > 0 ? '#fff' : '#f472b6', border: dueCount > 0 ? 'none' : '1px solid rgba(236,72,153,0.3)', padding: '8px', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, cursor: deck.cards.length === 0 ? 'not-allowed' : 'pointer', opacity: deck.cards.length === 0 ? 0.5 : 1 }}>
+                          <button onClick={() => startStudy(deck.id)} disabled={deck.cards.length === 0} style={{ flex: 1, background: dueCount > 0 ? 'linear-gradient(135deg, #f46d75, #f46d75)' : 'rgba(236,72,153,0.15)', color: dueCount > 0 ? '#fff' : '#f472b6', border: dueCount > 0 ? 'none' : '1px solid rgba(236,72,153,0.3)', padding: '8px', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, cursor: deck.cards.length === 0 ? 'not-allowed' : 'pointer', opacity: deck.cards.length === 0 ? 0.5 : 1 }}>
                             <Play size={14} /> Học Ngay
                           </button>
                           <button onClick={() => { setShowNewCard(showNewCard === deck.id ? null : deck.id); setShowBulk(null); }} style={{ background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer' }} title="Thêm 1 Card">
@@ -194,7 +194,7 @@ export default function FlashcardVault({ decks }: Props) {
                             <input name="front" placeholder="Mặt trước (Câu hỏi)" required autoFocus style={inputStyle} />
                             <textarea name="back" placeholder="Mặt sau (Đáp án)" required style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} />
                             <div style={{ display: 'flex', gap: '8px' }}>
-                              <button type="submit" disabled={loading} style={{ flex: 1, background: '#10b981', color: '#fff', padding: '8px', borderRadius: '8px', border: 'none', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Lưu Card</button>
+                              <button type="submit" disabled={loading} style={{ flex: 1, background: '#3dd68c', color: '#fff', padding: '8px', borderRadius: '8px', border: 'none', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Lưu Card</button>
                               <button type="button" onClick={() => setShowNewCard(null)} style={{ background: 'rgba(255,255,255,0.1)', color: '#cbd5e1', padding: '8px 16px', borderRadius: '8px', border: 'none', fontSize: '0.8rem', cursor: 'pointer' }}>Hủy</button>
                             </div>
                           </form>
@@ -205,7 +205,7 @@ export default function FlashcardVault({ decks }: Props) {
                             <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Dán từ Excel (cách nhau bởi Tab)</div>
                             <textarea name="bulkText" placeholder="Mặt trước 1&#9;Mặt sau 1&#10;Mặt trước 2&#9;Mặt sau 2" required autoFocus style={{ ...inputStyle, minHeight: '120px', resize: 'vertical', fontFamily: 'monospace', fontSize: '0.8rem' }} />
                             <div style={{ display: 'flex', gap: '8px' }}>
-                              <button type="submit" disabled={loading} style={{ flex: 1, background: '#a855f7', color: '#fff', padding: '8px', borderRadius: '8px', border: 'none', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Import</button>
+                              <button type="submit" disabled={loading} style={{ flex: 1, background: '#a5b1ff', color: '#fff', padding: '8px', borderRadius: '8px', border: 'none', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Import</button>
                               <button type="button" onClick={() => setShowBulk(null)} style={{ background: 'rgba(255,255,255,0.1)', color: '#cbd5e1', padding: '8px 16px', borderRadius: '8px', border: 'none', fontSize: '0.8rem', cursor: 'pointer' }}>Hủy</button>
                             </div>
                           </form>
@@ -230,7 +230,7 @@ export default function FlashcardVault({ decks }: Props) {
                 <p style={{ margin: 0, fontSize: '0.9rem', maxWidth: '300px', lineHeight: 1.6 }}>Chọn "Học Ngay" ở một bộ thẻ bất kỳ để bắt đầu ôn tập theo phương pháp Spaced Repetition.</p>
               </div>
               {dueCardsCount > 0 && (
-                <div style={{ marginTop: '16px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', padding: '12px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', color: '#fca5a5' }}>
+                <div style={{ marginTop: '16px', background: 'rgba(244, 109, 117,0.1)', border: '1px solid rgba(244, 109, 117,0.2)', padding: '12px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', color: '#f9a3a8' }}>
                   <AlertCircle size={20} />
                   <span style={{ fontSize: '0.85rem' }}>Bạn có <strong>{dueCardsCount}</strong> thẻ tới hạn cần ôn.</span>
                 </div>
@@ -269,13 +269,13 @@ export default function FlashcardVault({ decks }: Props) {
 
               {/* Action Buttons */}
               <div style={{ display: 'flex', gap: '12px', marginTop: '40px', opacity: isFlipped ? 1 : 0, pointerEvents: isFlipped ? 'auto' : 'none', transition: 'opacity 0.3s' }}>
-                <button onClick={(e) => { e.stopPropagation(); nextCard(0); }} style={{ flex: 1, background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', padding: '14px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
+                <button onClick={(e) => { e.stopPropagation(); nextCard(0); }} style={{ flex: 1, background: 'rgba(244, 109, 117,0.15)', color: '#f46d75', border: '1px solid rgba(244, 109, 117,0.3)', padding: '14px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
                   Mai học lại
                 </button>
-                <button onClick={(e) => { e.stopPropagation(); nextCard(1); }} style={{ flex: 1, background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)', padding: '14px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
+                <button onClick={(e) => { e.stopPropagation(); nextCard(1); }} style={{ flex: 1, background: 'rgba(245, 185, 74,0.15)', color: '#f5b94a', border: '1px solid rgba(245, 185, 74,0.3)', padding: '14px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
                   Tạm ổn (3d)
                 </button>
-                <button onClick={(e) => { e.stopPropagation(); nextCard(2); }} style={{ flex: 1, background: 'rgba(16,185,129,0.15)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', padding: '14px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
+                <button onClick={(e) => { e.stopPropagation(); nextCard(2); }} style={{ flex: 1, background: 'rgba(61, 214, 140,0.15)', color: '#3dd68c', border: '1px solid rgba(61, 214, 140,0.3)', padding: '14px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
                   Đã thuộc (7d)
                 </button>
               </div>

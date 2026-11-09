@@ -84,6 +84,21 @@ export default function CurriculumVault() {
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [tocOpen, setTocOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 860px)');
+    const apply = () => {
+      setIsMobile(mq.matches);
+      if (mq.matches) {
+        setSidebarOpen(false);
+        setTocOpen(false);
+      }
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   
   const [selectedSubject, setSelectedSubject] = useState<any>(null);
@@ -625,9 +640,9 @@ export default function CurriculumVault() {
   };
 
   const diffColor = (d: string) =>
-    d === 'Easy' ? '#4ade80' : d === 'Medium' ? '#facc15' : '#f87171';
+    d === 'Easy' ? '#3dd68c' : d === 'Medium' ? '#facc15' : '#f46d75';
   const diffBg = (d: string) =>
-    d === 'Easy' ? 'rgba(34,197,94,0.12)' : d === 'Medium' ? 'rgba(234,179,8,0.12)' : 'rgba(239,68,68,0.12)';
+    d === 'Easy' ? 'rgba(34,197,94,0.12)' : d === 'Medium' ? 'rgba(234,179,8,0.12)' : 'rgba(244, 109, 117,0.12)';
 
   if (loading) {
     return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '600px', color: '#64748b' }}>
@@ -644,12 +659,12 @@ export default function CurriculumVault() {
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
           {[
-            { id: 'blank', label: 'Tự Tạo Môn Học Từ Đầu (Mọi Ngành)', color: '#10b981' },
-            { id: 'business', label: 'Kinh Tế, Quản Trị & Marketing', color: '#f59e0b' },
-            { id: 'languages', label: 'Ngoại Ngữ & IELTS', color: '#3b82f6' },
+            { id: 'blank', label: 'Tự Tạo Môn Học Từ Đầu (Mọi Ngành)', color: '#3dd68c' },
+            { id: 'business', label: 'Kinh Tế, Quản Trị & Marketing', color: '#f5b94a' },
+            { id: 'languages', label: 'Ngoại Ngữ & IELTS', color: '#5b9cff' },
             { id: 'design', label: 'Thiết Kế & Sáng Tạo', color: '#ec4899' },
-            { id: 'general', label: 'Phương Pháp Học Tập Chung', color: '#8b5cf6' },
-            { id: 'it', label: 'Công Nghệ Thông Tin', color: '#38bdf8' },
+            { id: 'general', label: 'Phương Pháp Học Tập Chung', color: '#7b8cff' },
+            { id: 'it', label: 'Công Nghệ Thông Tin', color: '#6cc4ff' },
           ].map(item => (
             <button
               key={item.id}
@@ -677,9 +692,9 @@ export default function CurriculumVault() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', height: '100%', minHeight: '85vh' }}>
       {/* ── MULTI-DISCIPLINE SWITCHER BAR (KHÔNG BỊ CÁ NHÂN HÓA CỨNG THEO 1 NGÀNH) ── */}
-      <div style={{ background: 'rgba(15,23,42,0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+      <div style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#cbd5e1' }}>
-          <strong style={{ color: '#38bdf8' }}>Chuyển đổi Khung Chương Trình theo Ngành:</strong>
+          <strong style={{ color: '#6cc4ff' }}>Chuyển đổi Khung Chương Trình theo Ngành:</strong>
           <span style={{ color: '#64748b' }}>(Phù hợp cho mọi ngành học, hoặc tự tạo từ đầu)</span>
         </div>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -716,11 +731,12 @@ export default function CurriculumVault() {
       
       {/* ── SIDEBAR ── */}
       <div style={{
-        width: sidebarOpen ? '260px' : '0px',
-        minWidth: sidebarOpen ? '260px' : '0px',
+        width: sidebarOpen ? (isMobile ? 'min(300px, 88vw)' : '260px') : '0px',
+        minWidth: sidebarOpen ? (isMobile ? 'min(300px, 88vw)' : '260px') : '0px',
+        ...(isMobile ? { position: 'absolute' as const, top: 0, left: 0, bottom: 0, zIndex: 30, boxShadow: sidebarOpen ? '4px 0 24px rgba(0,0,0,0.5)' : 'none' } : {}),
         overflow: 'hidden',
         transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
-        background: 'rgba(0,0,0,0.25)',
+        background: isMobile ? 'var(--surface)' : 'rgba(0,0,0,0.25)',
         borderRight: '1px solid rgba(255,255,255,0.06)',
         borderRadius: '16px 0 0 16px',
         display: 'flex',
@@ -734,7 +750,7 @@ export default function CurriculumVault() {
             </div>
             <button 
               onClick={() => setActiveView('import')} 
-              style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '6px', color: '#4ade80', padding: '4px 8px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+              style={{ background: 'rgba(61, 214, 140,0.1)', border: '1px solid rgba(61, 214, 140,0.3)', borderRadius: '6px', color: '#3dd68c', padding: '4px 8px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
               title="Tạo Môn Học Mới"
             >
               + Thêm môn
@@ -882,7 +898,7 @@ export default function CurriculumVault() {
             <button
               onClick={() => (isPomodoroRunning ? pauseUnifiedTimer() : startUnifiedTimer({ taskName: selectedSubject?.name || 'Học bài' }))}
               style={{
-                background: 'transparent', border: 'none', cursor: 'pointer', color: isPomodoroRunning ? '#f87171' : '#4ade80',
+                background: 'transparent', border: 'none', cursor: 'pointer', color: isPomodoroRunning ? '#f46d75' : '#3dd68c',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0',
               }}
               title={isPomodoroRunning ? "Dừng Focus" : "Bắt đầu Focus"}
@@ -920,7 +936,7 @@ export default function CurriculumVault() {
                   fontWeight: 600, fontSize: '0.82rem', transition: 'all 0.2s',
                   background: activeView === key ? 'rgba(255,255,255,0.08)' : 'transparent',
                   color: activeView === key
-                    ? key === 'quiz' ? '#a78bfa' : '#e2e8f0'
+                    ? key === 'quiz' ? '#a5b1ff' : '#e2e8f0'
                     : '#64748b',
                 }}
               >
@@ -946,14 +962,15 @@ export default function CurriculumVault() {
         </div>
 
         {/* ── BODY ── */}
-        <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', position: 'relative' }}>
 
           {/* Theory section list (mini TOC) */}
           <div style={{
-            width: tocOpen ? '240px' : '0px', minWidth: tocOpen ? '240px' : '0px',
+            width: tocOpen ? (isMobile ? 'min(280px, 84vw)' : '240px') : '0px', minWidth: tocOpen ? (isMobile ? 'min(280px, 84vw)' : '240px') : '0px',
+            ...(isMobile ? { position: 'absolute' as const, top: 0, left: 0, bottom: 0, zIndex: 25, background: 'var(--surface)' } : {}),
             borderRight: '1px solid rgba(255,255,255,0.06)',
             overflow: 'hidden', padding: tocOpen ? '12px 8px' : '0px',
-            background: 'rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
+            background: isMobile ? 'var(--surface)' : 'rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
             transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)'
           }}>
                 <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#475569', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 8px 8px' }}>
@@ -981,14 +998,14 @@ export default function CurriculumVault() {
                       color: selectedSection?.id === sec.id ? '#e2e8f0' : '#64748b',
                       fontSize: '0.78rem', fontWeight: selectedSection?.id === sec.id ? 600 : 400,
                       transition: 'all 0.15s', lineHeight: 1.4,
-                      borderLeft: selectedSection?.id === sec.id ? '2px solid #38bdf8' : '2px solid transparent',
+                      borderLeft: selectedSection?.id === sec.id ? '2px solid #6cc4ff' : '2px solid transparent',
                     }}
                     onMouseEnter={e => { if (selectedSection?.id !== sec.id) e.currentTarget.style.color = '#94a3b8'; }}
                     onMouseLeave={e => { if (selectedSection?.id !== sec.id) e.currentTarget.style.color = '#64748b'; }}
                   >
                     <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', width: '100%' }}>
                       <span style={{ flex: 1 }}>{sec.title}</span>
-                      {completedSections[sec.id] && <CheckCircle2 size={11} color="#4ade80" style={{ flexShrink: 0 }} />}
+                      {completedSections[sec.id] && <CheckCircle2 size={11} color="#3dd68c" style={{ flexShrink: 0 }} />}
                     </span>
                   </button>
                 ))}
@@ -1024,7 +1041,7 @@ export default function CurriculumVault() {
                     
                     {(!selectedSection.coreConcept || selectedSection.coreConcept.includes("Đang chờ cập nhật nội dung") || selectedSection.coreConcept.includes("chưa cập nhật")) ? (
                       <div style={{ textAlign: 'center', padding: '60px 0', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px', background: 'rgba(0,0,0,0.2)' }}>
-                        <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}><Globe size={48} color="#7c3aed" strokeWidth={1.5} /></div>
+                        <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}><Globe size={48} color="#7b8cff" strokeWidth={1.5} /></div>
                         <div style={{ color: '#94a3b8', fontSize: '1.1rem', marginBottom: '8px', fontWeight: 600 }}>Bài giảng đang trống</div>
                         <div style={{ color: '#475569', fontSize: '0.85rem', maxWidth: '440px', margin: '0 auto 24px', lineHeight: 1.5 }}>
                           Hệ thống sẽ tự động quét dữ liệu chuyên ngành từ Wikipedia, GeeksforGeeks, Programiz để tổng hợp bài giảng (Zero-Token). AI sẽ được dùng làm phương án dự phòng.
@@ -1033,7 +1050,7 @@ export default function CurriculumVault() {
                           onClick={handleGenerateTheory}
                           disabled={isGeneratingTheory}
                           style={{
-                            background: isGeneratingTheory ? '#334155' : 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                            background: isGeneratingTheory ? '#334155' : 'linear-gradient(135deg, #7b8cff, #6d28d9)',
                             color: '#fff',
                             border: 'none',
                             padding: '12px 24px',
@@ -1062,7 +1079,7 @@ export default function CurriculumVault() {
                         </button>
                         {selectedSection.focusKeywords && (
                           <div style={{ marginTop: '20px', color: '#64748b', fontSize: '0.8rem' }}>
-                            Từ khóa AI sẽ tập trung: <span style={{ color: '#38bdf8' }}>{selectedSection.focusKeywords}</span>
+                            Từ khóa AI sẽ tập trung: <span style={{ color: '#6cc4ff' }}>{selectedSection.focusKeywords}</span>
                           </div>
                         )}
                       </div>
@@ -1097,7 +1114,7 @@ export default function CurriculumVault() {
                     {/* Tự động nhúng Video YouTube (Zero-Token) */}
                     <div style={{ marginTop: '40px', padding: '24px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                       <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#e2e8f0', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Play size={18} color="#ef4444" fill="#ef4444" />
+                        <Play size={18} color="#f46d75" fill="#f46d75" />
                         Video Bài Giảng / Hướng Dẫn Nhanh
                       </h3>
                       <YouTubeEmbed query={selectedSection.title.replace(/Chương \d+[-\d]*:/, '').trim() + ' ' + selectedSubject.name + ' bách khoa uit'} />
@@ -1143,19 +1160,19 @@ export default function CurriculumVault() {
                               display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px',
                               boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center'
                             }}>
-                              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#38bdf8' }}>{flashcards[activeCard]?.front}</div>
+                              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#6cc4ff' }}>{flashcards[activeCard]?.front}</div>
                               <div style={{ position: 'absolute', bottom: '12px', fontSize: '0.7rem', color: '#64748b' }}>Chạm để lật mặt sau</div>
                             </div>
                             {/* Back */}
                             <div style={{
                               position: 'absolute', width: '100%', height: '100%', backfaceVisibility: 'hidden',
-                              background: 'linear-gradient(135deg, rgba(56,189,248,0.1), rgba(56,189,248,0.05))',
-                              border: '1px solid rgba(56,189,248,0.2)', borderRadius: '16px',
+                              background: 'linear-gradient(135deg, rgba(108, 196, 255,0.1), rgba(108, 196, 255,0.05))',
+                              border: '1px solid rgba(108, 196, 255,0.2)', borderRadius: '16px',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px',
                               transform: 'rotateY(180deg)', textAlign: 'center'
                             }}>
                               <div style={{ fontSize: '1rem', color: '#e2e8f0', lineHeight: 1.5 }}>{flashcards[activeCard]?.back}</div>
-                              <div style={{ position: 'absolute', bottom: '12px', fontSize: '0.7rem', color: '#38bdf8' }}>Chạm để lật lại</div>
+                              <div style={{ position: 'absolute', bottom: '12px', fontSize: '0.7rem', color: '#6cc4ff' }}>Chạm để lật lại</div>
                             </div>
                           </div>
                           
@@ -1204,7 +1221,7 @@ export default function CurriculumVault() {
                         >
                           <FileText size={14} />
                           Ghi chú cá nhân
-                          {notes[selectedSection.id] && <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: '#4ade80', background: 'rgba(74,222,128,0.1)', padding: '2px 8px', borderRadius: '10px' }}>Đã có ghi chú</span>}
+                          {notes[selectedSection.id] && <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: '#3dd68c', background: 'rgba(61, 214, 140,0.1)', padding: '2px 8px', borderRadius: '10px' }}>Đã có ghi chú</span>}
                           {notesOpen ? <ChevronDown size={14} style={{ marginLeft: notes[selectedSection.id] ? undefined : 'auto' }} /> : <ChevronRight size={14} style={{ marginLeft: notes[selectedSection.id] ? undefined : 'auto' }} />}
                         </button>
                         {notesOpen && (
@@ -1244,7 +1261,7 @@ export default function CurriculumVault() {
                         
                         {realWorldApps && realWorldApps.length > 0 && (
                           <div style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '12px', padding: '20px' }}>
-                            <h3 style={{ margin: '0 0 12px', color: '#4ade80', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <h3 style={{ margin: '0 0 12px', color: '#3dd68c', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                               <Zap size={16} /> Ứng dụng Thực tế
                             </h3>
                             <ul style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: 1.6 }}>
@@ -1254,8 +1271,8 @@ export default function CurriculumVault() {
                         )}
 
                         {edgeCases && edgeCases.length > 0 && (
-                          <div style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '12px', padding: '20px' }}>
-                            <h3 style={{ margin: '0 0 12px', color: '#f87171', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ background: 'rgba(244, 109, 117,0.05)', border: '1px solid rgba(244, 109, 117,0.2)', borderRadius: '12px', padding: '20px' }}>
+                            <h3 style={{ margin: '0 0 12px', color: '#f46d75', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                               <AlertCircle size={16} /> Góc khuất & Ngoại lệ
                             </h3>
                             <ul style={{ margin: 0, paddingLeft: '20px', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: 1.6 }}>
@@ -1280,7 +1297,7 @@ export default function CurriculumVault() {
                             </h3>
                             {quizSubmitted && (
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <span style={{ color: score === quiz.length ? '#4ade80' : score >= quiz.length/2 ? '#facc15' : '#f87171', fontWeight: 800, fontSize: '1rem' }}>
+                                <span style={{ color: score === quiz.length ? '#3dd68c' : score >= quiz.length/2 ? '#facc15' : '#f46d75', fontWeight: 800, fontSize: '1rem' }}>
                                   {score}/{quiz.length} đúng
                                 </span>
                                 <button
@@ -1298,9 +1315,9 @@ export default function CurriculumVault() {
                               const answered = quizAnswers[qi] !== undefined;
                               const isCorrect = quizAnswers[qi] === q.correct;
                               return (
-                                <div key={qi} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '12px', padding: '18px', border: quizSubmitted ? (isCorrect ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(239,68,68,0.3)') : '1px solid rgba(255,255,255,0.07)' }}>
+                                <div key={qi} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '12px', padding: '18px', border: quizSubmitted ? (isCorrect ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(244, 109, 117,0.3)') : '1px solid rgba(255,255,255,0.07)' }}>
                                   <p style={{ margin: '0 0 14px', fontWeight: 600, color: '#e2e8f0', fontSize: '0.9rem' }}>
-                                    <span style={{ color: '#a78bfa', marginRight: '8px' }}>Q{qi + 1}.</span>
+                                    <span style={{ color: '#a5b1ff', marginRight: '8px' }}>Q{qi + 1}.</span>
                                     {q.question}
                                   </p>
                                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1309,8 +1326,8 @@ export default function CurriculumVault() {
                                       let border = '1px solid rgba(255,255,255,0.08)';
                                       let color = '#94a3b8';
                                       if (quizSubmitted) {
-                                        if (oi === q.correct) { bg = 'rgba(34,197,94,0.12)'; border = '1px solid rgba(34,197,94,0.4)'; color = '#4ade80'; }
-                                        else if (oi === quizAnswers[qi]) { bg = 'rgba(239,68,68,0.1)'; border = '1px solid rgba(239,68,68,0.3)'; color = '#f87171'; }
+                                        if (oi === q.correct) { bg = 'rgba(34,197,94,0.12)'; border = '1px solid rgba(34,197,94,0.4)'; color = '#3dd68c'; }
+                                        else if (oi === quizAnswers[qi]) { bg = 'rgba(244, 109, 117,0.1)'; border = '1px solid rgba(244, 109, 117,0.3)'; color = '#f46d75'; }
                                       } else if (quizAnswers[qi] === oi) {
                                         bg = 'rgba(168,85,247,0.12)'; border = '1px solid rgba(168,85,247,0.4)'; color = '#c084fc';
                                       }
@@ -1347,7 +1364,7 @@ export default function CurriculumVault() {
                               disabled={Object.keys(quizAnswers).length < quiz.length}
                               style={{
                                 marginTop: '20px', padding: '10px 24px', borderRadius: '10px', border: 'none',
-                                background: Object.keys(quizAnswers).length < quiz.length ? '#1e293b' : 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                                background: Object.keys(quizAnswers).length < quiz.length ? '#1e293b' : 'linear-gradient(135deg, #7b8cff, #6d28d9)',
                                 color: Object.keys(quizAnswers).length < quiz.length ? '#475569' : '#fff',
                                 fontWeight: 700, fontSize: '0.9rem',
                                 cursor: Object.keys(quizAnswers).length < quiz.length ? 'not-allowed' : 'pointer',
@@ -1379,7 +1396,7 @@ export default function CurriculumVault() {
                             const idx = selectedSubject.theories.findIndex((s: any) => s.id === selectedSection.id);
                             setSelectedSection(selectedSubject.theories[idx + 1]);
                           }}
-                          style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: 'rgba(56,189,248,0.15)', color: '#38bdf8', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}
+                          style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', background: 'rgba(108, 196, 255,0.15)', color: '#6cc4ff', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600 }}
                         >
                           Tiếp theo →
                         </button>
@@ -1387,7 +1404,7 @@ export default function CurriculumVault() {
                       {selectedSubject.exercises.length > 0 && (
                         <button
                           onClick={() => setActiveView('exercise')}
-                          style={{ marginLeft: 'auto', padding: '8px 20px', borderRadius: '8px', border: 'none', background: 'rgba(34,197,94,0.15)', color: '#4ade80', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}
+                          style={{ marginLeft: 'auto', padding: '8px 20px', borderRadius: '8px', border: 'none', background: 'rgba(34,197,94,0.15)', color: '#3dd68c', cursor: 'pointer', fontSize: '0.82rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}
                         >
                           <Code2 size={14} /> Luyện tập →
                         </button>
@@ -1436,7 +1453,7 @@ export default function CurriculumVault() {
                     padding: '5px 12px', borderRadius: '8px',
                     border: '1px solid rgba(34,197,94,0.3)',
                     background: isGeneratingExercise ? 'rgba(255,255,255,0.03)' : 'rgba(34,197,94,0.08)',
-                    color: isGeneratingExercise ? '#475569' : '#4ade80',
+                    color: isGeneratingExercise ? '#475569' : '#3dd68c',
                     fontSize: '0.75rem', fontWeight: 600, cursor: isGeneratingExercise ? 'not-allowed' : 'pointer',
                     whiteSpace: 'nowrap', flexShrink: 0,
                   }}
@@ -1486,7 +1503,7 @@ export default function CurriculumVault() {
                     {descOpen && (
                       <div style={{ padding: '16px 20px', background: 'rgba(0,0,0,0.05)', maxHeight: '300px', overflowY: 'auto' }}>
                         {showHint && selectedExercise.hint && (
-                          <div style={{ marginBottom: '12px', padding: '10px 14px', borderRadius: '8px', background: 'rgba(250,204,21,0.08)', border: '1px solid rgba(250,204,21,0.2)', color: '#fde68a', fontSize: '0.82rem', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                          <div style={{ marginBottom: '12px', padding: '10px 14px', borderRadius: '8px', background: 'rgba(250,204,21,0.08)', border: '1px solid rgba(250,204,21,0.2)', color: '#f9d68a', fontSize: '0.82rem', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
                             <Lightbulb size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
                             {selectedExercise.hint}
                           </div>
@@ -1515,9 +1532,9 @@ export default function CurriculumVault() {
                             onClick={() => setLanguage(lang)}
                             style={{
                               padding: '5px 12px', borderRadius: '6px', border: '1px solid',
-                              borderColor: language === lang ? 'rgba(56,189,248,0.4)' : 'transparent',
-                              background: language === lang ? 'rgba(56,189,248,0.1)' : 'transparent',
-                              color: language === lang ? '#38bdf8' : '#64748b',
+                              borderColor: language === lang ? 'rgba(108, 196, 255,0.4)' : 'transparent',
+                              background: language === lang ? 'rgba(108, 196, 255,0.1)' : 'transparent',
+                              color: language === lang ? '#6cc4ff' : '#64748b',
                               fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
                             }}
                           >
@@ -1573,9 +1590,9 @@ export default function CurriculumVault() {
                         }}>
                           <Terminal size={13} />
                           Console
-                          {isRunning && <span style={{ color: '#38bdf8', marginLeft: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}><Clock size={12} /> Đang chấm...</span>}
+                          {isRunning && <span style={{ color: '#6cc4ff', marginLeft: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}><Clock size={12} /> Đang chấm...</span>}
                           {executionResult && (
-                            <span style={{ marginLeft: '8px', fontWeight: 700, color: executionResult.status === 'Accepted' ? '#4ade80' : '#f87171', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <span style={{ marginLeft: '8px', fontWeight: 700, color: executionResult.status === 'Accepted' ? '#3dd68c' : '#f46d75', display: 'flex', alignItems: 'center', gap: '5px' }}>
                               {executionResult.status === 'Accepted' ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
                               {executionResult.status}
                             </span>
@@ -1585,13 +1602,13 @@ export default function CurriculumVault() {
                         {executionResult && (
                           <div style={{ padding: '12px 16px', overflowY: 'auto', maxHeight: '200px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                             {executionResult.error && (
-                              <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5', padding: '10px 12px', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>
+                              <div style={{ background: 'rgba(244, 109, 117,0.08)', border: '1px solid rgba(244, 109, 117,0.2)', color: '#f9a3a8', padding: '10px 12px', borderRadius: '8px', fontFamily: 'monospace', fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>
                                 {executionResult.error}
                               </div>
                             )}
                             {executionResult.results?.map((res: any) => (
                               <div key={res.testCaseId} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', fontSize: '0.78rem', fontFamily: 'monospace' }}>
-                                <span style={{ color: res.passed ? '#4ade80' : '#f87171', marginTop: '1px' }}>
+                                <span style={{ color: res.passed ? '#3dd68c' : '#f46d75', marginTop: '1px' }}>
                                   {res.passed ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                                 </span>
                                 <div style={{ flex: 1 }}>
@@ -1599,11 +1616,11 @@ export default function CurriculumVault() {
                                   {!res.passed && (
                                     <span style={{ color: '#94a3b8' }}>
                                       Expected: <code style={{ color: '#86efac' }}>{res.expected}</code>
-                                      {' | '}Got: <code style={{ color: '#fca5a5' }}>{res.actual || '(empty)'}</code>
+                                      {' | '}Got: <code style={{ color: '#f9a3a8' }}>{res.actual || '(empty)'}</code>
                                     </span>
                                   )}
-                                  {res.passed && <span style={{ color: '#4ade80' }}>Passed </span>}
-                                  {res.error && <span style={{ color: '#fca5a5' }}> · {res.error}</span>}
+                                  {res.passed && <span style={{ color: '#3dd68c' }}>Passed </span>}
+                                  {res.error && <span style={{ color: '#f9a3a8' }}> · {res.error}</span>}
                                 </div>
                               </div>
                             ))}
@@ -1627,7 +1644,7 @@ export default function CurriculumVault() {
                 </div>
               ) : quizQuestions.length === 0 ? (
                 <div style={{ textAlign: 'center', paddingTop: '60px' }}>
-                  <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}><Brain size={48} color="#7c3aed" strokeWidth={1.5} /></div>
+                  <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}><Brain size={48} color="#7b8cff" strokeWidth={1.5} /></div>
                   <div style={{ color: '#94a3b8', fontSize: '1rem', marginBottom: '8px', fontWeight: 600 }}>Chưa có câu hỏi quiz</div>
                   <div style={{ color: '#475569', fontSize: '0.85rem', maxWidth: '380px', margin: '0 auto', marginBottom: '20px' }}>
                     Sử dụng siêu AI Gemini để tự động phân tích bài học và biên soạn bộ câu hỏi trắc nghiệm ngay bây giờ.
@@ -1636,7 +1653,7 @@ export default function CurriculumVault() {
                     onClick={handleGenerateQuiz}
                     disabled={isGeneratingQuiz}
                     style={{
-                      background: isGeneratingQuiz ? '#334155' : 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                      background: isGeneratingQuiz ? '#334155' : 'linear-gradient(135deg, #7b8cff, #6d28d9)',
                       color: '#fff',
                       border: 'none',
                       padding: '12px 24px',
@@ -1668,7 +1685,7 @@ export default function CurriculumVault() {
                 /* ── KẾT QUẢ ── */
                 <div style={{ textAlign: 'center', paddingTop: '40px', animation: 'fadeIn 0.5s' }}>
                   <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
-                    <Trophy size={56} style={{ color: quizScore / quizQuestions.length >= 0.8 ? '#4ade80' : quizScore / quizQuestions.length >= 0.5 ? '#facc15' : '#f87171' }} />
+                    <Trophy size={56} style={{ color: quizScore / quizQuestions.length >= 0.8 ? '#3dd68c' : quizScore / quizQuestions.length >= 0.5 ? '#facc15' : '#f46d75' }} />
                   </div>
                   <h2 style={{ margin: '0 0 8px', color: '#f1f5f9', fontSize: '1.8rem' }}>Hoàn thành!</h2>
                   <div style={{ color: '#64748b', marginBottom: '24px' }}>Kết quả của bạn</div>
@@ -1677,13 +1694,13 @@ export default function CurriculumVault() {
                     padding: '20px 40px', borderRadius: '16px',
                     background: quizScore / quizQuestions.length >= 0.8
                       ? 'rgba(34,197,94,0.1)' : quizScore / quizQuestions.length >= 0.5
-                      ? 'rgba(250,204,21,0.1)' : 'rgba(239,68,68,0.1)',
+                      ? 'rgba(250,204,21,0.1)' : 'rgba(244, 109, 117,0.1)',
                     border: `1px solid ${quizScore / quizQuestions.length >= 0.8
                       ? 'rgba(34,197,94,0.3)' : quizScore / quizQuestions.length >= 0.5
-                      ? 'rgba(250,204,21,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                      ? 'rgba(250,204,21,0.3)' : 'rgba(244, 109, 117,0.3)'}`,
                     marginBottom: '32px',
                   }}>
-                    <Trophy size={28} style={{ color: quizScore / quizQuestions.length >= 0.8 ? '#4ade80' : quizScore / quizQuestions.length >= 0.5 ? '#facc15' : '#f87171' }} />
+                    <Trophy size={28} style={{ color: quizScore / quizQuestions.length >= 0.8 ? '#3dd68c' : quizScore / quizQuestions.length >= 0.5 ? '#facc15' : '#f46d75' }} />
                     <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#f1f5f9' }}>{quizScore}</span>
                     <span style={{ fontSize: '1.2rem', color: '#64748b' }}>/ {quizQuestions.length}</span>
                   </div>
@@ -1698,11 +1715,11 @@ export default function CurriculumVault() {
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: '8px',
                         padding: '10px 24px', borderRadius: '10px', border: 'none',
-                        background: 'rgba(167,139,250,0.15)', color: '#a78bfa',
+                        background: 'rgba(165, 177, 255,0.15)', color: '#a5b1ff',
                         fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', transition: 'all 0.2s',
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(167,139,250,0.25)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(167,139,250,0.15)')}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(165, 177, 255,0.25)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(165, 177, 255,0.15)')}
                     >
                       <RotateCcw size={16} /> Làm lại
                     </button>
@@ -1710,9 +1727,9 @@ export default function CurriculumVault() {
                       onClick={() => setShowQuizReview(r => !r)}
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: '8px',
-                        padding: '10px 24px', borderRadius: '10px', border: '1px solid rgba(56,189,248,0.3)',
-                        background: showQuizReview ? 'rgba(56,189,248,0.15)' : 'rgba(56,189,248,0.06)',
-                        color: '#38bdf8', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
+                        padding: '10px 24px', borderRadius: '10px', border: '1px solid rgba(108, 196, 255,0.3)',
+                        background: showQuizReview ? 'rgba(108, 196, 255,0.15)' : 'rgba(108, 196, 255,0.06)',
+                        color: '#6cc4ff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer',
                       }}
                     >
                       <BookOpen size={16} /> {showQuizReview ? 'Ẩn giải thích' : 'Xem lại đáp án'}
@@ -1729,24 +1746,24 @@ export default function CurriculumVault() {
                         return (
                           <div key={q.id} style={{
                             padding: '16px', borderRadius: '12px',
-                            border: `1px solid ${isCorrect ? 'rgba(74,222,128,0.25)' : 'rgba(248,113,113,0.25)'}`,
-                            background: isCorrect ? 'rgba(34,197,94,0.04)' : 'rgba(239,68,68,0.04)',
+                            border: `1px solid ${isCorrect ? 'rgba(61, 214, 140,0.25)' : 'rgba(244, 109, 117,0.25)'}`,
+                            background: isCorrect ? 'rgba(34,197,94,0.04)' : 'rgba(244, 109, 117,0.04)',
                           }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' }}>
                               {isCorrect
-                                ? <CheckCircle2 size={16} color="#4ade80" style={{ flexShrink: 0, marginTop: '2px' }} />
-                                : <XCircle size={16} color="#f87171" style={{ flexShrink: 0, marginTop: '2px' }} />
+                                ? <CheckCircle2 size={16} color="#3dd68c" style={{ flexShrink: 0, marginTop: '2px' }} />
+                                : <XCircle size={16} color="#f46d75" style={{ flexShrink: 0, marginTop: '2px' }} />
                               }
                               <span style={{ fontSize: '0.88rem', color: '#e2e8f0', fontWeight: 600 }}>
                                 {idx + 1}. {q.question}
                               </span>
                             </div>
                             {!isCorrect && userAns !== undefined && (
-                              <div style={{ fontSize: '0.8rem', color: '#f87171', paddingLeft: '26px', marginBottom: '6px' }}>
+                              <div style={{ fontSize: '0.8rem', color: '#f46d75', paddingLeft: '26px', marginBottom: '6px' }}>
                                 Bạn chọn: {opts[userAns]}
                               </div>
                             )}
-                            <div style={{ fontSize: '0.8rem', color: '#4ade80', paddingLeft: '26px', marginBottom: '8px' }}>
+                            <div style={{ fontSize: '0.8rem', color: '#3dd68c', paddingLeft: '26px', marginBottom: '8px' }}>
                               Đáp án đúng: {opts[q.answerIndex]}
                             </div>
                             {q.explanation && (
@@ -1768,7 +1785,7 @@ export default function CurriculumVault() {
                     <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '99px', overflow: 'hidden' }}>
                       <div style={{
                         height: '100%', borderRadius: '99px',
-                        background: 'linear-gradient(90deg, #7c3aed, #a78bfa)',
+                        background: 'linear-gradient(90deg, #7b8cff, #a5b1ff)',
                         width: `${((currentQuizIdx + 1) / quizQuestions.length) * 100}%`,
                         transition: 'width 0.4s ease',
                       }} />
@@ -1776,17 +1793,17 @@ export default function CurriculumVault() {
                     <span style={{ color: '#64748b', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
                       {currentQuizIdx + 1} / {quizQuestions.length}
                     </span>
-                    <span style={{ color: '#4ade80', fontSize: '0.8rem', fontWeight: 700 }}>
+                    <span style={{ color: '#3dd68c', fontSize: '0.8rem', fontWeight: 700 }}>
                       +{quizScore}
                     </span>
                   </div>
 
                   {/* Question */}
                   <div style={{
-                    background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)',
+                    background: 'rgba(165, 177, 255,0.06)', border: '1px solid rgba(165, 177, 255,0.15)',
                     borderRadius: '16px', padding: '28px 32px', marginBottom: '24px',
                   }}>
-                    <div style={{ color: '#7c3aed', fontSize: '0.75rem', fontWeight: 700, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    <div style={{ color: '#7b8cff', fontSize: '0.75rem', fontWeight: 700, marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                       Câu {currentQuizIdx + 1}
                     </div>
                     <p style={{ margin: 0, color: '#f1f5f9', fontSize: '1.05rem', fontWeight: 600, lineHeight: 1.6 }}>
@@ -1805,7 +1822,7 @@ export default function CurriculumVault() {
                       let color = '#cbd5e1';
                       if (answered) {
                         if (isCorrect) { bg = 'rgba(34,197,94,0.1)'; border = '1px solid rgba(34,197,94,0.35)'; color = '#86efac'; }
-                        else if (isSelected) { bg = 'rgba(239,68,68,0.1)'; border = '1px solid rgba(239,68,68,0.35)'; color = '#fca5a5'; }
+                        else if (isSelected) { bg = 'rgba(244, 109, 117,0.1)'; border = '1px solid rgba(244, 109, 117,0.35)'; color = '#f9a3a8'; }
                       }
                       return (
                         <button
@@ -1826,10 +1843,10 @@ export default function CurriculumVault() {
                           <span style={{
                             width: '26px', height: '26px', borderRadius: '8px', flexShrink: 0,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: answered && isCorrect ? 'rgba(34,197,94,0.2)' : answered && isSelected ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.07)',
+                            background: answered && isCorrect ? 'rgba(34,197,94,0.2)' : answered && isSelected ? 'rgba(244, 109, 117,0.2)' : 'rgba(255,255,255,0.07)',
                             fontWeight: 700, fontSize: '0.78rem',
                           }}>
-                            {answered ? (isCorrect ? <CheckCircle2 size={14} style={{ color: '#4ade80' }} /> : isSelected ? <XCircle size={14} style={{ color: '#f87171' }} /> : ['A','B','C','D'][idx]) : ['A','B','C','D'][idx]}
+                            {answered ? (isCorrect ? <CheckCircle2 size={14} style={{ color: '#3dd68c' }} /> : isSelected ? <XCircle size={14} style={{ color: '#f46d75' }} /> : ['A','B','C','D'][idx]) : ['A','B','C','D'][idx]}
                           </span>
                           {opt}
                         </button>
@@ -1841,11 +1858,11 @@ export default function CurriculumVault() {
                   {showExplanation && quizQuestions[currentQuizIdx]?.explanation && (
                     <div style={{
                       padding: '16px 20px', borderRadius: '12px', marginBottom: '24px', animation: 'fadeIn 0.3s',
-                      background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)',
+                      background: 'rgba(245, 185, 74,0.07)', border: '1px solid rgba(245, 185, 74,0.2)',
                     }}>
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                        <Lightbulb size={16} style={{ color: '#fbbf24', flexShrink: 0, marginTop: '2px' }} />
-                        <p style={{ margin: 0, color: '#fde68a', fontSize: '0.88rem', lineHeight: 1.6 }}>
+                        <Lightbulb size={16} style={{ color: '#f5b94a', flexShrink: 0, marginTop: '2px' }} />
+                        <p style={{ margin: 0, color: '#f9d68a', fontSize: '0.88rem', lineHeight: 1.6 }}>
                           {quizQuestions[currentQuizIdx].explanation}
                         </p>
                       </div>
@@ -1858,7 +1875,7 @@ export default function CurriculumVault() {
                       onClick={handleNextQuiz}
                       style={{
                         padding: '10px 28px', borderRadius: '10px', border: 'none',
-                        background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+                        background: 'linear-gradient(135deg, #7b8cff, #a5b1ff)',
                         color: '#fff', fontWeight: 700, fontSize: '0.92rem',
                         cursor: 'pointer', transition: 'all 0.2s',
                         boxShadow: '0 0 20px rgba(124,58,237,0.3)',
@@ -1888,9 +1905,9 @@ export default function CurriculumVault() {
             {importResult && (
               <div style={{
                 padding: '16px', borderRadius: '12px', marginBottom: '24px',
-                background: importResult.success ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-                border: `1px solid ${importResult.success ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
-                color: importResult.success ? '#4ade80' : '#fca5a5',
+                background: importResult.success ? 'rgba(34,197,94,0.1)' : 'rgba(244, 109, 117,0.1)',
+                border: `1px solid ${importResult.success ? 'rgba(34,197,94,0.3)' : 'rgba(244, 109, 117,0.3)'}`,
+                color: importResult.success ? '#3dd68c' : '#f9a3a8',
               }}>
                 {importResult.msg}
               </div>
@@ -1901,7 +1918,7 @@ export default function CurriculumVault() {
               {/* Tạo Môn Học Đa Ngành (UGC) */}
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(74,222,128,0.1)', color: '#4ade80', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(61, 214, 140,0.1)', color: '#3dd68c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <BookOpen size={20} />
                   </div>
                   <div>
@@ -1957,7 +1974,7 @@ export default function CurriculumVault() {
                       finally { setImportingType(null); }
                     }}
                     disabled={importingType !== null}
-                    style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: '#4ade80', color: '#0f172a', fontWeight: 800, cursor: importingType ? 'not-allowed' : 'pointer', alignSelf: 'flex-start' }}
+                    style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: '#3dd68c', color: '#0f172a', fontWeight: 800, cursor: importingType ? 'not-allowed' : 'pointer', alignSelf: 'flex-start' }}
                   >
                     {importingType === 'ugc' ? <Loader2 size={18} className="animate-spin" /> : '+ Tạo Môn Học Này'}
                   </button>
@@ -1968,7 +1985,7 @@ export default function CurriculumVault() {
               {selectedSubject && (
                 <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}>
                   <h3 style={{ margin: '0 0 12px 0', color: '#e2e8f0', fontSize: '1.05rem' }}>
-                    Thêm Chương / Bài Ghi Chú Vào Môn: <span style={{ color: '#38bdf8' }}>{selectedSubject.name}</span>
+                    Thêm Chương / Bài Ghi Chú Vào Môn: <span style={{ color: '#6cc4ff' }}>{selectedSubject.name}</span>
                   </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <input
@@ -2002,7 +2019,7 @@ export default function CurriculumVault() {
                         }
                       }}
                       disabled={importingType !== null}
-                      style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#38bdf8', color: '#0f172a', fontWeight: 800, cursor: 'pointer', alignSelf: 'flex-start' }}
+                      style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#6cc4ff', color: '#0f172a', fontWeight: 800, cursor: 'pointer', alignSelf: 'flex-start' }}
                     >
                       Lưu Chương Học
                     </button>
@@ -2013,7 +2030,7 @@ export default function CurriculumVault() {
               {/* Web Crawler */}
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(56,189,248,0.1)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(108, 196, 255,0.1)', color: '#6cc4ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Globe size={20} />
                   </div>
                   <div>
@@ -2042,7 +2059,7 @@ export default function CurriculumVault() {
                       finally { setImportingType(null); setImportUrl(''); }
                     }}
                     disabled={importingType !== null}
-                    style={{ padding: '0 24px', borderRadius: '8px', border: 'none', background: '#38bdf8', color: '#0f172a', fontWeight: 700, cursor: importingType ? 'not-allowed' : 'pointer' }}
+                    style={{ padding: '0 24px', borderRadius: '8px', border: 'none', background: '#6cc4ff', color: '#0f172a', fontWeight: 700, cursor: importingType ? 'not-allowed' : 'pointer' }}
                   >
                     {importingType === 'web' ? <Loader2 size={18} className="animate-spin" /> : 'Import'}
                   </button>
@@ -2052,7 +2069,7 @@ export default function CurriculumVault() {
               {/* Markdown Importer */}
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(167,139,250,0.1)', color: '#a78bfa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(165, 177, 255,0.1)', color: '#a5b1ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Code2 size={20} />
                   </div>
                   <div>
@@ -2081,7 +2098,7 @@ export default function CurriculumVault() {
                       finally { setImportingType(null); (document.getElementById('github-import-url') as HTMLInputElement).value = ''; }
                     }}
                     disabled={importingType !== null}
-                    style={{ padding: '0 24px', borderRadius: '8px', border: 'none', background: '#a78bfa', color: '#0f172a', fontWeight: 700, cursor: importingType ? 'not-allowed' : 'pointer' }}
+                    style={{ padding: '0 24px', borderRadius: '8px', border: 'none', background: '#a5b1ff', color: '#0f172a', fontWeight: 700, cursor: importingType ? 'not-allowed' : 'pointer' }}
                   >
                     {importingType === 'github' ? <Loader2 size={18} className="animate-spin" /> : 'Kéo về'}
                   </button>
@@ -2091,7 +2108,7 @@ export default function CurriculumVault() {
               {/* PDF Upload */}
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(244,63,94,0.1)', color: '#f43f5e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(244,63,94,0.1)', color: '#f46d75', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <FileText size={20} />
                   </div>
                   <div>
@@ -2125,7 +2142,7 @@ export default function CurriculumVault() {
                       finally { setImportingType(null); fileInput.value = ''; }
                     }}
                     disabled={importingType !== null}
-                    style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: '#f43f5e', color: '#fff', fontWeight: 700, cursor: importingType ? 'not-allowed' : 'pointer', marginLeft: 'auto' }}
+                    style={{ padding: '10px 24px', borderRadius: '8px', border: 'none', background: '#f46d75', color: '#fff', fontWeight: 700, cursor: importingType ? 'not-allowed' : 'pointer', marginLeft: 'auto' }}
                   >
                     {importingType === 'pdf' ? <Loader2 size={18} className="animate-spin" /> : 'Tải lên & Phân tích'}
                   </button>
@@ -2156,8 +2173,8 @@ export default function CurriculumVault() {
         .theory-content ul, .theory-content ol { margin: 0 0 16px; padding-left: 20px; }
         .theory-content li { margin-bottom: 8px; }
         .theory-content code {
-          background: rgba(56,189,248,0.08);
-          border: 1px solid rgba(56,189,248,0.15);
+          background: rgba(108, 196, 255,0.08);
+          border: 1px solid rgba(108, 196, 255,0.15);
           padding: 1px 6px; border-radius: 5px;
           font-family: "Fira Code", monospace;
           color: #7dd3fc; font-size: 0.88em;
@@ -2180,9 +2197,9 @@ export default function CurriculumVault() {
           background: rgba(15,23,42,0.5);
         }
         .theory-content th {
-          background: rgba(56,189,248,0.08); color: #7dd3fc;
+          background: rgba(108, 196, 255,0.08); color: #7dd3fc;
           padding: 10px 14px; text-align: left; font-weight: 700;
-          border-bottom: 1px solid rgba(56,189,248,0.2);
+          border-bottom: 1px solid rgba(108, 196, 255,0.2);
         }
         .theory-content td {
           padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -2192,7 +2209,7 @@ export default function CurriculumVault() {
         .theory-content strong { color: #e2e8f0; }
         .theory-content em { color: #94a3b8; }
         .theory-content hr { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 24px 0; }
-        .theory-content a { color: #38bdf8; text-decoration: none; }
+        .theory-content a { color: #6cc4ff; text-decoration: none; }
         .theory-content a:hover { text-decoration: underline; }
         
         /* Ẩn các class rác của Wikipedia */
@@ -2208,10 +2225,10 @@ export default function CurriculumVault() {
         .source-badge {
           display: inline-flex; align-items: center; gap: 6px;
           font-size: 0.75rem; color: #64748b;
-          background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.15);
+          background: rgba(108, 196, 255,0.06); border: 1px solid rgba(108, 196, 255,0.15);
           padding: 5px 12px; border-radius: 6px; margin-bottom: 20px;
         }
-        .source-badge a { color: #38bdf8; text-decoration: none; }
+        .source-badge a { color: #6cc4ff; text-decoration: none; }
         .source-badge a:hover { text-decoration: underline; }
         .source-badge--ai { background: rgba(124,58,237,0.06); border-color: rgba(124,58,237,0.2); }
 

@@ -64,10 +64,10 @@ const GOAL_TEMPLATES = [
 ];
 
 const CATEGORY_COLORS: Record<string, { color: string; bg: string; label: string }> = {
-  Health: { color: '#10b981', bg: 'rgba(16,185,129,0.12)', label: 'Sức khỏe' },
-  Study: { color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', label: 'Học tập' },
-  Career: { color: '#a855f7', bg: 'rgba(168,85,247,0.12)', label: 'Sự nghiệp' },
-  Finance: { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', label: 'Tài chính' },
+  Health: { color: '#3dd68c', bg: 'rgba(61, 214, 140,0.12)', label: 'Sức khỏe' },
+  Study: { color: '#5b9cff', bg: 'rgba(91, 156, 255,0.12)', label: 'Học tập' },
+  Career: { color: '#a5b1ff', bg: 'rgba(168,85,247,0.12)', label: 'Sự nghiệp' },
+  Finance: { color: '#f5b94a', bg: 'rgba(245, 185, 74,0.12)', label: 'Tài chính' },
   Personal: { color: '#ec4899', bg: 'rgba(236,72,153,0.12)', label: 'Cá nhân' },
 };
 
@@ -134,11 +134,11 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
   };
 
   return (
-    <div style={{ background: 'rgba(15,23,42,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.25)' }}>
+    <div style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.25)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.25), rgba(168,85,247,0.25))', padding: '10px', borderRadius: '14px', border: '1px solid rgba(96,165,250,0.3)' }}>
-            <Target size={24} color="#60a5fa" />
+          <div style={{ background: 'linear-gradient(135deg, rgba(91, 156, 255,0.25), rgba(168,85,247,0.25))', padding: '10px', borderRadius: '14px', border: '1px solid rgba(96,165,250,0.3)' }}>
+            <Target size={24} color="#7db2ff" />
           </div>
           <div>
             <h3 style={{ margin: 0, color: '#fff', fontSize: '1.3rem', fontWeight: 800, letterSpacing: '0.5px' }}>
@@ -153,7 +153,7 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
         <button
           onClick={() => setShowForm(!showForm)}
           style={{
-            background: showForm ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #3b82f6, #6366f1)',
+            background: showForm ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #5b9cff, #7b8cff)',
             color: '#fff',
             border: 'none',
             padding: '10px 18px',
@@ -164,7 +164,7 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            boxShadow: showForm ? 'none' : '0 4px 15px rgba(59,130,246,0.35)',
+            boxShadow: showForm ? 'none' : '0 4px 15px rgba(91, 156, 255,0.35)',
           }}
         >
           <Plus size={18} /> {showForm ? 'Đóng Form' : 'Thiết lập Mục tiêu SMART'}
@@ -173,10 +173,10 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
 
       {/* FORM TẠO MỤC TIÊU SMART */}
       {showForm && (
-        <form onSubmit={handleCreate} style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '18px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <form onSubmit={handleCreate} style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(91, 156, 255,0.3)', borderRadius: '18px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-              <Sparkles size={14} color="#fbbf24" /> Mẫu gợi ý nhanh:
+              <Sparkles size={14} color="#f5b94a" /> Mẫu gợi ý nhanh:
             </span>
             {GOAL_TEMPLATES.map((tpl, idx) => (
               <button
@@ -220,8 +220,8 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
           </div>
 
           {/* S - SPECIFIC */}
-          <div style={{ background: 'rgba(59,130,246,0.06)', borderLeft: '3px solid #3b82f6', padding: '12px', borderRadius: '0 10px 10px 0' }}>
-            <label style={{ fontSize: '0.82rem', color: '#60a5fa', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
+          <div style={{ background: 'rgba(91, 156, 255,0.06)', borderLeft: '3px solid #5b9cff', padding: '12px', borderRadius: '0 10px 10px 0' }}>
+            <label style={{ fontSize: '0.82rem', color: '#7db2ff', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
               [S] Specific — Cụ thể mục tiêu cần đạt là gì? *
             </label>
             <input
@@ -235,8 +235,8 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
           </div>
 
           {/* M - MEASURABLE */}
-          <div style={{ background: 'rgba(16,185,129,0.06)', borderLeft: '3px solid #10b981', padding: '12px', borderRadius: '0 10px 10px 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <label style={{ fontSize: '0.82rem', color: '#34d399', fontWeight: 700 }}>
+          <div style={{ background: 'rgba(61, 214, 140,0.06)', borderLeft: '3px solid #3dd68c', padding: '12px', borderRadius: '0 10px 10px 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '0.82rem', color: '#3dd68c', fontWeight: 700 }}>
               [M] Measurable — Đo lường bằng con số nào? *
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '8px' }}>
@@ -284,8 +284,8 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
 
           {/* A - ACHIEVABLE & R - RELEVANT */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px' }}>
-            <div style={{ background: 'rgba(245,158,11,0.06)', borderLeft: '3px solid #f59e0b', padding: '12px', borderRadius: '0 10px 10px 0' }}>
-              <label style={{ fontSize: '0.82rem', color: '#fbbf24', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
+            <div style={{ background: 'rgba(245, 185, 74,0.06)', borderLeft: '3px solid #f5b94a', padding: '12px', borderRadius: '0 10px 10px 0' }}>
+              <label style={{ fontSize: '0.82rem', color: '#f5b94a', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
                 [A] Achievable — Kế hoạch khả thi để đạt được *
               </label>
               <input
@@ -298,7 +298,7 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
               />
             </div>
 
-            <div style={{ background: 'rgba(168,85,247,0.06)', borderLeft: '3px solid #a855f7', padding: '12px', borderRadius: '0 10px 10px 0' }}>
+            <div style={{ background: 'rgba(168,85,247,0.06)', borderLeft: '3px solid #a5b1ff', padding: '12px', borderRadius: '0 10px 10px 0' }}>
               <label style={{ fontSize: '0.82rem', color: '#c084fc', fontWeight: 700, display: 'block', marginBottom: '4px' }}>
                 [R] Relevant — Tại sao mục tiêu này quan trọng? *
               </label>
@@ -348,7 +348,7 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
             <button type="button" onClick={() => setShowForm(false)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: '#94a3b8', padding: '10px 18px', borderRadius: '10px', cursor: 'pointer', fontWeight: 600 }}>
               Hủy
             </button>
-            <button type="submit" disabled={isPending} style={{ background: '#10b981', border: 'none', color: '#0f172a', padding: '10px 24px', borderRadius: '10px', cursor: 'pointer', fontWeight: 800 }}>
+            <button type="submit" disabled={isPending} style={{ background: '#3dd68c', border: 'none', color: '#0f172a', padding: '10px 24px', borderRadius: '10px', cursor: 'pointer', fontWeight: 800 }}>
               {isPending ? 'Đang lưu...' : 'Lưu Mục Tiêu SMART'}
             </button>
           </div>
@@ -374,7 +374,7 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
                 key={goal.id}
                 style={{
                   background: 'rgba(255,255,255,0.025)',
-                  border: `1px solid ${timeInfo.isOverdue ? 'rgba(239,68,68,0.4)' : timeInfo.isWarning ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                  border: `1px solid ${timeInfo.isOverdue ? 'rgba(244, 109, 117,0.4)' : timeInfo.isWarning ? 'rgba(245, 185, 74,0.4)' : 'rgba(255,255,255,0.08)'}`,
                   borderRadius: '18px',
                   padding: '20px',
                   display: 'flex',
@@ -393,7 +393,7 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
                       </span>
                     </div>
                     <h4 style={{ margin: 0, color: '#fff', fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {isCompleted && <CheckCircle2 size={18} color="#10b981" />}
+                      {isCompleted && <CheckCircle2 size={18} color="#3dd68c" />}
                       {goal.title}
                     </h4>
                   </div>
@@ -409,7 +409,7 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
                     <button
                       onClick={() => handleDelete(goal.id)}
                       disabled={isPending}
-                      style={{ background: 'rgba(239,68,68,0.1)', border: 'none', color: '#ef4444', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
+                      style={{ background: 'rgba(244, 109, 117,0.1)', border: 'none', color: '#f46d75', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
                       title="Xóa mục tiêu"
                     >
                       <Trash2 size={16} />
@@ -423,14 +423,14 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
                     <span style={{ color: '#cbd5e1', fontWeight: 600 }}>
                       Tiến độ: <strong style={{ color: cat.color }}>{goal.currentValue}</strong> / {goal.targetValue} {goal.unit}
                     </span>
-                    <span style={{ fontWeight: 800, color: isCompleted ? '#10b981' : '#fff' }}>{pct}%</span>
+                    <span style={{ fontWeight: 800, color: isCompleted ? '#3dd68c' : '#fff' }}>{pct}%</span>
                   </div>
                   <div style={{ width: '100%', height: '10px', background: 'rgba(255,255,255,0.06)', borderRadius: '999px', overflow: 'hidden' }}>
                     <div
                       style={{
                         width: `${pct}%`,
                         height: '100%',
-                        background: isCompleted ? '#10b981' : cat.color,
+                        background: isCompleted ? '#3dd68c' : cat.color,
                         transition: 'width 0.4s ease',
                       }}
                     />
@@ -453,7 +453,7 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
                         handleUpdateProgress(goal.id, progressInputs[goal.id]);
                         setProgressInputs({ ...progressInputs, [goal.id]: '' });
                       }}
-                      style={{ background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.4)', color: '#60a5fa', padding: '6px 12px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
+                      style={{ background: 'rgba(91, 156, 255,0.2)', border: '1px solid rgba(91, 156, 255,0.4)', color: '#7db2ff', padding: '6px 12px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
                     >
                       Cập nhật
                     </button>
@@ -469,9 +469,9 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
                 {/* Chi tiết S-M-A-R-T */}
                 {isExpanded && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '0.83rem' }}>
-                    <div><strong style={{ color: '#60a5fa' }}>[S] Cụ thể:</strong> <span style={{ color: '#cbd5e1' }}>{goal.specific}</span></div>
-                    <div><strong style={{ color: '#34d399' }}>[M] Đo lường:</strong> <span style={{ color: '#cbd5e1' }}>{goal.measurable} ({goal.currentValue}/{goal.targetValue} {goal.unit})</span></div>
-                    <div><strong style={{ color: '#fbbf24' }}>[A] Khả thi:</strong> <span style={{ color: '#cbd5e1' }}>{goal.achievable}</span></div>
+                    <div><strong style={{ color: '#7db2ff' }}>[S] Cụ thể:</strong> <span style={{ color: '#cbd5e1' }}>{goal.specific}</span></div>
+                    <div><strong style={{ color: '#3dd68c' }}>[M] Đo lường:</strong> <span style={{ color: '#cbd5e1' }}>{goal.measurable} ({goal.currentValue}/{goal.targetValue} {goal.unit})</span></div>
+                    <div><strong style={{ color: '#f5b94a' }}>[A] Khả thi:</strong> <span style={{ color: '#cbd5e1' }}>{goal.achievable}</span></div>
                     <div><strong style={{ color: '#c084fc' }}>[R] Ý nghĩa:</strong> <span style={{ color: '#cbd5e1' }}>{goal.relevant}</span></div>
                   </div>
                 )}

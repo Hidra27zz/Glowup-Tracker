@@ -48,7 +48,7 @@ export function SleepArchitecture({ sleepLog }: SleepProps) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h3 style={{ margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Moon size={20} color="#3b82f6" /> Sleep Architecture
+            <Moon size={20} color="#5b9cff" /> Sleep Architecture
           </h3>
           {sleepLog && (
             <p style={{ margin: 0, fontSize: '0.9rem' }}>
@@ -59,7 +59,7 @@ export function SleepArchitecture({ sleepLog }: SleepProps) {
         <button 
           onClick={() => setShowInput(!showInput)}
           className="btn btn-primary" 
-          style={{ padding: '4px 8px', fontSize: '0.8rem', display: 'flex', gap: '4px', background: '#3b82f6' }}
+          style={{ padding: '4px 8px', fontSize: '0.8rem', display: 'flex', gap: '4px', background: '#5b9cff' }}
         >
           <Plus size={14} /> Log
         </button>
@@ -71,7 +71,7 @@ export function SleepArchitecture({ sleepLog }: SleepProps) {
             <input name="sleepTime" type="time" required style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'transparent', color: '#fff', outline: 'none' }} />
             <input name="wakeTime" type="time" required style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--glass-border)', background: 'transparent', color: '#fff', outline: 'none' }} />
           </div>
-          <button type="submit" disabled={loading} className="btn btn-primary" style={{ background: '#3b82f6', opacity: loading ? 0.7 : 1 }}>
+          <button type="submit" disabled={loading} className="btn btn-primary" style={{ background: '#5b9cff', opacity: loading ? 0.7 : 1 }}>
             {loading ? '...' : 'Lưu'}
           </button>
         </form>
@@ -86,7 +86,7 @@ export function SleepArchitecture({ sleepLog }: SleepProps) {
             </div>
           </div>
           <div style={{ height: '2px', background: 'var(--glass-border)', flex: 1, margin: '0 12px', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', fontSize: '0.8rem', color: '#3b82f6', whiteSpace: 'nowrap' }}>
+            <div style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', fontSize: '0.8rem', color: '#5b9cff', whiteSpace: 'nowrap' }}>
               {calculateDuration()}
             </div>
           </div>

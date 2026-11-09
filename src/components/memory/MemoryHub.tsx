@@ -11,9 +11,9 @@ interface Props {
 }
 
 const TABS = [
-  { id: 'capsule', label: 'Time Capsule', icon: Archive, accent: '#3b82f6' },
+  { id: 'capsule', label: 'Time Capsule', icon: Archive, accent: '#5b9cff' },
   { id: 'dump', label: 'Brain Dump', icon: Brain, accent: '#ec4899' },
-  { id: 'resurface', label: 'Resurfacing', icon: RefreshCcw, accent: '#f59e0b' },
+  { id: 'resurface', label: 'Resurfacing', icon: RefreshCcw, accent: '#f5b94a' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
@@ -112,7 +112,7 @@ export default function MemoryHub({ memories, dumps }: Props) {
                   <input name="unlockDate" type="date" required style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none', colorScheme: 'dark' }} />
                 </div>
                 <input name="tags" placeholder="Tags (VD: sinh_nhat, hy_vong)" style={{ padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} />
-                <button type="submit" disabled={loading} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <button type="submit" disabled={loading} style={{ background: '#5b9cff', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                   {loading ? 'Đang gửi...' : <><Send size={18} /> Khóa Capsule</>}
                 </button>
               </form>
@@ -128,9 +128,9 @@ export default function MemoryHub({ memories, dumps }: Props) {
                     const unlockTime = cap.unlockDate ? new Date(cap.unlockDate).getTime() : 0;
                     const isUnlocked = unlockTime <= now;
                     return (
-                      <div key={cap.id} style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '16px', border: `1px solid ${isUnlocked ? 'rgba(59,130,246,0.3)' : 'rgba(255,255,255,0.05)'}`, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div key={cap.id} style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '16px', border: `1px solid ${isUnlocked ? 'rgba(91, 156, 255,0.3)' : 'rgba(255,255,255,0.05)'}`, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '0.85rem', color: isUnlocked ? '#3b82f6' : '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+                          <span style={{ fontSize: '0.85rem', color: isUnlocked ? '#5b9cff' : '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
                             {isUnlocked ? <Unlock size={16} /> : <Lock size={16} />} 
                             {isUnlocked ? 'Đã mở khóa' : `Khóa đến ${new Date(cap.unlockDate!).toLocaleDateString()}`}
                           </span>
@@ -168,7 +168,7 @@ export default function MemoryHub({ memories, dumps }: Props) {
                     Có quá nhiều thứ trong đầu? Xả hết ra đây. Đừng lo về cấu trúc hay định dạng. Làm trống RAM cho não bộ.
                   </p>
                 </div>
-                <button onClick={handleClearDump} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>Dọn dẹp (Xóa tất cả)</button>
+                <button onClick={handleClearDump} style={{ background: 'rgba(244, 109, 117,0.1)', color: '#f46d75', border: '1px solid rgba(244, 109, 117,0.3)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>Dọn dẹp (Xóa tất cả)</button>
               </div>
             </div>
 
@@ -201,12 +201,12 @@ export default function MemoryHub({ memories, dumps }: Props) {
         {activeTab === 'resurface' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', animation: 'fadeIn 0.3s ease' }}>
             {resurfacedMemory ? (
-              <div style={{ width: '100%', maxWidth: '600px', background: 'rgba(255,255,255,0.02)', padding: '40px', borderRadius: '24px', border: '1px solid rgba(245,158,11,0.3)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: -30, left: '50%', transform: 'translateX(-50%)', background: 'rgba(245,158,11,0.1)', width: '150px', height: '150px', borderRadius: '50%', filter: 'blur(40px)', zIndex: 0 }} />
+              <div style={{ width: '100%', maxWidth: '600px', background: 'rgba(255,255,255,0.02)', padding: '40px', borderRadius: '24px', border: '1px solid rgba(245, 185, 74,0.3)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: -30, left: '50%', transform: 'translateX(-50%)', background: 'rgba(245, 185, 74,0.1)', width: '150px', height: '150px', borderRadius: '50%', filter: 'blur(40px)', zIndex: 0 }} />
                 
                 <div style={{ zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                  <RefreshCcw size={32} color="#f59e0b" />
-                  <div style={{ fontSize: '0.85rem', color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>
+                  <RefreshCcw size={32} color="#f5b94a" />
+                  <div style={{ fontSize: '0.85rem', color: '#f5b94a', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>
                     Ký ức gợi lại
                   </div>
                   <p style={{ fontSize: '1.2rem', color: '#fff', lineHeight: 1.6, fontStyle: 'italic', margin: '16px 0' }}>
@@ -217,7 +217,7 @@ export default function MemoryHub({ memories, dumps }: Props) {
                   </div>
                 </div>
 
-                <button onClick={rollNewResurface} style={{ zIndex: 1, background: 'rgba(245,158,11,0.1)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)', padding: '12px 24px', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', marginTop: '16px' }}>
+                <button onClick={rollNewResurface} style={{ zIndex: 1, background: 'rgba(245, 185, 74,0.1)', color: '#f5b94a', border: '1px solid rgba(245, 185, 74,0.3)', padding: '12px 24px', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', marginTop: '16px' }}>
                   Khám phá thêm
                 </button>
               </div>

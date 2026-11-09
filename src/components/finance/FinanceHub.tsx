@@ -15,19 +15,19 @@ interface Props {
 }
 
 const TABS = [
-  { id: 'dashboard', label: 'Burn Rate', icon: PieChart, accent: '#3b82f6' },
-  { id: 'impulse', label: 'Impulse Blocker', icon: ShieldAlert, accent: '#f59e0b' },
-  { id: 'inventory', label: 'Inventory & PAO', icon: ShoppingCart, accent: '#8b5cf6' },
-  { id: 'subscriptions', label: 'Subscriptions', icon: RefreshCw, accent: '#10b981' },
+  { id: 'dashboard', label: 'Burn Rate', icon: PieChart, accent: '#5b9cff' },
+  { id: 'impulse', label: 'Impulse Blocker', icon: ShieldAlert, accent: '#f5b94a' },
+  { id: 'inventory', label: 'Inventory & PAO', icon: ShoppingCart, accent: '#7b8cff' },
+  { id: 'subscriptions', label: 'Subscriptions', icon: RefreshCw, accent: '#3dd68c' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'Ăn uống': '#3b82f6',
-  'Nhà ở': '#10b981',
-  'Đi lại': '#f59e0b',
-  'Giải trí': '#8b5cf6',
+  'Ăn uống': '#5b9cff',
+  'Nhà ở': '#3dd68c',
+  'Đi lại': '#f5b94a',
+  'Giải trí': '#7b8cff',
   'Sức khỏe': '#ec4899',
   'Khác': '#64748b'
 };
@@ -123,16 +123,16 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px', animation: 'fadeIn 0.3s ease' }}>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.1), rgba(16,185,129,0.05))', padding: '24px', borderRadius: '16px', border: '1px solid rgba(59,130,246,0.2)' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(91, 156, 255,0.1), rgba(61, 214, 140,0.05))', padding: '24px', borderRadius: '16px', border: '1px solid rgba(91, 156, 255,0.2)' }}>
                 <h3 style={{ margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', fontSize: '1.1rem' }}>
-                  <Wallet size={20} color="#3b82f6" /> Monthly Burn Rate
+                  <Wallet size={20} color="#5b9cff" /> Monthly Burn Rate
                 </h3>
                 <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#fff', marginBottom: '8px' }}>
                   {burnRate.toLocaleString()}đ
                 </div>
                 <div style={{ display: 'flex', gap: '16px', fontSize: '0.85rem' }}>
-                  <span style={{ color: '#10b981' }}>Thu nhập: {totalIncome.toLocaleString()}đ</span>
-                  <span style={{ color: '#ef4444' }}>Chi tiêu: {totalExpense.toLocaleString()}đ</span>
+                  <span style={{ color: '#3dd68c' }}>Thu nhập: {totalIncome.toLocaleString()}đ</span>
+                  <span style={{ color: '#f46d75' }}>Chi tiêu: {totalExpense.toLocaleString()}đ</span>
                 </div>
               </div>
 
@@ -156,7 +156,7 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
                     <input name="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} style={{ padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none', colorScheme: 'dark' }} />
                   </div>
                   <input name="notes" placeholder="Ghi chú (VD: Mua cafe)" style={{ padding: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} />
-                  <button type="submit" disabled={loading} style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <button type="submit" disabled={loading} style={{ background: '#5b9cff', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
                     {loading ? 'Đang lưu...' : 'Thêm giao dịch'}
                   </button>
                 </form>
@@ -175,7 +175,7 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
                         ))}
                       </Pie>
                       <RechartsTooltip 
-                        contentStyle={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} 
+                        contentStyle={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} 
                         itemStyle={{ color: '#fff' }} 
                         formatter={(value: any) => Number(value).toLocaleString() + 'đ'}
                       />
@@ -201,10 +201,10 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
         {/* --- IMPULSE BUY BLOCKER TAB --- */}
         {activeTab === 'impulse' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', padding: '20px', borderRadius: '16px', display: 'flex', gap: '16px' }}>
-              <ShieldAlert size={28} color="#f59e0b" style={{ flexShrink: 0 }} />
+            <div style={{ background: 'rgba(245, 185, 74,0.1)', border: '1px solid rgba(245, 185, 74,0.3)', padding: '20px', borderRadius: '16px', display: 'flex', gap: '16px' }}>
+              <ShieldAlert size={28} color="#f5b94a" style={{ flexShrink: 0 }} />
               <div>
-                <h3 style={{ margin: '0 0 8px 0', color: '#f59e0b', fontSize: '1.1rem' }}>Impulse Buy Blocker (Cooling-off Rule)</h3>
+                <h3 style={{ margin: '0 0 8px 0', color: '#f5b94a', fontSize: '1.1rem' }}>Impulse Buy Blocker (Cooling-off Rule)</h3>
                 <p style={{ margin: 0, color: '#fcd34d', fontSize: '0.9rem', lineHeight: 1.5 }}>
                   Bất cứ món đồ nào không thiết yếu bạn muốn mua, hãy thêm vào đây. 
                   Luật: Bắt buộc đợi <strong>72 giờ</strong> trước khi ra quyết định xuống tiền. Hệ thống sẽ khóa nút Mua cho đến khi hết hạn.
@@ -215,7 +215,7 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
             <form onSubmit={handleAddImpulse} style={{ display: 'flex', gap: '12px' }}>
               <input name="name" placeholder="Tên món đồ (VD: Bàn phím cơ)" required style={{ flex: 2, padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} />
               <input name="price" type="number" placeholder="Giá tiền (VNĐ)" required style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none' }} />
-              <button type="submit" disabled={loading} style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '0 24px', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button type="submit" disabled={loading} style={{ background: '#f5b94a', color: '#fff', border: 'none', padding: '0 24px', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Plus size={18} /> Thêm vào danh sách chờ
               </button>
             </form>
@@ -232,12 +232,12 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
                   const hoursLeft = Math.max(0, 72 - hoursPassed).toFixed(1);
 
                   return (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: `1px solid ${item.status === 'WAITING' ? 'rgba(255,255,255,0.05)' : item.status === 'BOUGHT' ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` }}>
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: `1px solid ${item.status === 'WAITING' ? 'rgba(255,255,255,0.05)' : item.status === 'BOUGHT' ? 'rgba(244, 109, 117,0.2)' : 'rgba(61, 214, 140,0.2)'}` }}>
                       <div>
                         <div style={{ fontSize: '1.05rem', fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
                           {item.name} 
-                          {item.status === 'BOUGHT' && <span style={{ fontSize: '0.7rem', background: '#ef4444', padding: '2px 8px', borderRadius: '12px', color: '#fff' }}>ĐÃ MUA</span>}
-                          {item.status === 'PASSED' && <span style={{ fontSize: '0.7rem', background: '#10b981', padding: '2px 8px', borderRadius: '12px', color: '#fff' }}>BỎ QUA</span>}
+                          {item.status === 'BOUGHT' && <span style={{ fontSize: '0.7rem', background: '#f46d75', padding: '2px 8px', borderRadius: '12px', color: '#fff' }}>ĐÃ MUA</span>}
+                          {item.status === 'PASSED' && <span style={{ fontSize: '0.7rem', background: '#3dd68c', padding: '2px 8px', borderRadius: '12px', color: '#fff' }}>BỎ QUA</span>}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '4px' }}>Giá: {item.price.toLocaleString()}đ • Thêm ngày: {new Date(item.addedAt).toLocaleDateString()}</div>
                       </div>
@@ -246,13 +246,13 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
                         {item.status === 'WAITING' && (
                           <>
                             {!isReady ? (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#f59e0b', fontSize: '0.85rem', background: 'rgba(245,158,11,0.1)', padding: '6px 12px', borderRadius: '8px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#f5b94a', fontSize: '0.85rem', background: 'rgba(245, 185, 74,0.1)', padding: '6px 12px', borderRadius: '8px' }}>
                                 <AlertTriangle size={14} /> Chờ {hoursLeft}h
                               </div>
                             ) : (
                               <div style={{ display: 'flex', gap: '8px' }}>
-                                <button onClick={() => updateImpulseBuyStatus(item.id, 'BOUGHT')} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Quyết định mua</button>
-                                <button onClick={() => updateImpulseBuyStatus(item.id, 'PASSED')} style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Tự hào bỏ qua</button>
+                                <button onClick={() => updateImpulseBuyStatus(item.id, 'BOUGHT')} style={{ background: 'rgba(244, 109, 117,0.1)', color: '#f46d75', border: '1px solid rgba(244, 109, 117,0.3)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Quyết định mua</button>
+                                <button onClick={() => updateImpulseBuyStatus(item.id, 'PASSED')} style={{ background: 'rgba(61, 214, 140,0.1)', color: '#3dd68c', border: '1px solid rgba(61, 214, 140,0.3)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Tự hào bỏ qua</button>
                               </div>
                             )}
                           </>
@@ -270,10 +270,10 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
         {/* --- SUBSCRIPTIONS TAB --- */}
         {activeTab === 'subscriptions' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', padding: '24px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ background: 'rgba(61, 214, 140,0.1)', border: '1px solid rgba(61, 214, 140,0.3)', padding: '24px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h3 style={{ margin: '0 0 8px 0', color: '#10b981', fontSize: '1.1rem' }}>Subscription Audit</h3>
-                <p style={{ margin: 0, color: '#6ee7b7', fontSize: '0.9rem' }}>Theo dõi các khoản phí đăng ký dịch vụ định kỳ.</p>
+                <h3 style={{ margin: '0 0 8px 0', color: '#3dd68c', fontSize: '1.1rem' }}>Subscription Audit</h3>
+                <p style={{ margin: 0, color: '#8ae8b8', fontSize: '0.9rem' }}>Theo dõi các khoản phí đăng ký dịch vụ định kỳ.</p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Tổng phí trung bình tháng</div>
@@ -289,7 +289,7 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
                 <option value="yearly">Hàng năm</option>
               </select>
               <input name="renewalDate" type="date" required style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none', colorScheme: 'dark' }} />
-              <button type="submit" disabled={loading} style={{ background: '#10b981', color: '#fff', border: 'none', padding: '0 24px', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button type="submit" disabled={loading} style={{ background: '#3dd68c', color: '#fff', border: 'none', padding: '0 24px', borderRadius: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Plus size={18} /> Thêm gói
               </button>
             </form>
@@ -306,7 +306,7 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
                       <div>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#34d399' }}>{sub.cost.toLocaleString()}đ</div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#3dd68c' }}>{sub.cost.toLocaleString()}đ</div>
                         <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>/ {sub.frequency === 'yearly' ? 'năm' : 'tháng'}</div>
                       </div>
                       <div style={{ fontSize: '0.8rem', color: '#cbd5e1', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px' }}>

@@ -174,8 +174,8 @@ const BUILTIN_RECIPES: RecipeSuggestion[] = [
 ];
 
 const TABS = [
-  { id: 'pantry', label: 'Quản Lý Tủ Lạnh & Nhập Bill', icon: ShoppingBasket, accent: '#10b981' },
-  { id: 'recipes', label: 'Đề Xuất Món Ăn Theo Nguyên Liệu', icon: ChefHat, accent: '#f59e0b' },
+  { id: 'pantry', label: 'Quản Lý Tủ Lạnh & Nhập Bill', icon: ShoppingBasket, accent: '#3dd68c' },
+  { id: 'recipes', label: 'Đề Xuất Món Ăn Theo Nguyên Liệu', icon: ChefHat, accent: '#f5b94a' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
@@ -335,7 +335,7 @@ export default function NutritionHub({ pantryItems }: Props) {
         </div>
 
         <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-          Đang có <strong style={{ color: '#10b981' }}>{pantryItems.length}</strong> nguyên liệu trong tủ lạnh
+          Đang có <strong style={{ color: '#3dd68c' }}>{pantryItems.length}</strong> nguyên liệu trong tủ lạnh
         </div>
       </div>
 
@@ -347,9 +347,9 @@ export default function NutritionHub({ pantryItems }: Props) {
             <PantryTracker items={pantryItems} />
 
             {pantryItems.length > 0 && (
-              <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(16,185,129,0.08))', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '16px', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(245, 185, 74,0.12), rgba(61, 214, 140,0.08))', border: '1px solid rgba(245, 185, 74,0.3)', borderRadius: '16px', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <ChefHat size={24} color="#fbbf24" />
+                  <ChefHat size={24} color="#f5b94a" />
                   <div>
                     <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.98rem' }}>
                       Tủ lạnh của bạn đang có {pantryItems.length} nguyên liệu sẵn sàng chế biến!
@@ -361,7 +361,7 @@ export default function NutritionHub({ pantryItems }: Props) {
                 </div>
                 <button
                   onClick={() => setActiveTab('recipes')}
-                  style={{ background: '#f59e0b', color: '#0f172a', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '0.88rem' }}
+                  style={{ background: '#f5b94a', color: '#0f172a', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '0.88rem' }}
                 >
                   Xem Đề Xuất Món Ăn Ngay →
                 </button>
@@ -378,8 +378,8 @@ export default function NutritionHub({ pantryItems }: Props) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
-                    <div style={{ background: 'rgba(245,158,11,0.15)', padding: '8px', borderRadius: '10px' }}>
-                      <ChefHat size={22} color="#f59e0b" />
+                    <div style={{ background: 'rgba(245, 185, 74,0.15)', padding: '8px', borderRadius: '10px' }}>
+                      <ChefHat size={22} color="#f5b94a" />
                     </div>
                     Đề Xuất Món Ăn Thông Minh Theo Tủ Lạnh
                   </h3>
@@ -415,9 +415,9 @@ export default function NutritionHub({ pantryItems }: Props) {
                           else setSelectedIngredients(prev => [...prev, item.name]);
                         }}
                         style={{
-                          background: isSelected ? 'rgba(245,158,11,0.22)' : 'rgba(255,255,255,0.05)',
-                          border: `1px solid ${isSelected ? '#f59e0b' : isExp ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.1)'}`,
-                          color: isSelected ? '#fbbf24' : '#e2e8f0',
+                          background: isSelected ? 'rgba(245, 185, 74,0.22)' : 'rgba(255,255,255,0.05)',
+                          border: `1px solid ${isSelected ? '#f5b94a' : isExp ? 'rgba(244, 109, 117,0.5)' : 'rgba(255,255,255,0.1)'}`,
+                          color: isSelected ? '#f5b94a' : '#e2e8f0',
                           padding: '8px 16px',
                           borderRadius: '20px',
                           fontSize: '0.88rem',
@@ -429,7 +429,7 @@ export default function NutritionHub({ pantryItems }: Props) {
                           gap: '6px',
                         }}
                       >
-                        {isExp && <AlertTriangle size={13} color="#ef4444" />}
+                        {isExp && <AlertTriangle size={13} color="#f46d75" />}
                         <span>{item.name}</span>
                         {item.quantity && <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>({item.quantity})</span>}
                       </button>
@@ -442,7 +442,7 @@ export default function NutritionHub({ pantryItems }: Props) {
                 onClick={() => handleSearchYoutube()}
                 disabled={(selectedIngredients.length === 0 && pantryItems.length === 0) || isSearching}
                 style={{
-                  background: 'linear-gradient(135deg, #ef4444, #b91c1c)',
+                  background: 'linear-gradient(135deg, #f46d75, #b91c1c)',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '12px',
@@ -464,7 +464,7 @@ export default function NutritionHub({ pantryItems }: Props) {
             {/* DANH SÁCH THỰC ĐƠN ĐỀ XUẤT */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <h4 style={{ margin: 0, color: '#fff', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Sparkles size={18} color="#fbbf24" /> Thực Đơn Gợi Ý Phù Hợp Nhất Với Tủ Lạnh Của Bạn
+                <Sparkles size={18} color="#f5b94a" /> Thực Đơn Gợi Ý Phù Hợp Nhất Với Tủ Lạnh Của Bạn
               </h4>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '16px' }}>
@@ -475,7 +475,7 @@ export default function NutritionHub({ pantryItems }: Props) {
                       key={recipe.id}
                       style={{
                         background: 'rgba(255,255,255,0.025)',
-                        border: `1px solid ${recipe.usesExpiring ? 'rgba(245,158,11,0.45)' : recipe.matchCount > 0 ? 'rgba(16,185,129,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                        border: `1px solid ${recipe.usesExpiring ? 'rgba(245, 185, 74,0.45)' : recipe.matchCount > 0 ? 'rgba(61, 214, 140,0.35)' : 'rgba(255,255,255,0.06)'}`,
                         borderRadius: '18px',
                         padding: '20px',
                         display: 'flex',
@@ -486,16 +486,16 @@ export default function NutritionHub({ pantryItems }: Props) {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
                         <div>
                           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px' }}>
-                            <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', background: 'rgba(59,130,246,0.15)', color: '#60a5fa' }}>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', background: 'rgba(91, 156, 255,0.15)', color: '#7db2ff' }}>
                               {recipe.tag}
                             </span>
                             {recipe.matchCount > 0 && (
-                              <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', background: 'rgba(16,185,129,0.18)', color: '#34d399' }}>
+                              <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', background: 'rgba(61, 214, 140,0.18)', color: '#3dd68c' }}>
                                 Có sẵn {recipe.matchedItems.join(', ')}
                               </span>
                             )}
                             {recipe.usesExpiring && (
-                              <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', background: 'rgba(245,158,11,0.2)', color: '#fbbf24' }}>
+                              <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 8px', borderRadius: '6px', background: 'rgba(245, 185, 74,0.2)', color: '#f5b94a' }}>
                                 Giải cứu đồ sắp hết hạn
                               </span>
                             )}
@@ -506,11 +506,11 @@ export default function NutritionHub({ pantryItems }: Props) {
 
                       {/* Macros bar */}
                       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', background: 'rgba(0,0,0,0.25)', padding: '8px 12px', borderRadius: '10px', fontSize: '0.78rem' }}>
-                        <span style={{ color: '#fbbf24', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ color: '#f5b94a', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <Flame size={14} /> {recipe.calories} kcal
                         </span>
-                        <span style={{ color: '#34d399', fontWeight: 600 }}>Đạm (P): {recipe.protein}g</span>
-                        <span style={{ color: '#60a5fa', fontWeight: 600 }}>Tinh bột (C): {recipe.carbs}g</span>
+                        <span style={{ color: '#3dd68c', fontWeight: 600 }}>Đạm (P): {recipe.protein}g</span>
+                        <span style={{ color: '#7db2ff', fontWeight: 600 }}>Tinh bột (C): {recipe.carbs}g</span>
                         <span style={{ color: '#f472b6', fontWeight: 600 }}>Béo (F): {recipe.fat}g</span>
                         <span style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'auto' }}>
                           <Clock size={13} /> {recipe.prepTime} phút
@@ -533,8 +533,8 @@ export default function NutritionHub({ pantryItems }: Props) {
                           onClick={() => handleCookAndLog(recipe)}
                           style={{
                             flex: 1,
-                            background: isLogged ? 'rgba(16,185,129,0.25)' : '#10b981',
-                            color: isLogged ? '#34d399' : '#0f172a',
+                            background: isLogged ? 'rgba(61, 214, 140,0.25)' : '#3dd68c',
+                            color: isLogged ? '#3dd68c' : '#0f172a',
                             border: 'none',
                             padding: '9px 14px',
                             borderRadius: '10px',
@@ -561,9 +561,9 @@ export default function NutritionHub({ pantryItems }: Props) {
                         <button
                           onClick={() => handleSearchYoutube([recipe.title])}
                           style={{
-                            background: 'rgba(239,68,68,0.15)',
-                            color: '#fca5a5',
-                            border: '1px solid rgba(239,68,68,0.3)',
+                            background: 'rgba(244, 109, 117,0.15)',
+                            color: '#f9a3a8',
+                            border: '1px solid rgba(244, 109, 117,0.3)',
                             padding: '9px 12px',
                             borderRadius: '10px',
                             fontWeight: 700,
@@ -609,7 +609,7 @@ export default function NutritionHub({ pantryItems }: Props) {
                       <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: '12px', overflow: 'hidden', background: '#000' }}>
                         <img src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }} />
                         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <div style={{ background: 'rgba(239,68,68,0.9)', padding: '12px', borderRadius: '50%' }}>
+                          <div style={{ background: 'rgba(244, 109, 117,0.9)', padding: '12px', borderRadius: '50%' }}>
                             <Play size={22} color="#fff" fill="#fff" />
                           </div>
                         </div>
