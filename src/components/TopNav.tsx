@@ -10,7 +10,7 @@ import {
   UnifiedTimerState,
   setTimerState,
 } from '@/lib/utils/timerStore';
-import { getSessionUserAction, SessionUser } from '@/app/auth/actions';
+import { getSessionUserAction, logoutUserAction, SessionUser } from '@/app/auth/actions';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Tổng quan' },
@@ -173,6 +173,36 @@ export default function TopNav() {
           >
             {currentUser ? currentUser.name : 'Đăng nhập'}
           </Link>
+
+          {currentUser && (
+            <button
+              type="button"
+              onClick={async () => {
+                await logoutUserAction();
+                setCurrentUser(null);
+                try {
+                  sessionStorage.setItem('glowup_guest_active', '1');
+                } catch {
+                  // ignore
+                }
+                window.dispatchEvent(new Event('glowup-auth-changed'));
+                router.refresh();
+              }}
+              style={{
+                padding: '7px 12px',
+                borderRadius: '8px',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                background: 'rgba(244, 109, 117, 0.1)',
+                border: '1px solid rgba(244, 109, 117, 0.3)',
+                color: '#f46d75',
+                cursor: 'pointer',
+              }}
+            >
+              Đăng xuất
+            </button>
+          )}
 
           <button
             type="button"
