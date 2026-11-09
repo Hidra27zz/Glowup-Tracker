@@ -2,9 +2,12 @@ import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 import { cookies } from 'next/headers';
-import { SCHEMA_DDL_STATEMENTS } from './schemaInit';
+import { SCHEMA_DDL_STATEMENTS, USER_OWNED_TABLES } from './schemaInit';
+import { AUTH_COOKIE_NAME, verifySessionCookieValue } from './authToken';
 
-const AUTH_COOKIE_NAME = 'glowup_auth_user';
+const USER_OWNED_MODEL_DELEGATES = new Set(
+  USER_OWNED_TABLES.map((t) => t.charAt(0).toLowerCase() + t.slice(1))
+);
 
 const isServerless = Boolean(
   process.env.VERCEL ||
@@ -103,12 +106,10 @@ function createClientEntry(dbFilePath: string, seedFromBundle: boolean): ClientE
     },
   });
 
-  const entry: ClientEntry = {
+  return {
     client,
     initialized: false,
   };
-
-  return entry;
 }
 
 async function ensureEntryInitialized(entry: ClientEntry, clearSeedDataIfFreshUser = false): Promise<PrismaClient> {
@@ -119,7 +120,7 @@ async function ensureEntryInitialized(entry: ClientEntry, clearSeedDataIfFreshUs
         try {
           await entry.client.$executeRawUnsafe(ddl);
         } catch {
-          // ignore existing table/index
+          // ignore existing table/column/index
         }
       }
       if (clearSeedDataIfFreshUser) {
@@ -202,24 +203,50 @@ async function resolveCurrentSessionUser(): Promise<{ id: string; email?: string
   try {
     const cookieStore = await cookies();
     const raw = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed.id === 'string' && parsed.id.trim() !== '') {
-      return parsed;
-    }
-    return null;
+    const verified = verifySessionCookieValue(raw);
+    if (!verified) return null;
+    return { id: verified.id, email: verified.email };
   } catch {
     return null;
   }
 }
 
-async function resolveActiveDataClient(): Promise<PrismaClient> {
+async function resolveActiveDataContext(): Promise<{ client: PrismaClient; userId: string | null }> {
   const sessionUser = await resolveCurrentSessionUser();
   if (sessionUser?.id) {
     const isDemo = sessionUser.email === 'member@glowup.os';
-    return getUserPrismaClient(sessionUser.id, isDemo);
+    const client = await getUserPrismaClient(sessionUser.id, isDemo);
+    return { client, userId: sessionUser.id };
   }
-  return getGuestPrismaClient();
+  const client = await getGuestPrismaClient();
+  return { client, userId: null };
+}
+
+function injectUserIdIntoWriteArgs(prop: string, method: string, args: any[], userId: string | null): any[] {
+  if (!userId || !USER_OWNED_MODEL_DELEGATES.has(prop)) return args;
+  const firstArg = args[0];
+  if (!firstArg || typeof firstArg !== 'object') return args;
+
+  if (method === 'create' && firstArg.data && typeof firstArg.data === 'object') {
+    if (firstArg.data.userId === undefined && firstArg.data.user === undefined) {
+      return [{ ...firstArg, data: { ...firstArg.data, userId } }, ...args.slice(1)];
+    }
+  } else if (method === 'createMany' && Array.isArray(firstArg.data)) {
+    return [
+      {
+        ...firstArg,
+        data: firstArg.data.map((row: any) =>
+          row && typeof row === 'object' && row.userId === undefined ? { ...row, userId } : row
+        ),
+      },
+      ...args.slice(1),
+    ];
+  } else if (method === 'upsert' && firstArg.create && typeof firstArg.create === 'object') {
+    if (firstArg.create.userId === undefined && firstArg.create.user === undefined) {
+      return [{ ...firstArg, create: { ...firstArg.create, userId } }, ...args.slice(1)];
+    }
+  }
+  return args;
 }
 
 function createDynamicPrismaProxy(): PrismaClient {
@@ -227,15 +254,15 @@ function createDynamicPrismaProxy(): PrismaClient {
     get(_target, prop: string | symbol) {
       if (typeof prop === 'symbol' || prop === 'then') return undefined;
 
-      // Account table always lives in the Master DB
-      if (prop === 'user') {
+      // Account (`user`) and session (`authSession`) tables live in the Master Auth DB
+      if (prop === 'user' || prop === 'authSession') {
         return new Proxy(
           {},
           {
             get(_mTarget, method: string) {
               return async (...args: any[]) => {
                 const master = await getMasterPrismaClient();
-                return (master.user as any)[method](...args);
+                return ((master as any)[prop] as any)[method](...args);
               };
             },
           }
@@ -248,23 +275,24 @@ function createDynamicPrismaProxy(): PrismaClient {
           if (prop === '$transaction' && Array.isArray(args[0])) {
             return Promise.all(args[0]);
           }
-          const activeClient = await resolveActiveDataClient();
-          return (activeClient as any)[prop](...args);
+          const { client } = await resolveActiveDataContext();
+          return (client as any)[prop](...args);
         };
       }
 
-      // Data model delegate (task, sprint, smartGoal, moodLog, nutritionLog, etc.)
+      // Data model delegates (task, sprint, smartGoal, moodLog, nutritionLog, etc.)
       return new Proxy(
         {},
         {
           get(_mTarget, method: string) {
             return async (...args: any[]) => {
-              const activeClient = await resolveActiveDataClient();
-              const delegate = (activeClient as any)[prop];
+              const { client, userId } = await resolveActiveDataContext();
+              const delegate = (client as any)[prop];
               if (!delegate || typeof delegate[method] !== 'function') {
                 throw new Error(`Invalid Prisma model or method: ${String(prop)}.${String(method)}`);
               }
-              return delegate[method](...args);
+              const finalArgs = injectUserIdIntoWriteArgs(prop, method, args, userId);
+              return delegate[method](...finalArgs);
             };
           },
         }
