@@ -1,9 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const prisma = new PrismaClient();
 
 // ─── SOURCE 1: OPEN TRIVIA DB (100% miễn phí, không cần API key) ─────────────
 
