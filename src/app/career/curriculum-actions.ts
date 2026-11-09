@@ -146,26 +146,79 @@ export const MULTI_DISCIPLINE_TEMPLATES: Record<
 };
 
 export async function getCurriculumData() {
-  const data = await prisma.subjectGroup.findMany({
-    include: {
-      subjects: {
-        include: {
-          theories: {
-            orderBy: { order: 'asc' },
-            include: {
-              exercises: { include: { testCases: true } },
-              quizzes: true,
+  const fetchAll = () =>
+    prisma.subjectGroup.findMany({
+      include: {
+        subjects: {
+          include: {
+            theories: {
+              orderBy: { order: 'asc' },
+              include: {
+                exercises: { include: { testCases: true } },
+                quizzes: true,
+              },
+            },
+            exercises: {
+              include: { testCases: true },
             },
           },
-          exercises: {
-            include: { testCases: true },
-          },
+          orderBy: { order: 'asc' },
         },
-        orderBy: { order: 'asc' },
       },
-    },
-    orderBy: { order: 'asc' },
-  });
+      orderBy: { order: 'asc' },
+    });
+
+  let data = await fetchAll();
+
+  // Tự động khởi tạo học liệu mẫu đa ngành nếu tài khoản mới chưa có môn học nào
+  if (data.length === 0) {
+    try {
+      const starterGroups = [
+        ...MULTI_DISCIPLINE_TEMPLATES.general,
+        ...MULTI_DISCIPLINE_TEMPLATES.business,
+        ...MULTI_DISCIPLINE_TEMPLATES.languages,
+      ];
+      let gIdx = 0;
+      for (const grp of starterGroups) {
+        const createdGroup = await prisma.subjectGroup.create({
+          data: {
+            name: grp.name,
+            icon: '',
+            color: grp.color,
+            order: gIdx++,
+          },
+        });
+        let sIdx = 0;
+        for (const sub of grp.subjects) {
+          const createdSub = await prisma.subject.create({
+            data: {
+              code: sub.code,
+              name: sub.name,
+              credits: sub.credits,
+              icon: '',
+              color: sub.color,
+              order: sIdx++,
+              groupId: createdGroup.id,
+            },
+          });
+          for (let i = 0; i < sub.theories.length; i++) {
+            const th = sub.theories[i];
+            await prisma.theorySection.create({
+              data: {
+                title: th.title,
+                order: i,
+                coreConcept: th.content,
+                subjectId: createdSub.id,
+              },
+            });
+          }
+        }
+      }
+      data = await fetchAll();
+    } catch {
+      // ignore seed error
+    }
+  }
 
   return data;
 }

@@ -78,9 +78,12 @@ function YouTubeEmbed({ query }: { query: string }) {
   );
 }
 
-export default function CurriculumVault() {
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function CurriculumVault({ initialData }: { initialData?: any[] }) {
+  const firstGroup = initialData && initialData.length > 0 ? initialData[0] : null;
+  const firstSub = firstGroup?.subjects?.[0] || null;
+
+  const [data, setData] = useState<any[]>(initialData || []);
+  const [loading, setLoading] = useState(!initialData);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [tocOpen, setTocOpen] = useState(true);
@@ -99,12 +102,14 @@ export default function CurriculumVault() {
     mq.addEventListener('change', apply);
     return () => mq.removeEventListener('change', apply);
   }, []);
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    firstGroup ? { [firstGroup.id]: true } : {}
+  );
   
-  const [selectedSubject, setSelectedSubject] = useState<any>(null);
+  const [selectedSubject, setSelectedSubject] = useState<any>(firstSub);
   const [activeView, setActiveView] = useState<ActiveView>('theory');
-  const [selectedSection, setSelectedSection] = useState<any>(null);
-  const [selectedExercise, setSelectedExercise] = useState<any>(null);
+  const [selectedSection, setSelectedSection] = useState<any>(firstSub?.theories?.[0] || null);
+  const [selectedExercise, setSelectedExercise] = useState<any>(firstSub?.exercises?.[0] || null);
   
   const [language, setLanguage] = useState<'cpp' | 'javascript' | 'python'>('cpp');
   const [code, setCode] = useState('');
@@ -466,20 +471,26 @@ export default function CurriculumVault() {
   }, [selectedSection]);
 
   useEffect(() => {
-    getCurriculumData().then(res => {
-      setData(res);
-      if (res.length > 0) {
-        setExpandedGroups({ [res[0].id]: true });
-        if (res[0].subjects.length > 0) {
-          const sub = res[0].subjects[0];
-          setSelectedSubject(sub);
-          setSelectedSection(sub.theories[0] || null);
-          setSelectedExercise(sub.exercises[0] || null);
-        }
-      }
+    if (initialData && initialData.length > 0) {
       setLoading(false);
-    });
-  }, []);
+      return;
+    }
+    getCurriculumData()
+      .then(res => {
+        setData(res);
+        if (res.length > 0) {
+          setExpandedGroups({ [res[0].id]: true });
+          if (res[0].subjects.length > 0) {
+            const sub = res[0].subjects[0];
+            setSelectedSubject(sub);
+            setSelectedSection(sub.theories[0] || null);
+            setSelectedExercise(sub.exercises[0] || null);
+          }
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [initialData]);
 
   // Load quiz khi chuyển sang tab quiz hoặc đổi môn
   const loadQuizForSubject = useCallback(async (subjectCode: string) => {
