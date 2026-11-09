@@ -25,7 +25,10 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <section
+      className="glass-card"
+      style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%' }}
+    >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <h3 style={{ margin: 0, fontSize: '1rem' }}>{title}</h3>
         {action}
@@ -196,17 +199,17 @@ export default async function Dashboard() {
         </div>
       )}
 
-      {/* Primary goal + KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-        <div className="glass-card" style={{ gridColumn: 'span 2', minWidth: '260px' }}>
-          <div className="section-title">Mục tiêu chính</div>
-          <div style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '12px' }}>{goalTitle}</div>
+      {/* Primary goal + KPIs (4 equal columns) */}
+      <div className="dashboard-kpi-grid">
+        <div className="glass-card" style={{ padding: '14px 16px' }}>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '6px' }}>Mục tiêu chính</div>
+          <div style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '8px', lineHeight: 1.25 }}>{goalTitle}</div>
           {primarySmartGoal && (
             <>
               <div style={{ height: '6px', background: 'var(--surface-3)', borderRadius: '3px', overflow: 'hidden' }}>
                 <div style={{ width: `${goalProgress}%`, height: '100%', background: 'var(--accent-color)' }} />
               </div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '8px' }}>
+              <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
                 {primarySmartGoal.currentValue} / {primarySmartGoal.targetValue} {primarySmartGoal.unit} · {goalProgress}%
               </div>
             </>
@@ -221,8 +224,8 @@ export default async function Dashboard() {
 
       <DashboardScheduleHub tasks={tasks} sprints={sprints} />
 
-      {/* Work + vitals */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px', alignItems: 'start' }}>
+      {/* 3 balanced equal-height cards: Việc cần làm | Tập trung | Ghi nhanh chỉ số */}
+      <div className="dashboard-trio-grid">
         <Section
           title="Việc cần làm"
           action={
@@ -253,7 +256,7 @@ export default async function Dashboard() {
 
           <InteractiveTasks tasks={coreTasks} />
 
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px' }}>
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '14px', marginTop: 'auto' }}>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Thói quen cần tránh hôm nay</div>
             <div style={{ fontSize: '0.9rem' }}>{antiHabit}</div>
           </div>
@@ -261,17 +264,15 @@ export default async function Dashboard() {
           <InfoDietLog />
         </Section>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <Section title="Tập trung">
-            <DashboardDeepWorkTimer totalMinutesToday={totalDeepWorkMinutesToday} />
-          </Section>
+        <Section title="Tập trung">
+          <DashboardDeepWorkTimer totalMinutesToday={totalDeepWorkMinutesToday} />
+        </Section>
 
-          <Section title="Ghi nhanh chỉ số">
-            <QuickStatsForms />
-            <HydrationTracker initialWaterDrops={waterDrops} />
-            <FastingWidget fastingStartStr={fastingStartStr} />
-          </Section>
-        </div>
+        <Section title="Ghi nhanh chỉ số">
+          <QuickStatsForms />
+          <HydrationTracker initialWaterDrops={waterDrops} />
+          <FastingWidget fastingStartStr={fastingStartStr} />
+        </Section>
       </div>
 
       <QuickActionForms />

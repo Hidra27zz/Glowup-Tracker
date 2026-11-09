@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   getTimerState,
   subscribeTimerSync,
@@ -26,8 +26,10 @@ const NAV_ITEMS = [
 
 export default function TopNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [timer, setTimer] = useState<UnifiedTimerState | null>(null);
   const [currentUser, setCurrentUser] = useState<SessionUser | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -38,13 +40,61 @@ export default function TopNav() {
   useEffect(() => {
     const fetchUser = () => {
       getSessionUserAction()
-        .then((res) => setCurrentUser(res.currentUser))
-        .catch(() => {});
+        .then((res) => {
+          setCurrentUser(res.currentUser);
+          setAuthChecked(true);
+        })
+        .catch(() => {
+          setAuthChecked(true);
+        });
     };
     fetchUser();
     window.addEventListener('glowup-auth-changed', fetchUser);
     return () => window.removeEventListener('glowup-auth-changed', fetchUser);
   }, [pathname]);
+
+  // Guest Mockup Lifecycle:
+  // If not logged in, data added is temporary mockup only and resets on exit / fresh browser session
+  useEffect(() => {
+    if (!authChecked) return;
+    if (currentUser) {
+      try {
+        sessionStorage.removeItem('glowup_guest_active');
+      } catch {
+        // ignore
+      }
+      return;
+    }
+
+    try {
+      const isActiveGuestTab = sessionStorage.getItem('glowup_guest_active');
+      if (!isActiveGuestTab) {
+        sessionStorage.setItem('glowup_guest_active', '1');
+        fetch('/api/auth/guest-reset', { method: 'POST' })
+          .then(() => router.refresh())
+          .catch(() => {});
+      }
+    } catch {
+      // ignore storage errors
+    }
+
+    const handlePageExit = () => {
+      try {
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon('/api/auth/guest-reset');
+        } else {
+          fetch('/api/auth/guest-reset', { method: 'POST', keepalive: true }).catch(() => {});
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener('pagehide', handlePageExit);
+    return () => {
+      window.removeEventListener('pagehide', handlePageExit);
+    };
+  }, [authChecked, currentUser, router]);
 
   // Close the mobile menu whenever the route changes
   useEffect(() => {
@@ -107,21 +157,39 @@ export default function TopNav() {
             </button>
           )}
 
+          {authChecked && !currentUser && (
+            <span
+              title="Bạn chưa đăng nhập: dữ liệu thêm vào chỉ là bản thử (Mockup) và sẽ tự xóa khi thoát trang"
+              style={{
+                fontSize: '0.73rem',
+                color: '#f5b94a',
+                background: 'rgba(245, 185, 74, 0.1)',
+                border: '1px solid rgba(245, 185, 74, 0.28)',
+                padding: '5px 9px',
+                borderRadius: '7px',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Chế độ Mockup
+            </span>
+          )}
+
           <Link
             href="/login"
             className="nav-user-name"
             style={{
               padding: '7px 14px',
               borderRadius: '8px',
-              fontSize: '0.825rem',
+              fontSize: '0.82rem',
               fontWeight: 600,
               whiteSpace: 'nowrap',
               background: currentUser ? 'var(--surface-2)' : 'var(--accent-color)',
               border: `1px solid ${currentUser ? 'var(--border)' : 'var(--accent-color)'}`,
-              color: currentUser ? 'var(--text-primary)' : '#0a0c11',
+              color: currentUser ? 'var(--text-primary)' : '#ffffff',
             }}
           >
-            {currentUser ? currentUser.name : 'Đăng nhập'}
+            {currentUser ? `${currentUser.name} · Lưu riêng` : 'Đăng nhập'}
           </Link>
 
           <button

@@ -64,8 +64,8 @@ export default function DashboardDeepWorkTimer({ totalMinutesToday = 0 }: { tota
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'space-between' }}>
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontSize: '1.1rem', color: 'var(--accent-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            ⏱️ Deep Work Protocol
+          <h3 style={{ fontSize: '1rem', color: 'var(--accent-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            Deep Work Protocol
           </h3>
           <button
             onClick={() => setTimerState({ showMiniPopup: !state.showMiniPopup })}

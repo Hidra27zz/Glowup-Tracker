@@ -778,15 +778,9 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
         )}
       </div>
 
-      {/* 1. VIEW MODE: LỊCH TUẦN 7 NGÀY (WEEKLY CALENDAR GRID) */}
+      {/* 1. VIEW MODE: LỊCH TUẦN 7 NGÀY (WEEKLY CALENDAR GRID - 7 CỘT TRÊN CÙNG 1 HÀNG) */}
       {viewMode === 'week' && (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))',
-            gap: '10px',
-          }}
-        >
+        <div className="calendar-week-7col">
           {weekDays.map((day, idx) => {
             const isToday = isSameDay(day, today);
             const dayEvents = getEventsForDate(day);
@@ -1015,7 +1009,7 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
       {/* 2. VIEW MODE: LỊCH THÁNG (MONTHLY CALENDAR GRID) */}
       {viewMode === 'month' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(110px, 1fr))', gap: '6px', overflowX: 'auto' }}>
+          <div className="calendar-week-7col">
             {['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'].map(label => (
               <div
                 key={label}

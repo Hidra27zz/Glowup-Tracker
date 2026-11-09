@@ -404,6 +404,52 @@ select option {
   min-width: 0;
 }
 
+/* Dashboard balanced grids & 7-column Calendar grid */
+.dashboard-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.dashboard-trio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+.calendar-week-7col {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+@media (max-width: 1020px) {
+  .dashboard-trio-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-week-7col {
+    grid-template-columns: repeat(7, minmax(148px, 1fr));
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 540px) {
+  .dashboard-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ==========================================================================
    Responsive
    ========================================================================== */

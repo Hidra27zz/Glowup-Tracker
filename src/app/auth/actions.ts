@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import crypto from 'crypto';
-import { prisma } from '@/lib/prisma';
+import { prisma, resetGuestMockupDatabase } from '@/lib/prisma';
 
 const COOKIE_NAME = 'glowup_auth_user';
 
@@ -195,6 +195,7 @@ export async function switchAccountByIdAction(userId: string): Promise<{
 export async function logoutUserAction(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
+  await resetGuestMockupDatabase();
   revalidatePath('/');
 }
 

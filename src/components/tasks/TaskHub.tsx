@@ -1094,7 +1094,7 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
             )}
 
             {/* 7-DAY CALENDAR GRID */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(195px, 1fr))', gap: '14px', overflowX: 'auto', paddingBottom: '16px' }}>
+            <div className="calendar-week-7col" style={{ paddingBottom: '12px' }}>
               {weekDays.map((day, idx) => {
                 const dayTasks = getTasksForDate(day);
                 const daySprints = getSprintsForDate(day);
