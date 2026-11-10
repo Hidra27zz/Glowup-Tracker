@@ -1053,30 +1053,6 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
                 {selectedSubject.code}{selectedSubject.credits > 0 ? ` · ${selectedSubject.credits} tín chỉ` : ' · Tự học / Kỹ năng'}
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '6px' }}>
-              <button
-                onClick={() => setManage({ type: 'subject-edit', subject: selectedSubject })}
-                title="Chỉnh sửa tên / nhóm / loại môn học này"
-                style={{
-                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '7px', padding: '5px 8px', cursor: 'pointer', color: '#cbd5e1',
-                  display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', fontWeight: 600,
-                }}
-              >
-                <Pencil size={12} /> Sửa môn
-              </button>
-              <button
-                onClick={() => setManage({ type: 'subject-create', groupId: selectedSubject.groupId })}
-                title="Tạo môn học hoặc chủ đề tự học mới"
-                style={{
-                  background: 'rgba(61,214,140,0.12)', border: '1px solid rgba(61,214,140,0.3)',
-                  borderRadius: '7px', padding: '5px 8px', cursor: 'pointer', color: '#3dd68c',
-                  display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', fontWeight: 700,
-                }}
-              >
-                <Plus size={12} /> Tạo môn
-              </button>
-            </div>
           </div>
 
           {/* Level / EXP Badge */}
