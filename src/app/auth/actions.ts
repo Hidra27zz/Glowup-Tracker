@@ -269,6 +269,44 @@ export async function updateProfileAction(formData: FormData): Promise<{
   }
 }
 
+export async function resetPasswordAction(formData: FormData): Promise<{
+  success: boolean;
+  error?: string;
+  message?: string;
+}> {
+  try {
+    const email = String(formData.get('email') ?? '').trim().toLowerCase();
+    const newPassword = String(formData.get('newPassword') ?? '').trim();
+
+    if (!email || !newPassword) {
+      return { success: false, error: 'Vui lòng nhập Email và Mật khẩu mới.' };
+    }
+    if (newPassword.length < 4) {
+      return { success: false, error: 'Mật khẩu mới cần ít nhất 4 ký tự.' };
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return { success: false, error: 'Không tìm thấy tài khoản với email này.' };
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: hashPasswordSecure(newPassword),
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.',
+    };
+  } catch (err: any) {
+    console.error('[resetPasswordAction Error]:', err);
+    return { success: false, error: 'Không thể đặt lại mật khẩu.' };
+  }
+}
+
 export async function logoutUserAction(): Promise<void> {
   const cookieStore = await cookies();
   const raw = cookieStore.get(AUTH_COOKIE_NAME)?.value;

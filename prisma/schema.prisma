@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -194,7 +195,7 @@ model BioCycle {
 }
 
 model UserSettings {
-  id              String    @id @default("default")
+  id              String    @id @default(cuid())
   userId          String?   @unique
   user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   bodyRecompGoal  String    @default("Cài đặt mục tiêu cân nặng")

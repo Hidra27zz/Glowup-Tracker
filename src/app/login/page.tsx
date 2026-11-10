@@ -9,6 +9,7 @@ import {
   getSessionUserAction,
   updateProfileAction,
   logoutUserAction,
+  resetPasswordAction,
   SessionUser,
 } from '@/app/auth/actions';
 
@@ -32,7 +33,7 @@ const inputStyle: React.CSSProperties = {
 
 export default function LoginRegisterPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +50,24 @@ export default function LoginRegisterPage() {
   }, []);
 
   const notify = () => window.dispatchEvent(new CustomEvent('glowup-auth-changed'));
+
+  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await resetPasswordAction(new FormData(e.currentTarget));
+      if (!res.success) {
+        setError(res.error || 'Đặt lại mật khẩu thất bại.');
+      } else {
+        setSuccess(res.message || 'Đặt lại mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.');
+        setMode('login');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -258,12 +277,18 @@ export default function LoginRegisterPage() {
             GlowUp<span style={{ color: 'var(--accent-color)' }}>.</span>
           </div>
           <h1 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 700 }}>
-            {mode === 'login' ? 'Đăng nhập tài khoản' : 'Tạo tài khoản mới'}
+            {mode === 'login'
+              ? 'Đăng nhập tài khoản'
+              : mode === 'register'
+              ? 'Tạo tài khoản mới'
+              : 'Đặt lại mật khẩu'}
           </h1>
           <p style={{ margin: '6px 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
             {mode === 'login'
               ? 'Nhập email và mật khẩu của bạn để tiếp tục'
-              : 'Điền thông tin bên dưới để đăng ký tài khoản'}
+              : mode === 'register'
+              ? 'Điền thông tin bên dưới để đăng ký tài khoản'
+              : 'Nhập email và mật khẩu mới cho tài khoản của bạn'}
           </p>
         </div>
 
@@ -279,6 +304,21 @@ export default function LoginRegisterPage() {
             }}
           >
             {error}
+          </div>
+        )}
+
+        {success && (
+          <div
+            style={{
+              borderLeft: '3px solid var(--success-color)',
+              background: 'var(--surface-2)',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              fontSize: '0.84rem',
+              color: '#3dd68c',
+            }}
+          >
+            {success}
           </div>
         )}
 
@@ -322,6 +362,26 @@ export default function LoginRegisterPage() {
                 placeholder="••••••••"
                 style={inputStyle}
               />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('forgot');
+                    setError(null);
+                    setSuccess(null);
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    fontSize: '0.78rem',
+                    color: 'var(--accent-color)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Quên mật khẩu?
+                </button>
+              </div>
             </div>
 
             <button
@@ -333,7 +393,7 @@ export default function LoginRegisterPage() {
               {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </button>
           </form>
-        ) : (
+        ) : mode === 'register' ? (
           <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
               <label style={labelStyle}>Họ và tên</label>
@@ -391,6 +451,62 @@ export default function LoginRegisterPage() {
             >
               {loading ? 'Đang đăng ký...' : 'Đăng ký tài khoản'}
             </button>
+          </form>
+        ) : (
+          <form onSubmit={handleResetPassword} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div>
+              <label style={labelStyle}>Email đã đăng ký</label>
+              <input
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="name@example.com"
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label style={labelStyle}>Mật khẩu mới</label>
+              <input
+                name="newPassword"
+                type={showPass ? 'text' : 'password'}
+                required
+                autoComplete="new-password"
+                placeholder="Tối thiểu 4 ký tự"
+                style={inputStyle}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary"
+              style={{ padding: '11px', width: '100%', fontSize: '0.92rem', marginTop: '4px' }}
+            >
+              {loading ? 'Đang cập nhật...' : 'Xác nhận đặt lại mật khẩu'}
+            </button>
+
+            <div style={{ textAlign: 'center', marginTop: '6px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('login');
+                  setError(null);
+                  setSuccess(null);
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  fontSize: '0.84rem',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                }}
+              >
+                ← Quay lại Đăng nhập
+              </button>
+            </div>
           </form>
         )}
 
