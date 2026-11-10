@@ -46,8 +46,16 @@ export default function LoginRegisterPage() {
   };
 
   useEffect(() => {
-    refresh();
-  }, []);
+    const params = new URLSearchParams(window.location.search);
+    const isProfileMode = params.get('profile') === '1';
+    getSessionUserAction().then((res) => {
+      if (res.currentUser && !isProfileMode) {
+        router.replace('/');
+        return;
+      }
+      setCurrentUser(res.currentUser);
+    });
+  }, [router]);
 
   const notify = () => window.dispatchEvent(new CustomEvent('glowup-auth-changed'));
 
@@ -79,10 +87,9 @@ export default function LoginRegisterPage() {
       if (!res.success) {
         setError(res.error || 'Đăng nhập thất bại.');
       } else {
-        await refresh();
         notify();
-        router.push('/');
-        router.refresh();
+        window.location.assign('/');
+        return;
       }
     } finally {
       setLoading(false);
@@ -108,10 +115,9 @@ export default function LoginRegisterPage() {
       if (!res.success) {
         setError(res.error || 'Đăng ký thất bại.');
       } else {
-        await refresh();
         notify();
-        router.push('/');
-        router.refresh();
+        window.location.assign('/');
+        return;
       }
     } finally {
       setLoading(false);

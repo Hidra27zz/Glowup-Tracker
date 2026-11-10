@@ -158,8 +158,9 @@ export default function TopNav() {
           )}
 
           <Link
-            href="/login"
+            href={currentUser ? '/login?profile=1' : '/login'}
             className="nav-user-name"
+            title={currentUser ? 'Cài đặt tài khoản' : 'Đăng nhập'}
             style={{
               padding: '7px 14px',
               borderRadius: '8px',
