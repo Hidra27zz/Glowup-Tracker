@@ -7,26 +7,14 @@ export const dynamic = 'force-dynamic';
 export default async function CareerPage() {
   const [skills, deepWorkSessions, flashcardDecks, jobApplications, codeSnippets, curriculumData] =
     await Promise.all([
-      prisma.skill.findMany({
-        orderBy: { category: 'asc' },
-      }),
-      prisma.deepWorkSession.findMany({
-        orderBy: { date: 'desc' },
-        take: 5,
-      }),
-      prisma.flashcardDeck.findMany({
-        include: { cards: true },
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.jobApplication.findMany({
-        orderBy: { appliedDate: 'desc' },
-        take: 50,
-      }),
-      prisma.codeSnippet.findMany({
-        orderBy: { createdAt: 'desc' },
-        take: 50,
-      }),
-      getCurriculumData(),
+      prisma.skill.findMany({ orderBy: { category: 'asc' } }).catch(() => []),
+      prisma.deepWorkSession.findMany({ orderBy: { date: 'desc' }, take: 5 }).catch(() => []),
+      prisma.flashcardDeck
+        .findMany({ include: { cards: true }, orderBy: { createdAt: 'desc' } })
+        .catch(() => []),
+      prisma.jobApplication.findMany({ orderBy: { appliedDate: 'desc' }, take: 50 }).catch(() => []),
+      prisma.codeSnippet.findMany({ orderBy: { createdAt: 'desc' }, take: 50 }).catch(() => []),
+      getCurriculumData().catch(() => []),
     ]);
 
   return (

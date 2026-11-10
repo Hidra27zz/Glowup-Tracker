@@ -112,7 +112,11 @@ function createClientEntry(dbFilePath: string, seedFromBundle: boolean): ClientE
   };
 }
 
-async function ensureEntryInitialized(entry: ClientEntry, clearSeedDataIfFreshUser = false): Promise<PrismaClient> {
+async function ensureEntryInitialized(
+  entry: ClientEntry,
+  clearSeedDataIfFreshUser = false,
+  ownerUser?: { id: string; email?: string }
+): Promise<PrismaClient> {
   if (entry.initialized) return entry.client;
   if (!entry.initPromise) {
     entry.initPromise = (async () => {
@@ -123,6 +127,22 @@ async function ensureEntryInitialized(entry: ClientEntry, clearSeedDataIfFreshUs
           // ignore existing table/column/index
         }
       }
+      if (ownerUser?.id) {
+        try {
+          await entry.client.user.upsert({
+            where: { id: ownerUser.id },
+            update: {},
+            create: {
+              id: ownerUser.id,
+              name: ownerUser.email?.split('@')[0] || 'Member',
+              email: ownerUser.email || `${ownerUser.id}@glowup.local`,
+              passwordHash: 'synced',
+            },
+          });
+        } catch {
+          // ignore if email already exists in bundled DB
+        }
+      }
       if (clearSeedDataIfFreshUser) {
         try {
           await entry.client.userSettings.upsert({
@@ -130,6 +150,7 @@ async function ensureEntryInitialized(entry: ClientEntry, clearSeedDataIfFreshUs
             update: {},
             create: {
               id: 'default',
+              userId: ownerUser?.id || null,
               goalCal: 1800,
               budgetGoal: 1000000,
               bodyRecompGoal: 'Thiết lập mục tiêu cá nhân của bạn',
@@ -160,16 +181,20 @@ export async function getGuestPrismaClient(): Promise<PrismaClient> {
   return ensureEntryInitialized(globalStore.guestEntry, false);
 }
 
-export async function getUserPrismaClient(userId: string, isDemoAccount = false): Promise<PrismaClient> {
+export async function getUserPrismaClient(
+  userId: string,
+  isDemoAccount = false,
+  userEmail?: string
+): Promise<PrismaClient> {
   const existing = globalStore.userEntries!.get(userId);
   if (existing) {
-    return ensureEntryInitialized(existing, false);
+    return ensureEntryInitialized(existing, false, { id: userId, email: userEmail });
   }
   const dbPath = getUserDbPath(userId);
   const isNewFile = !fs.existsSync(dbPath) || fs.statSync(dbPath).size < 4096;
   const entry = createClientEntry(dbPath, isDemoAccount);
   globalStore.userEntries!.set(userId, entry);
-  return ensureEntryInitialized(entry, isNewFile && !isDemoAccount);
+  return ensureEntryInitialized(entry, isNewFile && !isDemoAccount, { id: userId, email: userEmail });
 }
 
 export async function resetGuestMockupDatabase(): Promise<void> {
@@ -215,7 +240,7 @@ async function resolveActiveDataContext(): Promise<{ client: PrismaClient; userI
   const sessionUser = await resolveCurrentSessionUser();
   if (sessionUser?.id) {
     const isDemo = sessionUser.email === 'member@glowup.os';
-    const client = await getUserPrismaClient(sessionUser.id, isDemo);
+    const client = await getUserPrismaClient(sessionUser.id, isDemo, sessionUser.email);
     return { client, userId: sessionUser.id };
   }
   const client = await getGuestPrismaClient();

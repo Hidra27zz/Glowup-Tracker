@@ -143,7 +143,143 @@ export async function logNutrition(calories: number, budgetUsed: number, protein
     });
   }
   revalidatePath('/health');
+  revalidatePath('/nutrition');
+  revalidatePath('/');
   return result;
+}
+
+export interface CookRecipePayload {
+  title: string;
+  tag: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  prepTime: number;
+  ingredientsList: string[];
+  steps: string[];
+  matchedPantryNames: string[];
+}
+
+function deductPantryQuantity(rawQuantity: string | null): { remainingText: string | null; summary: string } {
+  const qty = (rawQuantity || '1 phần').trim();
+  const match = qty.match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);
+  if (!match) {
+    return { remainingText: null, summary: `${qty} → Đã dùng hết` };
+  }
+
+  const num = parseFloat(match[1].replace(',', '.'));
+  const unitRaw = (match[2] || 'phần').trim().toLowerCase();
+
+  // Khối lượng tính bằng gram (trừ ~200g cho 1 khẩu phần nấu)
+  if (unitRaw === 'g' || unitRaw === 'gr' || unitRaw === 'gram') {
+    const next = Math.round(num - 200);
+    if (next > 40) {
+      return { remainingText: `${next}g`, summary: `${qty} → còn ${next}g` };
+    }
+    return { remainingText: null, summary: `${qty} → Đã dùng hết` };
+  }
+
+  // Khối lượng tính bằng kg (đổi sang g rồi trừ 200g)
+  if (unitRaw === 'kg') {
+    const grams = Math.round(num * 1000 - 200);
+    if (grams >= 1000) {
+      const nextKg = (grams / 1000).toFixed(1).replace(/\.0$/, '');
+      return { remainingText: `${nextKg}kg`, summary: `${qty} → còn ${nextKg}kg` };
+    }
+    if (grams > 50) {
+      return { remainingText: `${grams}g`, summary: `${qty} → còn ${grams}g` };
+    }
+    return { remainingText: null, summary: `${qty} → Đã dùng hết` };
+  }
+
+  // Thể tích (ml / lít)
+  if (unitRaw === 'ml') {
+    const next = Math.round(num - 200);
+    if (next > 50) {
+      return { remainingText: `${next}ml`, summary: `${qty} → còn ${next}ml` };
+    }
+    return { remainingText: null, summary: `${qty} → Đã dùng hết` };
+  }
+  if (unitRaw === 'l' || unitRaw === 'lít' || unitRaw === 'lit') {
+    const ml = Math.round(num * 1000 - 200);
+    if (ml > 100) {
+      return { remainingText: `${ml}ml`, summary: `${qty} → còn ${ml}ml` };
+    }
+    return { remainingText: null, summary: `${qty} → Đã dùng hết` };
+  }
+
+  // Đơn vị đếm (quả, trái, hộp, bìa, gói, bó, cây, phần...)
+  const deductCount = (unitRaw.includes('quả') || unitRaw.includes('trái')) && num >= 3 ? 2 : 1;
+  const nextCount = Math.round(num - deductCount);
+  if (nextCount >= 1) {
+    const nextText = `${nextCount} ${match[2] || 'phần'}`.trim();
+    return { remainingText: nextText, summary: `${qty} → còn ${nextText}` };
+  }
+
+  return { remainingText: null, summary: `${qty} → Đã dùng hết` };
+}
+
+export async function cookRecipeFromPantry(payload: CookRecipePayload) {
+  // 1. Cộng đầy đủ Calo + Macros (Đạm, Tinh bột, Chất béo) vào NutritionLog hôm nay
+  const nutritionLog = await logNutrition(
+    payload.calories,
+    0,
+    payload.protein,
+    payload.carbs,
+    payload.fat
+  );
+
+  // 2. Lưu món vừa chế biến vào nhật ký món đã nấu (Recipe)
+  const cookedRecipe = await prisma.recipe.create({
+    data: {
+      title: payload.title,
+      description: `${payload.tag} • P:${payload.protein}g | C:${payload.carbs}g | F:${payload.fat}g`,
+      ingredients: payload.ingredientsList.join(', '),
+      instructions: payload.steps.join('\n'),
+      calories: payload.calories,
+      prepTime: payload.prepTime,
+    },
+  });
+
+  // 3. Tự động trừ/cập nhật số lượng nguyên liệu tương ứng trong Tủ Lạnh (PantryItem)
+  const allPantry = await prisma.pantryItem.findMany();
+  const consumedDetails: string[] = [];
+
+  for (const matchedName of payload.matchedPantryNames) {
+    const item = allPantry.find(
+      (p) => p.name.toLowerCase() === matchedName.toLowerCase()
+    );
+    if (!item) continue;
+
+    const { remainingText, summary } = deductPantryQuantity(item.quantity);
+    if (remainingText) {
+      await prisma.pantryItem.update({
+        where: { id: item.id },
+        data: { quantity: remainingText },
+      });
+    } else {
+      await prisma.pantryItem.delete({
+        where: { id: item.id },
+      });
+    }
+    consumedDetails.push(`${item.name} (${summary})`);
+  }
+
+  const updatedPantryItems = await prisma.pantryItem.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
+
+  revalidatePath('/nutrition');
+  revalidatePath('/health');
+  revalidatePath('/');
+
+  return {
+    nutritionLog,
+    cookedRecipe,
+    consumedDetails,
+    updatedPantryItems,
+  };
 }
 
 export async function logSleep(sleepTimeStr: string, wakeTimeStr: string) {

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { subjectGroups } from '@/lib/data/subjects';
 import { revalidatePath } from 'next/cache';
 
-export const MULTI_DISCIPLINE_TEMPLATES: Record<
+const MULTI_DISCIPLINE_TEMPLATES: Record<
   string,
   {
     name: string;
