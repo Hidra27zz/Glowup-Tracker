@@ -47,6 +47,8 @@ model User {
   inventoryItems  InventoryItem[]
   subscriptions   Subscription[]
   impulseBuyItems ImpulseBuyItem[]
+  budgets         Budget[]
+  savingsGoals    SavingsGoal[]
 
   // Career & Learning
   skills          Skill[]
@@ -325,6 +327,32 @@ model Subscription {
   renewalDate DateTime
   frequency   String
   createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Budget {
+  id           String   @id @default(cuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category     String
+  monthlyLimit Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model SavingsGoal {
+  id           String    @id @default(cuid())
+  userId       String?
+  user         User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  targetAmount Float
+  savedAmount  Float     @default(0)
+  deadline     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([userId])
 }

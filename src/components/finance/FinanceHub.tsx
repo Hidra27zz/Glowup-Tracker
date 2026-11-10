@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { Wallet, PieChart, ShoppingCart, RefreshCw, ChevronRight, Plus, Trash2, Check, X, ShieldAlert, AlertTriangle } from 'lucide-react';
-import { FinancialTransaction, ImpulseBuyItem, Subscription, InventoryItem } from '@prisma/client';
+import { FinancialTransaction, ImpulseBuyItem, Subscription, InventoryItem, Budget, SavingsGoal } from '@prisma/client';
 import { addTransaction, deleteTransaction, addImpulseBuy, updateImpulseBuyStatus, deleteImpulseBuy, addSubscription, deleteSubscription } from '@/app/finance/actions';
 import InventoryTracker from './InventoryTracker';
+import SmartFinance from './SmartFinance';
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
 
 interface Props {
@@ -12,10 +13,13 @@ interface Props {
   impulseBuys: ImpulseBuyItem[];
   subscriptions: Subscription[];
   inventoryItems: InventoryItem[];
+  budgets: Budget[];
+  savingsGoals: SavingsGoal[];
 }
 
 const TABS = [
-  { id: 'dashboard', label: 'Burn Rate', icon: PieChart, accent: '#5b9cff' },
+  { id: 'smart', label: 'Quản lý thông minh', icon: Wallet, accent: '#5b9cff' },
+  { id: 'dashboard', label: 'Nhập thủ công', icon: PieChart, accent: '#5b9cff' },
   { id: 'impulse', label: 'Impulse Blocker', icon: ShieldAlert, accent: '#f5b94a' },
   { id: 'inventory', label: 'Inventory & PAO', icon: ShoppingCart, accent: '#7b8cff' },
   { id: 'subscriptions', label: 'Subscriptions', icon: RefreshCw, accent: '#3dd68c' },
@@ -32,14 +36,19 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Khác': '#64748b'
 };
 
-export default function FinanceHub({ transactions, impulseBuys, subscriptions, inventoryItems }: Props) {
-  const [activeTab, setActiveTab] = useState<TabId>('dashboard');
+export default function FinanceHub({ transactions, impulseBuys, subscriptions, inventoryItems, budgets, savingsGoals }: Props) {
+  const [activeTab, setActiveTab] = useState<TabId>('smart');
   const [loading, setLoading] = useState(false);
   const currentTab = TABS.find(t => t.id === activeTab)!;
 
   // -- Burn Rate Data --
-  const expenses = transactions.filter(t => t.type === 'expense');
-  const income = transactions.filter(t => t.type === 'income');
+  const nowD = new Date();
+  const monthTransactions = transactions.filter(t => {
+    const d = new Date(t.date);
+    return d.getMonth() === nowD.getMonth() && d.getFullYear() === nowD.getFullYear();
+  });
+  const expenses = monthTransactions.filter(t => t.type === 'expense');
+  const income = monthTransactions.filter(t => t.type === 'income');
   const totalExpense = expenses.reduce((acc, t) => acc + t.amount, 0);
   const totalIncome = income.reduce((acc, t) => acc + t.amount, 0);
   const monthlySubCost = subscriptions.reduce((acc, s) => acc + (s.frequency === 'yearly' ? s.cost / 12 : s.cost), 0);
@@ -118,6 +127,16 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
       {/* ── Content panel ── */}
       <div style={{ flex: 1, background: 'rgba(15,23,42,0.4)', border: '1px solid rgba(255,255,255,0.06)', borderTop: 'none', borderRadius: '0 0 20px 20px', padding: '24px', backdropFilter: 'blur(16px)' }}>
         
+        {/* --- SMART TAB --- */}
+        {activeTab === 'smart' && (
+          <SmartFinance
+            transactions={transactions}
+            budgets={budgets}
+            savingsGoals={savingsGoals}
+            subscriptionMonthly={monthlySubCost}
+          />
+        )}
+
         {/* --- DASHBOARD TAB --- */}
         {activeTab === 'dashboard' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px', animation: 'fadeIn 0.3s ease' }}>

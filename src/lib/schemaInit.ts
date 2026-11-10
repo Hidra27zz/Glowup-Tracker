@@ -28,6 +28,8 @@ export const USER_OWNED_TABLES: string[] = [
   'CodeSnippet',
   'InformationDietLog',
   'SubjectGroup',
+  'Budget',
+  'SavingsGoal',
 ];
 
 export const SCHEMA_DDL_STATEMENTS: string[] = [
@@ -69,6 +71,8 @@ export const SCHEMA_DDL_STATEMENTS: string[] = [
   'CREATE TABLE IF NOT EXISTS "Exercise" (\n    "id" TEXT NOT NULL PRIMARY KEY,\n    "title" TEXT NOT NULL,\n    "difficulty" TEXT NOT NULL DEFAULT \'Medium\',\n    "hint" TEXT,\n    "description" TEXT NOT NULL,\n    "realWorldScenario" TEXT,\n    "edgeCasesToConsider" TEXT,\n    "starterCode" TEXT NOT NULL,\n    "subjectId" TEXT NOT NULL,\n    "sectionId" TEXT,\n    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    "updatedAt" DATETIME NOT NULL,\n    CONSTRAINT "Exercise_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "Subject" ("id") ON DELETE CASCADE ON UPDATE CASCADE,\n    CONSTRAINT "Exercise_sectionId_fkey" FOREIGN KEY ("sectionId") REFERENCES "TheorySection" ("id") ON DELETE CASCADE ON UPDATE CASCADE\n)',
   'CREATE TABLE IF NOT EXISTS "ExerciseTestCase" (\n    "id" TEXT NOT NULL PRIMARY KEY,\n    "input" TEXT NOT NULL,\n    "expectedOutput" TEXT NOT NULL,\n    "isHidden" BOOLEAN NOT NULL DEFAULT false,\n    "exerciseId" TEXT NOT NULL,\n    CONSTRAINT "ExerciseTestCase_exerciseId_fkey" FOREIGN KEY ("exerciseId") REFERENCES "Exercise" ("id") ON DELETE CASCADE ON UPDATE CASCADE\n)',
   'CREATE TABLE IF NOT EXISTS "ReviewQuiz" (\n    "id" TEXT NOT NULL PRIMARY KEY,\n    "topic" TEXT NOT NULL,\n    "question" TEXT NOT NULL,\n    "options" TEXT NOT NULL,\n    "answerIndex" INTEGER NOT NULL,\n    "explanation" TEXT NOT NULL,\n    "difficulty" TEXT NOT NULL DEFAULT \'Easy\',\n    "sectionId" TEXT,\n    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    CONSTRAINT "ReviewQuiz_sectionId_fkey" FOREIGN KEY ("sectionId") REFERENCES "TheorySection" ("id") ON DELETE CASCADE ON UPDATE CASCADE\n)',
+  'CREATE TABLE IF NOT EXISTS "Budget" (\n    "id" TEXT NOT NULL PRIMARY KEY,\n    "userId" TEXT,\n    "category" TEXT NOT NULL,\n    "monthlyLimit" REAL NOT NULL,\n    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    "updatedAt" DATETIME NOT NULL\n)',
+  'CREATE TABLE IF NOT EXISTS "SavingsGoal" (\n    "id" TEXT NOT NULL PRIMARY KEY,\n    "userId" TEXT,\n    "name" TEXT NOT NULL,\n    "targetAmount" REAL NOT NULL,\n    "savedAmount" REAL NOT NULL DEFAULT 0,\n    "deadline" DATETIME,\n    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    "updatedAt" DATETIME NOT NULL\n)',
   'CREATE UNIQUE INDEX IF NOT EXISTS "UserSkillProfile_skillName_key" ON "UserSkillProfile"("skillName")',
   'CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email")',
   'CREATE UNIQUE INDEX IF NOT EXISTS "AuthSession_token_key" ON "AuthSession"("token")',
