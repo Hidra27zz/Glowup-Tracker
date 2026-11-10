@@ -119,6 +119,7 @@ export default function PantryTracker({ items }: Props) {
   const [showInput, setShowInput] = useState(false);
   const [showBillModal, setShowBillModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
   const [editValue, setEditValue] = useState('');
 
   // Bill Importer states
@@ -192,9 +193,9 @@ export default function PantryTracker({ items }: Props) {
   };
 
   const handleSaveEdit = async (id: string) => {
-    if (!editValue.trim()) return;
+    if (!editValue.trim() && !editName.trim()) return;
     setLoading(true);
-    await updatePantryItemQuantity(id, editValue);
+    await updatePantryItemQuantity(id, editValue || '1 phần', editName);
     setEditingId(null);
     setLoading(false);
   };
@@ -464,15 +465,21 @@ export default function PantryTracker({ items }: Props) {
                 }}
               >
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px', color: '#fff' }}>
-                    {item.name}
+                  <div style={{ fontWeight: 600, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px', color: '#fff', flexWrap: 'wrap' }}>
                     {editingId === item.id ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
                         <input
                           autoFocus
+                          value={editName}
+                          onChange={e => setEditName(e.target.value)}
+                          placeholder="Tên thực phẩm"
+                          style={{ padding: '4px 8px', width: '130px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #5b9cff', background: 'rgba(0,0,0,0.5)', color: '#fff', outline: 'none' }}
+                        />
+                        <input
                           value={editValue}
                           onChange={e => setEditValue(e.target.value)}
                           onKeyDown={e => e.key === 'Enter' && handleSaveEdit(item.id)}
+                          placeholder="Số lượng"
                           style={{ padding: '4px 8px', width: '90px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #5b9cff', background: 'rgba(0,0,0,0.5)', color: '#fff', outline: 'none' }}
                         />
                         <button onClick={() => handleSaveEdit(item.id)} style={{ background: 'rgba(61, 214, 140,0.1)', border: '1px solid rgba(61, 214, 140,0.3)', color: '#3dd68c', cursor: 'pointer', padding: '4px', borderRadius: '6px' }}>
@@ -483,7 +490,10 @@ export default function PantryTracker({ items }: Props) {
                         </button>
                       </div>
                     ) : (
-                      <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 500 }}>({item.quantity || '1 phần'})</span>
+                      <>
+                        {item.name}
+                        <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 500 }}>({item.quantity || '1 phần'})</span>
+                      </>
                     )}
                   </div>
                   {item.expiresAt && (
@@ -501,9 +511,11 @@ export default function PantryTracker({ items }: Props) {
                   <button
                     onClick={() => {
                       setEditingId(item.id);
+                      setEditName(item.name);
                       setEditValue(item.quantity || '');
                     }}
                     disabled={loading}
+                    title="Sửa tên & số lượng"
                     style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#cbd5e1', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}
                   >
                     <Edit2 size={16} />

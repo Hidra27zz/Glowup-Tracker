@@ -30,6 +30,15 @@ export async function deleteMemory(id: string) {
   revalidatePath('/memory');
 }
 
+export async function updateMemory(id: string, content: string, tags?: string) {
+  if (!content.trim()) throw new Error('Content is required');
+  await prisma.memoryVault.update({
+    where: { id },
+    data: { content: content.trim(), ...(tags !== undefined ? { tags } : {}) },
+  });
+  revalidatePath('/memory');
+}
+
 export async function addBrainDump(formData: FormData) {
   const content = formData.get('content') as string;
   
@@ -44,6 +53,15 @@ export async function addBrainDump(formData: FormData) {
 
 export async function deleteBrainDumpItem(id: string) {
   await prisma.brainDump.delete({ where: { id } });
+  revalidatePath('/memory');
+}
+
+export async function updateBrainDumpItem(id: string, content: string) {
+  if (!content.trim()) throw new Error('Content is required');
+  await prisma.brainDump.update({
+    where: { id },
+    data: { content: content.trim() },
+  });
   revalidatePath('/memory');
 }
 

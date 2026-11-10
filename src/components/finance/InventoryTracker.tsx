@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { ShoppingCart, Plus, Trash2, ArrowUpCircle, AlertTriangle, EyeOff } from 'lucide-react';
+import { ShoppingCart, Plus, Trash2, ArrowUpCircle, AlertTriangle, EyeOff, Pencil } from 'lucide-react';
 import { InventoryItem } from '@prisma/client';
-import { addInventoryItem, incrementItemUse, deleteInventoryItem } from '@/app/finance/actions';
+import { addInventoryItem, updateInventoryItem, incrementItemUse, deleteInventoryItem } from '@/app/finance/actions';
 
 interface Props {
   items: InventoryItem[];
@@ -11,6 +11,8 @@ interface Props {
 
 export default function InventoryTracker({ items }: Props) {
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', cost: '', uses: '' });
 
   const handleAddItem = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -90,10 +92,27 @@ export default function InventoryTracker({ items }: Props) {
 
             return (
               <div key={item.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h4 style={{ margin: 0, color: '#fff', fontSize: '1.05rem' }}>{item.name}</h4>
-                  <button onClick={() => handleDelete(item.id)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: 0 }}><Trash2 size={16} /></button>
-                </div>
+                {editingId === item.id ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} placeholder="Tên sản phẩm" style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <input type="number" value={editForm.cost} onChange={e => setEditForm({ ...editForm, cost: e.target.value })} placeholder="Giá mua" style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+                      <input type="number" value={editForm.uses} onChange={e => setEditForm({ ...editForm, uses: e.target.value })} placeholder="Số lần dùng" style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button type="button" onClick={async () => { await updateInventoryItem(item.id, { name: editForm.name, cost: Number(editForm.cost), uses: Number(editForm.uses) }); setEditingId(null); }} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '6px', padding: '5px 12px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                      <button type="button" onClick={() => setEditingId(null)} style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '5px 12px', fontSize: '0.78rem', cursor: 'pointer' }}>Hủy</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <h4 style={{ margin: 0, color: '#fff', fontSize: '1.05rem' }}>{item.name}</h4>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button onClick={() => { setEditingId(item.id); setEditForm({ name: item.name, cost: String(item.cost), uses: String(item.uses) }); }} title="Sửa" style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}><Pencil size={15} /></button>
+                      <button onClick={() => handleDelete(item.id)} title="Xóa" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: 0 }}><Trash2 size={16} /></button>
+                    </div>
+                  </div>
+                )}
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>

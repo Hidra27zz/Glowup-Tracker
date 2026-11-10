@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Handshake, Bell, ChevronRight, Plus, MessageSquare, TrendingUp, TrendingDown, Clock, ShieldAlert } from 'lucide-react';
+import { Users, Handshake, Bell, ChevronRight, Plus, MessageSquare, TrendingUp, TrendingDown, Clock, ShieldAlert, Pencil, Trash2 } from 'lucide-react';
 import { Contact, Interaction } from '@prisma/client';
-import { addContact, deleteContact, logInteraction } from '@/app/crm/actions';
+import { addContact, updateContact, deleteContact, logInteraction } from '@/app/crm/actions';
 
 interface ContactWithInteractions extends Contact {
   interactions: Interaction[];
@@ -25,6 +25,8 @@ export default function CRMHub({ contacts }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('network');
   const [loading, setLoading] = useState(false);
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: '', category: 'Friend', notes: '' });
   
   const currentTab = TABS.find(t => t.id === activeTab)!;
 
@@ -133,14 +135,37 @@ export default function CRMHub({ contacts }: Props) {
                     const color = getHeatmapColor(days);
                     return (
                       <div key={c.id} style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', borderTop: `3px solid ${color}`, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <h4 style={{ margin: 0, color: '#fff', fontSize: '1.05rem' }}>{c.name}</h4>
-                          <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '12px', color: '#cbd5e1' }}>{c.category}</span>
-                        </div>
-                        <div style={{ fontSize: '0.85rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Clock size={14} /> Gặp {days === 0 ? 'hôm nay' : `${days} ngày trước`}
-                        </div>
-                        {c.notes && <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{c.notes}</p>}
+                        {editingId === c.id ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} placeholder="Tên" style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+                            <select value={editForm.category} onChange={e => setEditForm({ ...editForm, category: e.target.value })} style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: '#0f172a', color: '#fff', fontSize: '0.82rem' }}>
+                              <option value="Mentor">Mentor / Cố vấn</option>
+                              <option value="Partner">Partner / Đối tác</option>
+                              <option value="Friend">Bạn bè</option>
+                              <option value="Family">Gia đình</option>
+                            </select>
+                            <textarea rows={2} value={editForm.notes} onChange={e => setEditForm({ ...editForm, notes: e.target.value })} placeholder="Ghi chú" style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.82rem' }} />
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <button type="button" onClick={async () => { await updateContact(c.id, editForm); setEditingId(null); }} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '6px', padding: '5px 12px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                              <button type="button" onClick={() => setEditingId(null)} style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '5px 12px', fontSize: '0.78rem', cursor: 'pointer' }}>Hủy</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+                              <h4 style={{ margin: 0, color: '#fff', fontSize: '1.05rem' }}>{c.name}</h4>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '12px', color: '#cbd5e1' }}>{c.category}</span>
+                                <button type="button" onClick={() => { setEditingId(c.id); setEditForm({ name: c.name, category: c.category, notes: c.notes || '' }); }} title="Sửa" style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '2px' }}><Pencil size={13} /></button>
+                                <button type="button" onClick={() => { if (confirm(`Xóa "${c.name}"?`)) deleteContact(c.id); }} title="Xóa" style={{ background: 'none', border: 'none', color: '#f46d75', cursor: 'pointer', padding: '2px' }}><Trash2 size={13} /></button>
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '0.85rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <Clock size={14} /> Gặp {days === 0 ? 'hôm nay' : `${days} ngày trước`}
+                            </div>
+                            {c.notes && <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{c.notes}</p>}
+                          </>
+                        )}
                         <button onClick={() => setSelectedContact(selectedContact === c.id ? null : c.id)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#6cc4ff', padding: '6px', borderRadius: '8px', cursor: 'pointer', marginTop: '8px', fontSize: '0.85rem' }}>
                           + Ghi log gặp mặt
                         </button>

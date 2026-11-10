@@ -17,8 +17,9 @@ import {
   ChevronRight,
   LayoutGrid,
   Columns,
+  Pencil,
 } from 'lucide-react';
-import { addTask, updateTaskStatus, deleteTask } from '@/app/tasks/actions';
+import { addTask, updateTask, updateTaskStatus, deleteTask } from '@/app/tasks/actions';
 import {
   getTaskTimeStatus,
   formatDateTimeRange,
@@ -44,6 +45,7 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
   const [monthOffset, setMonthOffset] = useState<number>(0);
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingTask, setEditingTask] = useState<any | null>(null);
   const [showImportPanel, setShowImportPanel] = useState(false);
   const [defaultCat, setDefaultCat] = useState<string>('SCHEDULE');
   const [selectedStartISO, setSelectedStartISO] = useState<string>('');
@@ -62,9 +64,18 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
       base.setHours(8, 0, 0, 0);
     }
     const end = new Date(base.getTime() + 2 * 3600000);
+    setEditingTask(null);
     setDefaultCat(cat);
     setSelectedStartISO(toLocalISO(base));
     setSelectedEndISO(toLocalISO(end));
+    setShowAddModal(true);
+  };
+
+  const openEditTaskForm = (task: any) => {
+    setEditingTask(task);
+    setDefaultCat(task.category || 'SCHEDULE');
+    setSelectedStartISO(task.startTime ? toLocalISO(new Date(task.startTime)) : toLocalISO(new Date(task.deadline)));
+    setSelectedEndISO(toLocalISO(new Date(task.deadline)));
     setShowAddModal(true);
   };
 
@@ -72,7 +83,12 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      await addTask(fd);
+      if (editingTask) {
+        await updateTask(editingTask.id, fd);
+      } else {
+        await addTask(fd);
+      }
+      setEditingTask(null);
       setShowAddModal(false);
     });
   };
@@ -443,7 +459,9 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
               <option value="TASK">Công việc / Deadline</option>
             </select>
             <input
+              key={editingTask?.id || 'new-title'}
               name="title"
+              defaultValue={editingTask?.title || ''}
               required
               placeholder="Tên môn học / Ca làm việc / Cuộc hẹn..."
               style={{
@@ -455,7 +473,9 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
               }}
             />
             <input
+              key={editingTask?.id ? `${editingTask.id}-loc` : 'new-loc'}
               name="location"
+              defaultValue={editingTask?.location || ''}
               placeholder="Phòng học / Văn phòng / Link họp..."
               style={{
                 padding: '10px 12px',
@@ -545,11 +565,11 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
                   cursor: 'pointer',
                 }}
               >
-                Lưu vào Calendar
+                {editingTask ? 'Lưu chỉnh sửa' : 'Lưu vào Calendar'}
               </button>
               <button
                 type="button"
-                onClick={() => setShowAddModal(false)}
+                onClick={() => { setShowAddModal(false); setEditingTask(null); }}
                 style={{
                   background: 'transparent',
                   color: 'var(--text-secondary)',
@@ -933,20 +953,30 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
                             <span style={{ fontSize: '0.68rem', fontWeight: 700, color: catMeta.color }}>
                               {startStr ? `${startStr} - ${endStr}` : endStr}
                             </span>
-                            <button
-                              type="button"
-                              onClick={() => startTransition(() => deleteTask(item.id))}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                color: 'var(--text-muted)',
-                                padding: 0,
-                                cursor: 'pointer',
-                              }}
-                              title="Xóa lịch"
-                            >
-                              <Trash2 size={12} />
-                            </button>
+                            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                              <button
+                                type="button"
+                                onClick={() => openEditTaskForm(item)}
+                                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', padding: 0, cursor: 'pointer' }}
+                                title="Sửa lịch"
+                              >
+                                <Pencil size={12} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => startTransition(() => deleteTask(item.id))}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  color: 'var(--text-muted)',
+                                  padding: 0,
+                                  cursor: 'pointer',
+                                }}
+                                title="Xóa lịch"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
                           </div>
 
                           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
@@ -1199,13 +1229,24 @@ export default function DashboardScheduleHub({ tasks, sprints }: Props) {
                             </button>
                             <span>{item.title}</span>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => startTransition(() => deleteTask(item.id))}
-                            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                          <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={() => openEditTaskForm(item)}
+                              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
+                              title="Sửa"
+                            >
+                              <Pencil size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => startTransition(() => deleteTask(item.id))}
+                              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0 }}
+                              title="Xóa"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
                         </div>
 
                         {item.location && (

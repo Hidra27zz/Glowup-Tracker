@@ -78,6 +78,34 @@ export async function deleteTask(id: string) {
   revalidatePath('/');
 }
 
+export async function updateTask(id: string, formData: FormData) {
+  const title = (formData.get('title') as string)?.trim();
+  const description = (formData.get('description') as string) || null;
+  const category = (formData.get('category') as string) || 'TASK';
+  const location = (formData.get('location') as string) || null;
+  const energyLevel = (formData.get('energyLevel') as string) || 'Medium';
+  const startTimeStr = formData.get('startTime') as string;
+  const deadlineStr = formData.get('deadline') as string;
+
+  if (!title) throw new Error('Tên công việc không được để trống');
+
+  await prisma.task.update({
+    where: { id },
+    data: {
+      title,
+      description,
+      category,
+      location,
+      energyLevel,
+      ...(startTimeStr ? { startTime: new Date(startTimeStr) } : {}),
+      ...(deadlineStr ? { deadline: new Date(deadlineStr) } : {}),
+    },
+  });
+
+  revalidatePath('/tasks');
+  revalidatePath('/');
+}
+
 export async function createSprint(formData: FormData) {
   const name = formData.get('name') as string;
   const startStr = formData.get('startDate') as string;
@@ -128,6 +156,29 @@ export async function deleteSprint(id: string) {
     data: { sprintId: null }
   });
   await prisma.sprint.delete({ where: { id } });
+  revalidatePath('/tasks');
+  revalidatePath('/');
+}
+
+export async function updateSprint(id: string, formData: FormData) {
+  const name = (formData.get('name') as string)?.trim();
+  const startStr = formData.get('startDate') as string;
+  const endStr = formData.get('endDate') as string;
+  if (!name) throw new Error('Tên Sprint không được để trống');
+
+  const endDate = endStr ? new Date(endStr) : undefined;
+  if (endDate && endStr.length <= 10) {
+    endDate.setHours(23, 59, 59, 999);
+  }
+
+  await prisma.sprint.update({
+    where: { id },
+    data: {
+      name,
+      ...(startStr ? { startDate: new Date(startStr) } : {}),
+      ...(endDate ? { endDate } : {}),
+    },
+  });
   revalidatePath('/tasks');
   revalidatePath('/');
 }
@@ -208,6 +259,56 @@ export async function updateSmartGoalProgress(id: string, currentValue: number) 
 
 export async function deleteSmartGoal(id: string) {
   await prisma.smartGoal.delete({ where: { id } });
+  revalidatePath('/');
+  revalidatePath('/tasks');
+  revalidatePath('/health');
+}
+
+export async function updateSmartGoal(id: string, formData: FormData) {
+  const title = (formData.get('title') as string)?.trim();
+  const category = (formData.get('category') as string) || 'Personal';
+  const specific = (formData.get('specific') as string)?.trim();
+  const measurable = (formData.get('measurable') as string)?.trim();
+  const currentValue = parseFloat((formData.get('currentValue') as string) || '0') || 0;
+  const targetValue = parseFloat((formData.get('targetValue') as string) || '100') || 100;
+  const unit = (formData.get('unit') as string)?.trim() || '%';
+  const achievable = (formData.get('achievable') as string)?.trim();
+  const relevant = (formData.get('relevant') as string)?.trim();
+  const startDateStr = formData.get('startDate') as string;
+  const deadlineStr = formData.get('deadline') as string;
+
+  if (!title || !specific || !measurable || !achievable || !relevant || !deadlineStr) {
+    throw new Error('Vui lòng điền đầy đủ 5 tiêu chí SMART');
+  }
+
+  const isCompleted = currentValue >= targetValue;
+
+  await prisma.smartGoal.update({
+    where: { id },
+    data: {
+      title,
+      category,
+      specific,
+      measurable,
+      currentValue,
+      targetValue,
+      unit,
+      achievable,
+      relevant,
+      ...(startDateStr ? { startDate: new Date(startDateStr) } : {}),
+      deadline: new Date(deadlineStr),
+      status: isCompleted ? 'COMPLETED' : 'IN_PROGRESS',
+    },
+  });
+
+  if (category === 'Health') {
+    await prisma.userSettings.upsert({
+      where: { id: 'default' },
+      update: { bodyRecompGoal: `${title} (${currentValue}/${targetValue} ${unit})` },
+      create: { id: 'default', bodyRecompGoal: `${title} (${currentValue}/${targetValue} ${unit})` },
+    });
+  }
+
   revalidatePath('/');
   revalidatePath('/tasks');
   revalidatePath('/health');

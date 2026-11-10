@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Wallet, PieChart, ShoppingCart, RefreshCw, ChevronRight, Plus, Trash2, Check, X, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { Wallet, PieChart, ShoppingCart, RefreshCw, ChevronRight, Plus, Trash2, Check, X, ShieldAlert, AlertTriangle, Pencil } from 'lucide-react';
 import { FinancialTransaction, ImpulseBuyItem, Subscription, InventoryItem, Budget, SavingsGoal } from '@prisma/client';
-import { addTransaction, deleteTransaction, addImpulseBuy, updateImpulseBuyStatus, deleteImpulseBuy, addSubscription, deleteSubscription } from '@/app/finance/actions';
+import { addTransaction, deleteTransaction, addImpulseBuy, updateImpulseBuyStatus, deleteImpulseBuy, addSubscription, updateSubscription, deleteSubscription } from '@/app/finance/actions';
 import InventoryTracker from './InventoryTracker';
 import SmartFinance from './SmartFinance';
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts';
@@ -39,6 +39,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 export default function FinanceHub({ transactions, impulseBuys, subscriptions, inventoryItems, budgets, savingsGoals }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('smart');
   const [loading, setLoading] = useState(false);
+  const [editingSubId, setEditingSubId] = useState<string | null>(null);
+  const [subEditForm, setSubEditForm] = useState({ name: '', cost: '', frequency: 'monthly' });
   const currentTab = TABS.find(t => t.id === activeTab)!;
 
   // -- Burn Rate Data --
@@ -319,10 +321,30 @@ export default function FinanceHub({ transactions, impulseBuys, subscriptions, i
               ) : (
                 subscriptions.map(sub => (
                   <div key={sub.id} style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <h4 style={{ margin: 0, color: '#fff', fontSize: '1.1rem' }}>{sub.name}</h4>
-                      <button onClick={() => deleteSubscription(sub.id)} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}><Trash2 size={16} /></button>
-                    </div>
+                    {editingSubId === sub.id ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <input value={subEditForm.name} onChange={e => setSubEditForm({ ...subEditForm, name: e.target.value })} placeholder="Tên gói" style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                          <input type="number" value={subEditForm.cost} onChange={e => setSubEditForm({ ...subEditForm, cost: e.target.value })} placeholder="Chi phí" style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+                          <select value={subEditForm.frequency} onChange={e => setSubEditForm({ ...subEditForm, frequency: e.target.value })} style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: '#0f172a', color: '#fff', fontSize: '0.85rem' }}>
+                            <option value="monthly">Hàng tháng</option>
+                            <option value="yearly">Hàng năm</option>
+                          </select>
+                        </div>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button type="button" onClick={async () => { await updateSubscription(sub.id, { name: subEditForm.name, cost: Number(subEditForm.cost), frequency: subEditForm.frequency }); setEditingSubId(null); }} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '6px', padding: '5px 12px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                          <button type="button" onClick={() => setEditingSubId(null)} style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '5px 12px', fontSize: '0.78rem', cursor: 'pointer' }}>Hủy</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <h4 style={{ margin: 0, color: '#fff', fontSize: '1.1rem' }}>{sub.name}</h4>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button onClick={() => { setEditingSubId(sub.id); setSubEditForm({ name: sub.name, cost: String(sub.cost), frequency: sub.frequency }); }} title="Sửa" style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}><Pencil size={15} /></button>
+                          <button onClick={() => deleteSubscription(sub.id)} title="Xóa" style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}><Trash2 size={16} /></button>
+                        </div>
+                      </div>
+                    )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
                       <div>
                         <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#3dd68c' }}>{sub.cost.toLocaleString()}đ</div>

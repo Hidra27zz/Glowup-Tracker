@@ -68,3 +68,19 @@ export async function deleteSavingsGoalAction(id: string) {
   await prisma.savingsGoal.delete({ where: { id } });
   revalidatePath('/finance');
 }
+
+export async function updateSavingsGoalAction(
+  id: string,
+  data: { name: string; targetAmount: number; savedAmount: number; deadline?: string }
+) {
+  await prisma.savingsGoal.update({
+    where: { id },
+    data: {
+      name: data.name.trim(),
+      targetAmount: Math.max(0, Number(data.targetAmount) || 0),
+      savedAmount: Math.max(0, Number(data.savedAmount) || 0),
+      ...(data.deadline ? { deadline: new Date(data.deadline) } : {}),
+    },
+  });
+  revalidatePath('/finance');
+}

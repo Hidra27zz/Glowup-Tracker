@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Archive, Brain, RefreshCcw, ChevronRight, Send, Trash2, Lock, Unlock, Zap } from 'lucide-react';
+import { Archive, Brain, RefreshCcw, ChevronRight, Send, Trash2, Lock, Unlock, Zap, Pencil } from 'lucide-react';
 import { MemoryVault, BrainDump } from '@prisma/client';
-import { addMemory, deleteMemory, addBrainDump, deleteBrainDumpItem, clearBrainDump } from '@/app/memory/actions';
+import { addMemory, updateMemory, deleteMemory, addBrainDump, updateBrainDumpItem, deleteBrainDumpItem, clearBrainDump } from '@/app/memory/actions';
 
 interface Props {
   memories: MemoryVault[];
@@ -21,6 +21,10 @@ type TabId = (typeof TABS)[number]['id'];
 export default function MemoryHub({ memories, dumps }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>('capsule');
   const [loading, setLoading] = useState(false);
+  const [editingMemoryId, setEditingMemoryId] = useState<string | null>(null);
+  const [editMemoryContent, setEditMemoryContent] = useState('');
+  const [editingDumpId, setEditingDumpId] = useState<string | null>(null);
+  const [editDumpContent, setEditDumpContent] = useState('');
   const currentTab = TABS.find(t => t.id === activeTab)!;
 
   // -- Derived Data --
@@ -134,9 +138,22 @@ export default function MemoryHub({ memories, dumps }: Props) {
                             {isUnlocked ? <Unlock size={16} /> : <Lock size={16} />} 
                             {isUnlocked ? 'Đã mở khóa' : `Khóa đến ${new Date(cap.unlockDate!).toLocaleDateString()}`}
                           </span>
-                          <button onClick={() => deleteMemory(cap.id)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: 0 }}><Trash2 size={16} /></button>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            {isUnlocked && (
+                              <button onClick={() => { setEditingMemoryId(cap.id); setEditMemoryContent(cap.content); }} title="Sửa" style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}><Pencil size={15} /></button>
+                            )}
+                            <button onClick={() => deleteMemory(cap.id)} title="Xóa" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: 0 }}><Trash2 size={16} /></button>
+                          </div>
                         </div>
-                        {isUnlocked ? (
+                        {editingMemoryId === cap.id ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <textarea rows={3} value={editMemoryContent} onChange={e => setEditMemoryContent(e.target.value)} style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <button type="button" onClick={async () => { await updateMemory(cap.id, editMemoryContent); setEditingMemoryId(null); }} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '6px', padding: '5px 12px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                              <button type="button" onClick={() => setEditingMemoryId(null)} style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '5px 12px', fontSize: '0.78rem', cursor: 'pointer' }}>Hủy</button>
+                            </div>
+                          </div>
+                        ) : isUnlocked ? (
                           <p style={{ margin: 0, fontSize: '0.95rem', color: '#fff', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{cap.content}</p>
                         ) : (
                           <div style={{ textAlign: 'center', padding: '20px 0', color: '#475569', fontSize: '0.9rem' }}>
@@ -184,12 +201,25 @@ export default function MemoryHub({ memories, dumps }: Props) {
                 <div style={{ textAlign: 'center', color: '#64748b', padding: '40px 0', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '12px' }}>Inbox rỗng. Tâm trí bạn đang rất tĩnh lặng!</div>
               ) : (
                 dumps.sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(item => (
-                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div>
-                      <div style={{ fontSize: '1rem', color: '#fff', lineHeight: 1.5 }}>{item.content}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>{new Date(item.createdAt).toLocaleString()}</div>
-                    </div>
-                    <button onClick={() => deleteBrainDumpItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '8px' }}><Trash2 size={16} /></button>
+                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', padding: '16px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    {editingDumpId === item.id ? (
+                      <div style={{ display: 'flex', gap: '8px', flex: 1 }}>
+                        <input value={editDumpContent} onChange={e => setEditDumpContent(e.target.value)} style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.9rem' }} />
+                        <button type="button" onClick={async () => { await updateBrainDumpItem(item.id, editDumpContent); setEditingDumpId(null); }} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                        <button type="button" onClick={() => setEditingDumpId(null)} style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer' }}>Hủy</button>
+                      </div>
+                    ) : (
+                      <>
+                        <div>
+                          <div style={{ fontSize: '1rem', color: '#fff', lineHeight: 1.5 }}>{item.content}</div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>{new Date(item.createdAt).toLocaleString()}</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button onClick={() => { setEditingDumpId(item.id); setEditDumpContent(item.content); }} title="Sửa" style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '6px' }}><Pencil size={15} /></button>
+                          <button onClick={() => deleteBrainDumpItem(item.id)} title="Xóa" style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '6px' }}><Trash2 size={16} /></button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))
               )}

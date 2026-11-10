@@ -202,7 +202,17 @@ export default async function Dashboard() {
       {/* Primary goal + KPIs (4 equal columns) */}
       <div className="dashboard-kpi-grid">
         <div className="glass-card" style={{ padding: '14px 16px' }}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '6px' }}>Mục tiêu chính</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Mục tiêu chính</span>
+            {primarySmartGoal && (
+              <a
+                href="#edit-primary-goal"
+                style={{ fontSize: '0.74rem', fontWeight: 600, color: 'var(--accent-color)', textDecoration: 'none' }}
+              >
+                Chỉnh sửa
+              </a>
+            )}
+          </div>
           <div style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '8px', lineHeight: 1.25 }}>{goalTitle}</div>
           {primarySmartGoal && (
             <>

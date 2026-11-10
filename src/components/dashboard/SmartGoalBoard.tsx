@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { Target, Plus, Trash2, CheckCircle2, AlertTriangle, Clock, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
-import { createSmartGoal, updateSmartGoalProgress, deleteSmartGoal } from '@/app/tasks/actions';
+import { useState, useTransition, useEffect } from 'react';
+import { Target, Plus, Trash2, CheckCircle2, AlertTriangle, Clock, Sparkles, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { createSmartGoal, updateSmartGoal, updateSmartGoalProgress, deleteSmartGoal } from '@/app/tasks/actions';
 import { getTaskTimeStatus } from '@/lib/utils/timeFormat';
 
 export interface SmartGoalItem {
@@ -74,8 +74,17 @@ const CATEGORY_COLORS: Record<string, { color: string; bg: string; label: string
 export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
   const [isPending, startTransition] = useTransition();
   const [showForm, setShowForm] = useState(false);
+  const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
   const [expandedGoalId, setExpandedGoalId] = useState<string | null>(goals[0]?.id || null);
   const [progressInputs, setProgressInputs] = useState<Record<string, string>>({});
+
+  const toLocalDateTimeInput = (raw: Date | string) => {
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) {
+      return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    }
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  };
 
   // Form controlled states for template filling
   const [formState, setFormState] = useState({
@@ -91,6 +100,61 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
     startDate: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
     deadline: new Date(Date.now() + 30 * 86400000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
   });
+
+  const openEditGoal = (goal: SmartGoalItem) => {
+    setEditingGoalId(goal.id);
+    setFormState({
+      title: goal.title,
+      category: goal.category || 'Personal',
+      specific: goal.specific || '',
+      measurable: goal.measurable || '',
+      currentValue: String(goal.currentValue ?? 0),
+      targetValue: String(goal.targetValue ?? 100),
+      unit: goal.unit || '%',
+      achievable: goal.achievable || '',
+      relevant: goal.relevant || '',
+      startDate: toLocalDateTimeInput(goal.startDate),
+      deadline: toLocalDateTimeInput(goal.deadline),
+    });
+    setShowForm(true);
+    setTimeout(() => {
+      document.getElementById('smart-goal-board')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
+
+  const openNewGoalForm = () => {
+    if (showForm && !editingGoalId) {
+      setShowForm(false);
+      return;
+    }
+    setEditingGoalId(null);
+    setFormState({
+      title: '',
+      category: 'Health',
+      specific: '',
+      measurable: '',
+      currentValue: '0',
+      targetValue: '100',
+      unit: '%',
+      achievable: '',
+      relevant: '',
+      startDate: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+      deadline: new Date(Date.now() + 30 * 86400000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+    });
+    setShowForm(true);
+  };
+
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === '#edit-primary-goal' && goals[0]) {
+        openEditGoal(goals[0]);
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    };
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, [goals]);
 
   const applyTemplate = (tpl: (typeof GOAL_TEMPLATES)[number]) => {
     const start = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -114,7 +178,12 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     startTransition(async () => {
-      await createSmartGoal(fd);
+      if (editingGoalId) {
+        await updateSmartGoal(editingGoalId, fd);
+      } else {
+        await createSmartGoal(fd);
+      }
+      setEditingGoalId(null);
       setShowForm(false);
     });
   };
@@ -134,7 +203,7 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
   };
 
   return (
-    <div style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.25)' }}>
+    <div id="smart-goal-board" style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.25)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ background: 'linear-gradient(135deg, rgba(91, 156, 255,0.25), rgba(168,85,247,0.25))', padding: '10px', borderRadius: '14px', border: '1px solid rgba(96,165,250,0.3)' }}>
@@ -151,9 +220,9 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
         </div>
 
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={openNewGoalForm}
           style={{
-            background: showForm ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #5b9cff, #7b8cff)',
+            background: showForm && !editingGoalId ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #5b9cff, #7b8cff)',
             color: '#fff',
             border: 'none',
             padding: '10px 18px',
@@ -164,30 +233,35 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            boxShadow: showForm ? 'none' : '0 4px 15px rgba(91, 156, 255,0.35)',
+            boxShadow: showForm && !editingGoalId ? 'none' : '0 4px 15px rgba(91, 156, 255,0.35)',
           }}
         >
-          <Plus size={18} /> {showForm ? 'Đóng Form' : 'Thiết lập Mục tiêu SMART'}
+          <Plus size={18} /> {showForm && !editingGoalId ? 'Đóng Form' : 'Thiết lập Mục tiêu SMART'}
         </button>
       </div>
 
-      {/* FORM TẠO MỤC TIÊU SMART */}
+      {/* FORM TẠO / CHỈNH SỬA MỤC TIÊU SMART */}
       {showForm && (
-        <form onSubmit={handleCreate} style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(91, 156, 255,0.3)', borderRadius: '18px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-              <Sparkles size={14} color="#f5b94a" /> Mẫu gợi ý nhanh:
-            </span>
-            {GOAL_TEMPLATES.map((tpl, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => applyTemplate(tpl)}
-                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#e2e8f0', padding: '5px 12px', borderRadius: '20px', fontSize: '0.78rem', cursor: 'pointer' }}
-              >
-                {tpl.label}
-              </button>
-            ))}
+        <form onSubmit={handleCreate} style={{ background: 'rgba(0,0,0,0.35)', border: `1px solid ${editingGoalId ? 'rgba(61,214,140,0.45)' : 'rgba(91, 156, 255,0.3)'}`, borderRadius: '18px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: editingGoalId ? '#3dd68c' : '#7db2ff' }}>
+              {editingGoalId ? 'Chỉnh sửa Mục tiêu SMART' : 'Tạo Mục tiêu SMART mới'}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
+                <Sparkles size={14} color="#f5b94a" /> Mẫu gợi ý nhanh:
+              </span>
+              {GOAL_TEMPLATES.map((tpl, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => applyTemplate(tpl)}
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#e2e8f0', padding: '5px 12px', borderRadius: '20px', fontSize: '0.78rem', cursor: 'pointer' }}
+                >
+                  {tpl.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
@@ -345,11 +419,11 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '4px' }}>
-            <button type="button" onClick={() => setShowForm(false)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: '#94a3b8', padding: '10px 18px', borderRadius: '10px', cursor: 'pointer', fontWeight: 600 }}>
+            <button type="button" onClick={() => { setShowForm(false); setEditingGoalId(null); }} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', color: '#94a3b8', padding: '10px 18px', borderRadius: '10px', cursor: 'pointer', fontWeight: 600 }}>
               Hủy
             </button>
             <button type="submit" disabled={isPending} style={{ background: '#3dd68c', border: 'none', color: '#0f172a', padding: '10px 24px', borderRadius: '10px', cursor: 'pointer', fontWeight: 800 }}>
-              {isPending ? 'Đang lưu...' : 'Lưu Mục Tiêu SMART'}
+              {isPending ? 'Đang lưu...' : editingGoalId ? 'Lưu chỉnh sửa' : 'Lưu Mục Tiêu SMART'}
             </button>
           </div>
         </form>
@@ -400,6 +474,13 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
 
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button
+                      onClick={() => openEditGoal(goal)}
+                      style={{ background: 'rgba(108,196,255,0.12)', border: '1px solid rgba(108,196,255,0.3)', color: '#6cc4ff', padding: '6px 10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: 700 }}
+                      title="Chỉnh sửa toàn bộ mục tiêu SMART này"
+                    >
+                      <Pencil size={13} /> Sửa
+                    </button>
+                    <button
                       onClick={() => setExpandedGoalId(isExpanded ? null : goal.id)}
                       style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
                       title="Xem chi tiết 5 tiêu chí SMART"
@@ -407,7 +488,7 @@ export default function SmartGoalBoard({ goals }: { goals: SmartGoalItem[] }) {
                       {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </button>
                     <button
-                      onClick={() => handleDelete(goal.id)}
+                      onClick={() => { if (confirm(`Xóa mục tiêu "${goal.title}"?`)) handleDelete(goal.id); }}
                       disabled={isPending}
                       style={{ background: 'rgba(244, 109, 117,0.1)', border: 'none', color: '#f46d75', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
                       title="Xóa mục tiêu"

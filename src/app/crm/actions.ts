@@ -22,7 +22,24 @@ export async function addContact(formData: FormData) {
 }
 
 export async function deleteContact(id: string) {
+  await prisma.interaction.deleteMany({ where: { contactId: id } });
   await prisma.contact.delete({ where: { id } });
+  revalidatePath('/crm');
+}
+
+export async function updateContact(
+  id: string,
+  data: { name: string; category: string; notes?: string }
+) {
+  if (!data.name.trim()) throw new Error('Name is required');
+  await prisma.contact.update({
+    where: { id },
+    data: {
+      name: data.name.trim(),
+      category: data.category || 'Friend',
+      notes: data.notes ?? null,
+    },
+  });
   revalidatePath('/crm');
 }
 

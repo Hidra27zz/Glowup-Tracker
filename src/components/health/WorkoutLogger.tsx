@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Dumbbell, Send, Clock, Activity } from 'lucide-react';
-import { logWorkout } from '@/lib/actions/health.actions';
+import { Dumbbell, Send, Clock, Activity, Pencil, Trash2 } from 'lucide-react';
+import { logWorkout, updateWorkout, deleteWorkout } from '@/lib/actions/health.actions';
 import { Workout } from '@prisma/client';
 
 interface Props {
@@ -11,6 +11,8 @@ interface Props {
 
 export default function WorkoutLogger({ workouts = [] }: Props) {
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ title: '', type: 'Gym', duration: '30', notes: '' });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,23 +94,42 @@ export default function WorkoutLogger({ workouts = [] }: Props) {
           <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Lịch sử tập luyện</h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', paddingRight: '4px' }}>
             {workouts.map((w) => (
-              <div key={w.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '10px 12px', borderRadius: '8px' }}>
-                <div>
-                  <div style={{ fontWeight: 500, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Activity size={14} color="#7b8cff" /> {w.title}
+              <div key={w.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.2)', padding: '10px 12px', borderRadius: '8px' }}>
+                {editingId === w.id ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <input value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} placeholder="Bài tập" style={{ flex: 2, padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.82rem' }} />
+                      <input type="number" value={editForm.duration} onChange={e => setEditForm({ ...editForm, duration: e.target.value })} placeholder="Phút" style={{ width: '64px', padding: '6px 8px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.82rem' }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button type="button" onClick={async () => { await updateWorkout(w.id, { title: editForm.title, type: editForm.type, duration: Number(editForm.duration), notes: editForm.notes }); setEditingId(null); }} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                      <button type="button" onClick={() => setEditingId(null)} style={{ background: 'rgba(255,255,255,0.1)', color: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '0.76rem', cursor: 'pointer' }}>Hủy</button>
+                    </div>
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    {w.type} • {new Date(w.date).toLocaleDateString('vi-VN')}
-                  </div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end' }}>
-                    <Clock size={12} /> {w.duration}p
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--warning-color)' }}>
-                    {w.notes}
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    <div>
+                      <div style={{ fontWeight: 500, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Activity size={14} color="#7b8cff" /> {w.title}
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        {w.type} • {new Date(w.date).toLocaleDateString('vi-VN')}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end' }}>
+                          <Clock size={12} /> {w.duration}p
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--warning-color)' }}>
+                          {w.notes}
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => { setEditingId(w.id); setEditForm({ title: w.title, type: w.type, duration: String(w.duration), notes: w.notes || '' }); }} title="Sửa" style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '2px' }}><Pencil size={13} /></button>
+                      <button type="button" onClick={() => deleteWorkout(w.id)} title="Xóa" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px' }}><Trash2 size={13} /></button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>

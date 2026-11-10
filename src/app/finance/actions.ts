@@ -29,6 +29,22 @@ export async function deleteSubscription(id: string) {
   revalidatePath('/finance');
 }
 
+export async function updateSubscription(
+  id: string,
+  data: { name: string; cost: number; frequency: string; renewalDate?: string }
+) {
+  await prisma.subscription.update({
+    where: { id },
+    data: {
+      name: data.name.trim(),
+      cost: Number(data.cost) || 0,
+      frequency: data.frequency || 'monthly',
+      ...(data.renewalDate ? { renewalDate: new Date(data.renewalDate) } : {}),
+    },
+  });
+  revalidatePath('/finance');
+}
+
 // -- Financial Transactions (Burn Rate) --
 export async function addTransaction(formData: FormData) {
   const amount = parseFloat(formData.get('amount') as string);
@@ -55,6 +71,24 @@ export async function addTransaction(formData: FormData) {
 export async function deleteTransaction(id: string) {
   await prisma.financialTransaction.delete({ where: { id } });
   revalidatePath('/finance');
+  revalidatePath('/');
+}
+
+export async function updateTransaction(
+  id: string,
+  data: { amount: number; category: string; type: string; notes?: string }
+) {
+  await prisma.financialTransaction.update({
+    where: { id },
+    data: {
+      amount: Number(data.amount) || 0,
+      category: data.category || 'Khác',
+      type: data.type || 'expense',
+      notes: data.notes ?? null,
+    },
+  });
+  revalidatePath('/finance');
+  revalidatePath('/');
 }
 
 // -- Impulse Buy Blocker --
@@ -122,5 +156,21 @@ export async function incrementItemUse(id: string) {
 
 export async function deleteInventoryItem(id: string) {
   await prisma.inventoryItem.delete({ where: { id } });
+  revalidatePath('/finance');
+}
+
+export async function updateInventoryItem(
+  id: string,
+  data: { name: string; cost: number; uses?: number; paoMonths?: number | null }
+) {
+  await prisma.inventoryItem.update({
+    where: { id },
+    data: {
+      name: data.name.trim(),
+      cost: Number(data.cost) || 0,
+      ...(data.uses !== undefined ? { uses: Math.max(0, Number(data.uses) || 0) } : {}),
+      ...(data.paoMonths !== undefined ? { paoMonths: data.paoMonths } : {}),
+    },
+  });
   revalidatePath('/finance');
 }

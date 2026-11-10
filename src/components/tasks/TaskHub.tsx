@@ -25,13 +25,16 @@ import {
   MapPin,
   Upload,
   Download,
+  Pencil,
 } from 'lucide-react';
 import { Task, Sprint } from '@prisma/client';
 import {
   addTask,
+  updateTask,
   updateTaskStatus,
   deleteTask,
   createSprint,
+  updateSprint,
   deleteSprint,
   assignTaskToSprint,
   submitOverdueReport,
@@ -77,6 +80,8 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
   const [reportingTaskId, setReportingTaskId] = useState<string | null>(null);
   const [overdueReason, setOverdueReason] = useState('');
   const [rescheduleDate, setRescheduleDate] = useState('');
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingSprintId, setEditingSprintId] = useState<string | null>(null);
   const currentTab = TABS.find(t => t.id === activeTab)!;
 
   const handleScheduleUpload = async (file: File | null) => {
@@ -295,10 +300,57 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
             )}
           </div>
 
-          <button onClick={() => deleteTask(task.id)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
-            <Trash2 size={16} />
-          </button>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button
+              type="button"
+              onClick={() => setEditingTaskId(editingTaskId === task.id ? null : task.id)}
+              title="Sửa công việc / lịch trình"
+              style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '2px' }}
+            >
+              <Pencil size={15} />
+            </button>
+            <button onClick={() => deleteTask(task.id)} title="Xóa" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px' }}>
+              <Trash2 size={16} />
+            </button>
+          </div>
         </div>
+
+        {editingTaskId === task.id && (
+          <form
+            onSubmit={async e => {
+              e.preventDefault();
+              setLoading(true);
+              await updateTask(task.id, new FormData(e.currentTarget));
+              setEditingTaskId(null);
+              setLoading(false);
+            }}
+            style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(108,196,255,0.3)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px', marginLeft: '26px' }}
+          >
+            <input name="title" defaultValue={task.title} required placeholder="Tên công việc / lịch trình" style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+              <select name="category" defaultValue={task.category || 'TASK'} style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: '#0f172a', color: '#fff', fontSize: '0.8rem' }}>
+                {TASK_CATEGORIES.map(c => (
+                  <option key={c.id} value={c.id}>{c.label}</option>
+                ))}
+              </select>
+              <select name="energyLevel" defaultValue={task.energyLevel || 'Medium'} style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: '#0f172a', color: '#fff', fontSize: '0.8rem' }}>
+                <option value="Low">Low Energy</option>
+                <option value="Medium">Medium Energy</option>
+                <option value="High">High Energy</option>
+              </select>
+              <input name="location" defaultValue={task.location || ''} placeholder="Địa điểm / Phòng" style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.8rem' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <input name="startTime" type="datetime-local" defaultValue={task.startTime ? toLocalISO(new Date(task.startTime)) : defaultStartStr} style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.8rem', colorScheme: 'dark' }} />
+              <input name="deadline" type="datetime-local" defaultValue={toLocalISO(new Date(task.deadline))} required style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.8rem', colorScheme: 'dark' }} />
+            </div>
+            <input name="description" defaultValue={task.description || ''} placeholder="Ghi chú chi tiết..." style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.8rem' }} />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="submit" disabled={loading} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Lưu thay đổi</button>
+              <button type="button" onClick={() => setEditingTaskId(null)} style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer' }}>Hủy</button>
+            </div>
+          </form>
+        )}
 
         {task.description && <p style={{ margin: '0 0 0 26px', fontSize: '0.85rem', color: '#94a3b8' }}>{task.description}</p>}
 
@@ -834,6 +886,13 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                               {progress === 100 && total > 0 ? 'Đã hoàn thành 100%' : sprintTimeStatus.badgeText}
                             </span>
                             <button
+                              onClick={() => setEditingSprintId(editingSprintId === sprint.id ? null : sprint.id)}
+                              style={{ background: 'rgba(255,255,255,0.06)', border: 'none', color: '#cbd5e1', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
+                              title="Sửa Sprint"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            <button
                               onClick={() => deleteSprint(sprint.id)}
                               style={{ background: 'rgba(244, 109, 117,0.1)', border: 'none', color: '#f46d75', padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
                               title="Xóa Sprint"
@@ -842,6 +901,29 @@ export default function TaskHub({ tasks, sprints, currentEnergy, smartGoals = []
                             </button>
                           </div>
                         </div>
+
+                        {editingSprintId === sprint.id && (
+                          <form
+                            onSubmit={async e => {
+                              e.preventDefault();
+                              setLoading(true);
+                              await updateSprint(sprint.id, new FormData(e.currentTarget));
+                              setEditingSprintId(null);
+                              setLoading(false);
+                            }}
+                            style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(245,185,74,0.35)', borderRadius: '10px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}
+                          >
+                            <input name="name" defaultValue={sprint.name} required style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                              <input name="startDate" type="datetime-local" defaultValue={toLocalISO(new Date(sprint.startDate))} required style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.8rem', colorScheme: 'dark' }} />
+                              <input name="endDate" type="datetime-local" defaultValue={toLocalISO(new Date(sprint.endDate))} required style={{ padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.8rem', colorScheme: 'dark' }} />
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button type="submit" disabled={loading} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                              <button type="button" onClick={() => setEditingSprintId(null)} style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer' }}>Hủy</button>
+                            </div>
+                          </form>
+                        )}
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#cbd5e1' }}>
                           <span>Tiến độ công việc ({done}/{total} tasks)</span>

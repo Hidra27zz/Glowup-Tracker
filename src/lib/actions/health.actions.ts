@@ -117,6 +117,25 @@ export async function logWorkout(title: string, type: string, duration: number, 
   return result;
 }
 
+export async function updateWorkout(id: string, data: { title: string; type: string; duration: number; notes?: string }) {
+  const result = await prisma.workout.update({
+    where: { id },
+    data: {
+      title: data.title.trim(),
+      type: data.type,
+      duration: Number(data.duration) || 0,
+      notes: data.notes ?? null,
+    },
+  });
+  revalidatePath('/health');
+  return result;
+}
+
+export async function deleteWorkout(id: string) {
+  await prisma.workout.delete({ where: { id } });
+  revalidatePath('/health');
+}
+
 export async function logNutrition(calories: number, budgetUsed: number, protein: number = 0, carbs: number = 0, fat: number = 0) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -417,10 +436,13 @@ export async function deletePantryItem(id: string) {
   return result;
 }
 
-export async function updatePantryItemQuantity(id: string, newQuantity: string) {
+export async function updatePantryItemQuantity(id: string, newQuantity: string, newName?: string) {
   const result = await prisma.pantryItem.update({
     where: { id },
-    data: { quantity: newQuantity }
+    data: {
+      quantity: newQuantity,
+      ...(newName && newName.trim() ? { name: newName.trim() } : {}),
+    }
   });
   revalidatePath('/nutrition');
   revalidatePath('/health');

@@ -1,17 +1,18 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Trash2, Target, Zap, TrendingUp, TrendingDown, Plus } from 'lucide-react';
+import { Trash2, Target, Zap, TrendingUp, TrendingDown, Plus, Pencil } from 'lucide-react';
 import { Budget, FinancialTransaction, SavingsGoal } from '@prisma/client';
 import {
   addQuickTransactionAction,
   setBudgetAction,
   deleteBudgetAction,
   addSavingsGoalAction,
+  updateSavingsGoalAction,
   contributeSavingsGoalAction,
   deleteSavingsGoalAction,
 } from '@/app/finance/smart-actions';
-import { deleteTransaction } from '@/app/finance/actions';
+import { updateTransaction, deleteTransaction } from '@/app/finance/actions';
 import {
   CATEGORY_COLORS,
   EXPENSE_CATEGORIES,
@@ -69,6 +70,10 @@ export default function SmartFinance({ transactions, budgets, savingsGoals, subs
   const [goalTarget, setGoalTarget] = useState('');
   const [goalDeadline, setGoalDeadline] = useState('');
   const [contrib, setContrib] = useState<Record<string, string>>({});
+  const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
+  const [goalEditForm, setGoalEditForm] = useState({ name: '', targetAmount: '', savedAmount: '' });
+  const [editingTxId, setEditingTxId] = useState<string | null>(null);
+  const [txEditForm, setTxEditForm] = useState({ amount: '', category: 'Ăn uống', type: 'expense', notes: '' });
 
   const s = useMemo(
     () => summarizeMonth(transactions, budgets, subscriptionMonthly),
@@ -334,12 +339,31 @@ export default function SmartFinance({ transactions, budgets, savingsGoals, subs
             const p = goalProgress(g);
             return (
               <div key={g.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <strong style={{ color: 'var(--text-primary)' }}>{g.name}</strong>
-                  <button onClick={() => deleteSavingsGoalAction(g.id)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
-                    <Trash2 size={14} />
-                  </button>
-                </div>
+                {editingGoalId === g.id ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <input value={goalEditForm.name} onChange={e => setGoalEditForm({ ...goalEditForm, name: e.target.value })} placeholder="Tên mục tiêu" style={{ ...input, padding: '6px 10px' }} />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                      <input type="number" value={goalEditForm.savedAmount} onChange={e => setGoalEditForm({ ...goalEditForm, savedAmount: e.target.value })} placeholder="Đã tiết kiệm" style={{ ...input, padding: '6px 10px' }} />
+                      <input type="number" value={goalEditForm.targetAmount} onChange={e => setGoalEditForm({ ...goalEditForm, targetAmount: e.target.value })} placeholder="Mục tiêu" style={{ ...input, padding: '6px 10px' }} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button type="button" onClick={async () => { await updateSavingsGoalAction(g.id, { name: goalEditForm.name, savedAmount: Number(goalEditForm.savedAmount), targetAmount: Number(goalEditForm.targetAmount) }); setEditingGoalId(null); }} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', padding: '5px 12px', borderRadius: 6, fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}>Lưu</button>
+                      <button type="button" onClick={() => setEditingGoalId(null)} style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)', border: 'none', padding: '5px 12px', borderRadius: 6, fontSize: '0.78rem', cursor: 'pointer' }}>Hủy</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <strong style={{ color: 'var(--text-primary)' }}>{g.name}</strong>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button onClick={() => { setEditingGoalId(g.id); setGoalEditForm({ name: g.name, savedAmount: String(g.savedAmount), targetAmount: String(g.targetAmount) }); }} title="Sửa" style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+                        <Pencil size={13} />
+                      </button>
+                      <button onClick={() => deleteSavingsGoalAction(g.id)} title="Xóa" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '4px 0 8px' }}>
                   {money(g.savedAmount)} / {money(g.targetAmount)} ({p.percent}%)
                 </div>
@@ -387,22 +411,43 @@ export default function SmartFinance({ transactions, budgets, savingsGoals, subs
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {monthTx.map((t) => (
               <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--border)', gap: 8 }}>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: '0.86rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {t.notes || normalizeCategory(t.category)}
+                {editingTxId === t.id ? (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1 }}>
+                    <input value={txEditForm.notes} onChange={e => setTxEditForm({ ...txEditForm, notes: e.target.value })} placeholder="Ghi chú" style={{ ...input, flex: 2, padding: '6px 10px' }} />
+                    <input type="number" value={txEditForm.amount} onChange={e => setTxEditForm({ ...txEditForm, amount: e.target.value })} placeholder="Số tiền" style={{ ...input, width: 120, padding: '6px 10px' }} />
+                    <select value={txEditForm.category} onChange={e => setTxEditForm({ ...txEditForm, category: e.target.value })} style={{ ...input, padding: '6px 10px' }}>
+                      {EXPENSE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    <select value={txEditForm.type} onChange={e => setTxEditForm({ ...txEditForm, type: e.target.value })} style={{ ...input, padding: '6px 10px' }}>
+                      <option value="expense">Chi</option>
+                      <option value="income">Thu</option>
+                    </select>
+                    <button type="button" onClick={async () => { await updateTransaction(t.id, { amount: Number(txEditForm.amount), category: txEditForm.category, type: txEditForm.type, notes: txEditForm.notes }); setEditingTxId(null); }} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', padding: '6px 12px', borderRadius: 8, fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}>Lưu</button>
+                    <button type="button" onClick={() => setEditingTxId(null)} style={{ background: 'var(--surface)', color: 'var(--text-secondary)', border: '1px solid var(--border)', padding: '6px 10px', borderRadius: 8, fontSize: '0.78rem', cursor: 'pointer' }}>Hủy</button>
                   </div>
-                  <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
-                    {normalizeCategory(t.category)} • {new Date(t.date).toLocaleDateString('vi-VN')}
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <strong style={{ color: t.type === 'income' ? '#3dd68c' : '#f46d75', fontSize: '0.88rem' }}>
-                    {t.type === 'income' ? '+' : '-'}{money(t.amount)}
-                  </strong>
-                  <button onClick={() => deleteTransaction(t.id)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
-                    <Trash2 size={14} />
-                  </button>
-                </div>
+                ) : (
+                  <>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '0.86rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {t.notes || normalizeCategory(t.category)}
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--text-secondary)' }}>
+                        {normalizeCategory(t.category)} • {new Date(t.date).toLocaleDateString('vi-VN')}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <strong style={{ color: t.type === 'income' ? '#3dd68c' : '#f46d75', fontSize: '0.88rem' }}>
+                        {t.type === 'income' ? '+' : '-'}{money(t.amount)}
+                      </strong>
+                      <button onClick={() => { setEditingTxId(t.id); setTxEditForm({ amount: String(t.amount), category: normalizeCategory(t.category), type: t.type, notes: t.notes || '' }); }} title="Sửa giao dịch" style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+                        <Pencil size={13} />
+                      </button>
+                      <button onClick={() => deleteTransaction(t.id)} title="Xóa giao dịch" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
