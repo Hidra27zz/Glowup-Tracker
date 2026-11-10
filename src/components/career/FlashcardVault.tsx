@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Layers, Plus, Trash2, RotateCw, Brain, UploadCloud, AlertCircle, Play, ChevronRight, MessageSquare, PlusCircle } from 'lucide-react';
+import { Layers, Plus, Trash2, RotateCw, Brain, UploadCloud, AlertCircle, Play, PlusCircle, Pencil, List } from 'lucide-react';
 import { FlashcardDeck, Flashcard } from '@prisma/client';
-import { createFlashcardDeck, createFlashcard, deleteFlashcardDeck, deleteFlashcard, updateFlashcardMastery, bulkCreateFlashcards } from '@/app/career/actions';
+import { createFlashcardDeck, updateFlashcardDeck, createFlashcard, updateFlashcard, deleteFlashcardDeck, deleteFlashcard, updateFlashcardMastery, bulkCreateFlashcards } from '@/app/career/actions';
 
 interface DeckWithCards extends FlashcardDeck {
   cards: Flashcard[];
@@ -25,6 +25,11 @@ export default function FlashcardVault({ decks }: Props) {
 
   const [showNewCard, setShowNewCard] = useState<string | null>(null);
   const [showBulk, setShowBulk] = useState<string | null>(null);
+  const [showCardList, setShowCardList] = useState<string | null>(null);
+  const [editingDeckId, setEditingDeckId] = useState<string | null>(null);
+  const [deckEditForm, setDeckEditForm] = useState({ name: '', category: '' });
+  const [editingCardId, setEditingCardId] = useState<string | null>(null);
+  const [cardEditForm, setCardEditForm] = useState({ front: '', back: '' });
 
   const categories = Array.from(new Set(decks.map(d => d.category)));
   const now = new Date();
@@ -164,30 +169,81 @@ export default function FlashcardVault({ decks }: Props) {
                     
                     return (
                       <div key={deck.id} style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.05)', position: 'relative', transition: 'all 0.2s' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                          <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <h4 style={{ margin: 0, color: '#fff', fontSize: '1rem' }}>{deck.name}</h4>
-                              {dueCount > 0 && <span style={{ background: 'rgba(244, 109, 117,0.15)', color: '#f46d75', fontSize: '0.65rem', padding: '2px 8px', borderRadius: '20px', fontWeight: 700, border: '1px solid rgba(244, 109, 117,0.3)' }}>{dueCount} due</span>}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                          {editingDeckId === deck.id ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                              <input value={deckEditForm.name} onChange={e => setDeckEditForm({ ...deckEditForm, name: e.target.value })} placeholder="Tên bộ thẻ" style={{ ...inputStyle, padding: '6px 10px' }} />
+                              <input value={deckEditForm.category} onChange={e => setDeckEditForm({ ...deckEditForm, category: e.target.value })} placeholder="Nhóm" style={{ ...inputStyle, padding: '6px 10px' }} />
+                              <div style={{ display: 'flex', gap: '6px' }}>
+                                <button type="button" onClick={async () => { await updateFlashcardDeck(deck.id, deckEditForm.name, deckEditForm.category); setEditingDeckId(null); }} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '6px', padding: '5px 12px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                                <button type="button" onClick={() => setEditingDeckId(null)} style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '5px 12px', fontSize: '0.75rem', cursor: 'pointer' }}>Hủy</button>
+                              </div>
                             </div>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>{deck.cards.length} cards</div>
+                          ) : (
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <h4 style={{ margin: 0, color: '#fff', fontSize: '1rem' }}>{deck.name}</h4>
+                                {dueCount > 0 && <span style={{ background: 'rgba(244, 109, 117,0.15)', color: '#f46d75', fontSize: '0.65rem', padding: '2px 8px', borderRadius: '20px', fontWeight: 700, border: '1px solid rgba(244, 109, 117,0.3)' }}>{dueCount} due</span>}
+                              </div>
+                              <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>{deck.cards.length} cards</div>
+                            </div>
+                          )}
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <button onClick={() => { setEditingDeckId(deck.id); setDeckEditForm({ name: deck.name, category: deck.category }); }} title="Sửa bộ thẻ" style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}>
+                              <Pencil size={15} />
+                            </button>
+                            <button onClick={() => { if (confirm(`Xóa bộ thẻ "${deck.name}"?`)) deleteFlashcardDeck(deck.id); }} title="Xóa bộ thẻ" style={{ background: 'none', border: 'none', color: '#f46d75', cursor: 'pointer', padding: '4px', opacity: 0.7 }}>
+                              <Trash2 size={15} />
+                            </button>
                           </div>
-                          <button onClick={() => deleteFlashcardDeck(deck.id)} style={{ background: 'none', border: 'none', color: '#f46d75', cursor: 'pointer', padding: '4px', opacity: 0.6, transition: 'opacity 0.2s' }} onMouseEnter={e => e.currentTarget.style.opacity='1'} onMouseLeave={e => e.currentTarget.style.opacity='0.6'}>
-                            <Trash2 size={16} />
-                          </button>
                         </div>
 
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button onClick={() => startStudy(deck.id)} disabled={deck.cards.length === 0} style={{ flex: 1, background: dueCount > 0 ? 'linear-gradient(135deg, #f46d75, #f46d75)' : 'rgba(236,72,153,0.15)', color: dueCount > 0 ? '#fff' : '#f472b6', border: dueCount > 0 ? 'none' : '1px solid rgba(236,72,153,0.3)', padding: '8px', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 700, cursor: deck.cards.length === 0 ? 'not-allowed' : 'pointer', opacity: deck.cards.length === 0 ? 0.5 : 1 }}>
                             <Play size={14} /> Học Ngay
                           </button>
-                          <button onClick={() => { setShowNewCard(showNewCard === deck.id ? null : deck.id); setShowBulk(null); }} style={{ background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer' }} title="Thêm 1 Card">
+                          <button onClick={() => { setShowNewCard(showNewCard === deck.id ? null : deck.id); setShowBulk(null); setShowCardList(null); }} style={{ background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer' }} title="Thêm 1 Card">
                             <PlusCircle size={16} />
                           </button>
-                          <button onClick={() => { setShowBulk(showBulk === deck.id ? null : deck.id); setShowNewCard(null); }} style={{ background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer' }} title="Nhập hàng loạt">
+                          <button onClick={() => { setShowCardList(showCardList === deck.id ? null : deck.id); setShowNewCard(null); setShowBulk(null); }} style={{ background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer' }} title="Danh sách & chỉnh sửa thẻ">
+                            <List size={16} />
+                          </button>
+                          <button onClick={() => { setShowBulk(showBulk === deck.id ? null : deck.id); setShowNewCard(null); setShowCardList(null); }} style={{ background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer' }} title="Nhập hàng loạt">
                             <UploadCloud size={16} />
                           </button>
                         </div>
+
+                        {showCardList === deck.id && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px', borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '10px', maxHeight: '220px', overflowY: 'auto' }}>
+                            {deck.cards.length === 0 ? (
+                              <div style={{ fontSize: '0.78rem', color: '#64748b' }}>Chưa có thẻ nào trong bộ này.</div>
+                            ) : deck.cards.map(c => (
+                              <div key={c.id} style={{ background: 'rgba(0,0,0,0.25)', padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)', fontSize: '0.78rem' }}>
+                                {editingCardId === c.id ? (
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    <input value={cardEditForm.front} onChange={e => setCardEditForm({ ...cardEditForm, front: e.target.value })} style={{ ...inputStyle, padding: '5px 8px', fontSize: '0.78rem' }} />
+                                    <input value={cardEditForm.back} onChange={e => setCardEditForm({ ...cardEditForm, back: e.target.value })} style={{ ...inputStyle, padding: '5px 8px', fontSize: '0.78rem' }} />
+                                    <div style={{ display: 'flex', gap: '6px' }}>
+                                      <button type="button" onClick={async () => { await updateFlashcard(c.id, cardEditForm.front, cardEditForm.back); setEditingCardId(null); }} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                                      <button type="button" onClick={() => setEditingCardId(null)} style={{ background: 'rgba(255,255,255,0.1)', color: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer' }}>Hủy</button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ color: '#e2e8f0', fontWeight: 600 }}>{c.front}</div>
+                                      <div style={{ color: '#94a3b8', fontSize: '0.74rem' }}>{c.back}</div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '4px' }}>
+                                      <button type="button" onClick={() => { setEditingCardId(c.id); setCardEditForm({ front: c.front, back: c.back }); }} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '2px' }}><Pencil size={13} /></button>
+                                      <button type="button" onClick={() => deleteFlashcard(c.id)} style={{ background: 'none', border: 'none', color: '#f46d75', cursor: 'pointer', padding: '2px' }}><Trash2 size={13} /></button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
 
                         {showNewCard === deck.id && (
                           <form onSubmit={(e) => handleCreateCard(e, deck.id)} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px', animation: 'fadeIn 0.2s', borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '12px' }}>

@@ -6,7 +6,7 @@ import {
   Clock, ChevronRight, ChevronDown, BookOpen, Code2,
   PanelLeftClose, PanelLeftOpen, Lightbulb, Zap,
   Loader2, Brain, RotateCcw, Trophy, Download, Globe, FileText,
-  Search, Timer, Pause, Star
+  Search, Timer, Pause, Star, Pencil, Trash2, Plus
 } from 'lucide-react';
 import Editor from 'react-simple-code-editor';
 import Prism from 'prismjs';
@@ -24,7 +24,15 @@ import {
   deleteSubjectAction,
   addChapterToSubjectAction,
   createCustomSubjectWithGroup,
+  createSubjectAction,
+  updateSubjectAction,
+  createGroupAction,
+  updateGroupAction,
+  deleteSubjectGroupAction,
+  updateChapterAction,
+  deleteChapterAction,
 } from '@/app/career/curriculum-actions';
+import { SubjectFormModal, GroupFormModal, ChapterFormModal } from './CurriculumManager';
 import {
   getTimerState,
   startUnifiedTimer,
@@ -442,10 +450,10 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
     }
   };
 
-  const handleSwitchDiscipline = async (preset: 'blank' | 'business' | 'languages' | 'design' | 'general' | 'it') => {
+  const handleSwitchDiscipline = async (preset: 'blank' | 'business' | 'languages' | 'design' | 'general' | 'it' | 'selfstudy' | 'graduate') => {
     setImportingType('preset');
     try {
-      const fresh = await applyFieldPreset(preset);
+      const fresh = await applyFieldPreset(preset, 'append');
       refreshCurriculumState(fresh);
     } finally {
       setImportingType(null);
@@ -454,8 +462,134 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
 
   const handleDeleteSubject = async (e: React.MouseEvent, subjectId: string) => {
     e.stopPropagation();
+    const target = data.flatMap((g: any) => g.subjects).find((s: any) => s.id === subjectId);
+    if (!confirm(`Xóa môn "${target?.name || ''}" cùng toàn bộ chương và bài tập bên trong?`)) return;
     const fresh = await deleteSubjectAction(subjectId);
     refreshCurriculumState(fresh);
+  };
+
+  // ── CRUD MÔN / NHÓM / CHƯƠNG ──
+  type ManageState =
+    | { type: 'subject-create'; groupId?: string }
+    | { type: 'subject-edit'; subject: any }
+    | { type: 'group-create' }
+    | { type: 'group-edit'; group: any }
+    | { type: 'chapter-create' }
+    | { type: 'chapter-edit'; chapter: any }
+    | null;
+  const [manage, setManage] = useState<ManageState>(null);
+
+  const applyFreshKeepSelection = (fresh: any[], preferSubjectId?: string, preferSectionId?: string) => {
+    setData(fresh);
+    const subs = fresh.flatMap((g: any) => g.subjects);
+    const sub =
+      subs.find((s: any) => s.id === (preferSubjectId || selectedSubject?.id)) || subs[0] || null;
+    setSelectedSubject(sub);
+    if (sub) {
+      setExpandedGroups(prev => ({ ...prev, [sub.groupId]: true }));
+      const sec =
+        sub.theories.find((t: any) => t.id === (preferSectionId || selectedSection?.id)) || sub.theories[0] || null;
+      setSelectedSection(sec);
+      setSelectedExercise(sub.exercises?.find((x: any) => x.id === selectedExercise?.id) || sub.exercises?.[0] || null);
+    } else {
+      setSelectedSection(null);
+      setSelectedExercise(null);
+    }
+  };
+
+  const handleDeleteGroup = async (e: React.MouseEvent, group: any) => {
+    e.stopPropagation();
+    if (!confirm(`Xóa nhóm "${group.name}" cùng ${group.subjects.length} môn học bên trong?`)) return;
+    applyFreshKeepSelection(await deleteSubjectGroupAction(group.id));
+  };
+
+  const handleDeleteChapter = async (e: React.MouseEvent, chapter: any) => {
+    e.stopPropagation();
+    if (!confirm(`Xóa chương "${chapter.title}"?`)) return;
+    applyFreshKeepSelection(await deleteChapterAction(chapter.id));
+  };
+
+  const renderManageModals = () => {
+    if (!manage) return null;
+    const close = () => setManage(null);
+    if (manage.type === 'subject-create') {
+      return (
+        <SubjectFormModal
+          mode="create"
+          groups={data}
+          defaultGroupId={manage.groupId}
+          onClose={close}
+          onSubmit={async v => {
+            const res = await createSubjectAction({
+              groupId: v.groupId,
+              newGroupName: v.newGroupName,
+              name: v.name,
+              code: v.code,
+              credits: v.credits,
+              color: v.color,
+            });
+            applyFreshKeepSelection(res.data, res.subjectId);
+            setActiveView('theory');
+          }}
+        />
+      );
+    }
+    if (manage.type === 'subject-edit') {
+      return (
+        <SubjectFormModal
+          mode="edit"
+          groups={data}
+          initial={manage.subject}
+          onClose={close}
+          onSubmit={async v => {
+            const fresh = await updateSubjectAction(manage.subject.id, {
+              groupId: v.groupId,
+              newGroupName: v.newGroupName,
+              name: v.name,
+              code: v.code,
+              credits: v.credits,
+              color: v.color,
+            });
+            applyFreshKeepSelection(fresh, manage.subject.id);
+          }}
+        />
+      );
+    }
+    if (manage.type === 'group-create' || manage.type === 'group-edit') {
+      const editing = manage.type === 'group-edit' ? manage.group : undefined;
+      return (
+        <GroupFormModal
+          initial={editing}
+          onClose={close}
+          onSubmit={async v => {
+            const fresh = editing ? await updateGroupAction(editing.id, v) : await createGroupAction(v.name, v.color);
+            applyFreshKeepSelection(fresh);
+          }}
+        />
+      );
+    }
+    if ((manage.type === 'chapter-create' || manage.type === 'chapter-edit') && selectedSubject) {
+      const editing = manage.type === 'chapter-edit' ? manage.chapter : undefined;
+      return (
+        <ChapterFormModal
+          initial={editing}
+          subjectName={selectedSubject.name}
+          onClose={close}
+          onSubmit={async v => {
+            if (editing) {
+              applyFreshKeepSelection(await updateChapterAction(editing.id, v.title, v.content), selectedSubject.id, editing.id);
+            } else {
+              const html = `<p>${(v.content || 'Nội dung chương học...').replace(/\n/g, '</p><p>')}</p>`;
+              const fresh = await addChapterToSubjectAction(selectedSubject.id, v.title, html);
+              const sub = fresh.flatMap((g: any) => g.subjects).find((s: any) => s.id === selectedSubject.id);
+              const last = sub?.theories?.[sub.theories.length - 1];
+              applyFreshKeepSelection(fresh, selectedSubject.id, last?.id);
+            }
+          }}
+        />
+      );
+    }
+    return null;
   };
 
   // Load notes from localStorage on mount
@@ -663,19 +797,27 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
 
   if (data.length === 0 || !selectedSubject) {
     return (
-      <div style={{ padding: '40px', color: '#cbd5e1', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
-        <h3 style={{ margin: 0, color: '#fff', fontSize: '1.3rem' }}>Chọn Ngành Học / Lĩnh Vực Của Bạn</h3>
+      <div style={{ padding: '40px 20px', color: '#cbd5e1', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
+        <h3 style={{ margin: 0, color: '#fff', fontSize: '1.3rem' }}>Bắt đầu kho học liệu của bạn</h3>
         <p style={{ margin: 0, color: '#94a3b8', maxWidth: '580px', fontSize: '0.92rem' }}>
-          Kho tài liệu không giới hạn ở một ngành cố định. Hãy chọn lĩnh vực của bạn hoặc bắt đầu với kho tài liệu trống để tự thêm các môn học riêng!
+          Tự tạo môn học (không cần mã môn), hoặc thêm nhanh bộ môn mẫu phù hợp với bạn: sinh viên, tự học hay người đã đi làm.
         </p>
+        <button
+          onClick={() => setManage({ type: 'subject-create' })}
+          style={{ padding: '11px 22px', borderRadius: '10px', border: 'none', background: '#3dd68c', color: '#0f172a', fontWeight: 800, cursor: 'pointer', fontSize: '0.9rem' }}
+        >
+          + Tạo môn / chủ đề đầu tiên
+        </button>
+        <div style={{ color: '#64748b', fontSize: '0.8rem' }}>hoặc thêm bộ mẫu:</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
           {[
-            { id: 'blank', label: 'Tự Tạo Môn Học Từ Đầu (Mọi Ngành)', color: '#3dd68c' },
-            { id: 'business', label: 'Kinh Tế, Quản Trị & Marketing', color: '#f5b94a' },
-            { id: 'languages', label: 'Ngoại Ngữ & IELTS', color: '#5b9cff' },
-            { id: 'design', label: 'Thiết Kế & Sáng Tạo', color: '#ec4899' },
-            { id: 'general', label: 'Phương Pháp Học Tập Chung', color: '#7b8cff' },
-            { id: 'it', label: 'Công Nghệ Thông Tin', color: '#6cc4ff' },
+            { id: 'selfstudy', label: 'Tự học & Kỹ năng', color: '#3dd68c' },
+            { id: 'graduate', label: 'Đã tốt nghiệp / Đi làm', color: '#7b8cff' },
+            { id: 'business', label: 'Kinh tế, Quản trị & Marketing', color: '#f5b94a' },
+            { id: 'languages', label: 'Ngoại ngữ & IELTS', color: '#5b9cff' },
+            { id: 'design', label: 'Thiết kế & Sáng tạo', color: '#ec4899' },
+            { id: 'general', label: 'Phương pháp học tập chung', color: '#a78bfa' },
+            { id: 'it', label: 'Công nghệ thông tin', color: '#6cc4ff' },
           ].map(item => (
             <button
               key={item.id}
@@ -687,6 +829,7 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
             </button>
           ))}
         </div>
+        {renderManageModals()}
       </div>
     );
   }
@@ -702,15 +845,16 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', height: '100%', minHeight: '85vh' }}>
-      {/* ── MULTI-DISCIPLINE SWITCHER BAR (KHÔNG BỊ CÁ NHÂN HÓA CỨNG THEO 1 NGÀNH) ── */}
+      {/* ── THÊM BỘ MÔN MẪU (KHÔNG XÓA DỮ LIỆU CŨ) ── */}
       <div style={{ background: 'var(--surface)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#cbd5e1' }}>
-          <strong style={{ color: '#6cc4ff' }}>Chuyển đổi Khung Chương Trình theo Ngành:</strong>
-          <span style={{ color: '#64748b' }}>(Phù hợp cho mọi ngành học, hoặc tự tạo từ đầu)</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#cbd5e1', flexWrap: 'wrap' }}>
+          <strong style={{ color: '#6cc4ff' }}>Thêm bộ môn mẫu:</strong>
+          <span style={{ color: '#64748b' }}>chỉ bổ sung, không xóa môn học hiện có</span>
         </div>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {[
-            { id: 'blank', label: 'Tự tạo riêng (Xóa mẫu cũ)' },
+            { id: 'selfstudy', label: 'Tự học' },
+            { id: 'graduate', label: 'Đã tốt nghiệp / Đi làm' },
             { id: 'business', label: 'Kinh tế & Marketing' },
             { id: 'languages', label: 'Ngoại ngữ & IELTS' },
             { id: 'design', label: 'Thiết kế & Sáng tạo' },
@@ -760,13 +904,19 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
               Danh mục môn học
             </div>
             <button 
-              onClick={() => setActiveView('import')} 
+              onClick={() => setManage({ type: 'subject-create' })} 
               style={{ background: 'rgba(61, 214, 140,0.1)', border: '1px solid rgba(61, 214, 140,0.3)', borderRadius: '6px', color: '#3dd68c', padding: '4px 8px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-              title="Tạo Môn Học Mới"
+              title="Thêm môn học / chủ đề"
             >
               + Thêm môn
             </button>
           </div>
+          <button
+            onClick={() => setManage({ type: 'group-create' })}
+            style={{ width: '100%', marginBottom: '10px', background: 'transparent', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: '6px', color: '#94a3b8', padding: '5px 8px', fontSize: '0.68rem', cursor: 'pointer' }}
+          >
+            + Tạo nhóm mới
+          </button>
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
             <input 
@@ -792,11 +942,12 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
             return (
             <div key={group.id}>
               {/* Group header */}
+              <div style={{ display: 'flex', alignItems: 'center' }}>
               <button
                 onClick={() => toggleGroup(group.id)}
                 style={{
-                  width: '100%', display: 'flex', alignItems: 'center', gap: '8px',
-                  padding: '10px 16px', background: 'transparent', border: 'none',
+                  flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 8px 10px 16px', background: 'transparent', border: 'none',
                   cursor: 'pointer', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 700,
                   textTransform: 'uppercase', letterSpacing: '0.08em',
                   transition: 'color 0.2s',
@@ -804,9 +955,13 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
                 onMouseEnter={e => (e.currentTarget.style.color = '#e2e8f0')}
                 onMouseLeave={e => (e.currentTarget.style.color = '#94a3b8')}
               >
-                <span style={{ flex: 1, textAlign: 'left', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{group.name}</span>
                 {(searchQuery ? true : expandedGroups[group.id]) ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                <span style={{ flex: 1, textAlign: 'left', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{group.name}</span>
               </button>
+              <button type="button" title="Thêm môn vào nhóm này" onClick={() => setManage({ type: 'subject-create', groupId: group.id })} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}><Plus size={13} /></button>
+              <button type="button" title="Sửa nhóm" onClick={() => setManage({ type: 'group-edit', group })} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}><Pencil size={12} /></button>
+              <button type="button" title="Xóa nhóm" onClick={e => handleDeleteGroup(e, group)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px 10px 4px 4px' }}><Trash2 size={12} /></button>
+              </div>
 
               {/* Subjects */}
               {(searchQuery ? true : expandedGroups[group.id]) && filteredSubjects.map((subject: any) => (
@@ -832,15 +987,23 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
                     <div style={{ fontSize: '0.78rem', fontWeight: 600, color: selectedSubject.id === subject.id ? '#e2e8f0' : '#94a3b8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {subject.name}
                     </div>
-                    <div style={{ fontSize: '0.65rem', color: '#475569' }}>{subject.code} · {subject.credits} TC</div>
+                    <div style={{ fontSize: '0.65rem', color: '#475569' }}>{subject.code}{subject.credits > 0 ? ` · ${subject.credits} TC` : ''}</div>
                   </div>
                   <button
                     type="button"
-                    onClick={e => handleDeleteSubject(e, subject.id)}
-                    title="Xóa môn học không dùng tới"
-                    style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px 4px', fontSize: '0.75rem' }}
+                    onClick={e => { e.stopPropagation(); setManage({ type: 'subject-edit', subject }); }}
+                    title="Sửa môn học"
+                    style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px 4px' }}
                   >
-                    
+                    <Pencil size={12} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={e => handleDeleteSubject(e, subject.id)}
+                    title="Xóa môn học"
+                    style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px 4px' }}
+                  >
+                    <Trash2 size={12} />
                   </button>
                 </div>
               ))}
@@ -887,8 +1050,32 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
                 {selectedSubject.name}
               </div>
               <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
-                {selectedSubject.code} · {selectedSubject.credits} tín chỉ
+                {selectedSubject.code}{selectedSubject.credits > 0 ? ` · ${selectedSubject.credits} tín chỉ` : ' · Tự học / Kỹ năng'}
               </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '6px' }}>
+              <button
+                onClick={() => setManage({ type: 'subject-edit', subject: selectedSubject })}
+                title="Chỉnh sửa tên / nhóm / loại môn học này"
+                style={{
+                  background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '7px', padding: '5px 8px', cursor: 'pointer', color: '#cbd5e1',
+                  display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', fontWeight: 600,
+                }}
+              >
+                <Pencil size={12} /> Sửa môn
+              </button>
+              <button
+                onClick={() => setManage({ type: 'subject-create', groupId: selectedSubject.groupId })}
+                title="Tạo môn học hoặc chủ đề tự học mới"
+                style={{
+                  background: 'rgba(61,214,140,0.12)', border: '1px solid rgba(61,214,140,0.3)',
+                  borderRadius: '7px', padding: '5px 8px', cursor: 'pointer', color: '#3dd68c',
+                  display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', fontWeight: 700,
+                }}
+              >
+                <Plus size={12} /> Tạo môn
+              </button>
             </div>
           </div>
 
@@ -984,8 +1171,22 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
             background: isMobile ? 'var(--surface)' : 'rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
             transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)'
           }}>
-                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#475569', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '4px 8px 8px' }}>
-                  Mục lục
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 8px 8px' }}>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#475569', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                    Mục lục ({selectedSubject.theories?.length || 0})
+                  </span>
+                  <button
+                    onClick={() => setManage({ type: 'chapter-create' })}
+                    title="Thêm chương / bài học mới"
+                    style={{
+                      background: 'rgba(108,196,255,0.12)', border: '1px solid rgba(108,196,255,0.3)',
+                      color: '#6cc4ff', borderRadius: '6px', padding: '2px 7px',
+                      fontSize: '0.68rem', fontWeight: 700, cursor: 'pointer',
+                      display: 'inline-flex', alignItems: 'center', gap: '3px',
+                    }}
+                  >
+                    <Plus size={11} /> Chương
+                  </button>
                 </div>
                 <div style={{ position: 'relative', marginBottom: '12px', padding: '0 8px' }}>
                   <Search size={12} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
@@ -999,26 +1200,39 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto' }}>
                 {selectedSubject.theories.filter((sec: any) => sec.title.toLowerCase().includes(tocSearchQuery.toLowerCase())).map((sec: any) => (
-                  <button
+                  <div
                     key={sec.id}
                     onClick={() => setSelectedSection(sec)}
                     style={{
-                      width: '100%', textAlign: 'left', padding: '8px 10px',
-                      borderRadius: '8px', border: 'none', cursor: 'pointer',
+                      width: '100%', textAlign: 'left', padding: '7px 8px 7px 10px',
+                      borderRadius: '8px', cursor: 'pointer',
                       background: selectedSection?.id === sec.id ? 'rgba(255,255,255,0.07)' : 'transparent',
                       color: selectedSection?.id === sec.id ? '#e2e8f0' : '#64748b',
                       fontSize: '0.78rem', fontWeight: selectedSection?.id === sec.id ? 600 : 400,
                       transition: 'all 0.15s', lineHeight: 1.4,
                       borderLeft: selectedSection?.id === sec.id ? '2px solid #6cc4ff' : '2px solid transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px',
                     }}
-                    onMouseEnter={e => { if (selectedSection?.id !== sec.id) e.currentTarget.style.color = '#94a3b8'; }}
-                    onMouseLeave={e => { if (selectedSection?.id !== sec.id) e.currentTarget.style.color = '#64748b'; }}
                   >
-                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', width: '100%' }}>
-                      <span style={{ flex: 1 }}>{sec.title}</span>
-                      {completedSections[sec.id] && <CheckCircle2 size={11} color="#3dd68c" style={{ flexShrink: 0 }} />}
+                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{sec.title}</span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                      {completedSections[sec.id] && <CheckCircle2 size={11} color="#3dd68c" />}
+                      <button
+                        onClick={() => setManage({ type: 'chapter-edit', chapter: sec })}
+                        title="Sửa chương"
+                        style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px', display: 'flex' }}
+                      >
+                        <Pencil size={11} />
+                      </button>
+                      <button
+                        onClick={e => handleDeleteChapter(e, sec)}
+                        title="Xóa chương"
+                        style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px', display: 'flex' }}
+                      >
+                        <Trash2 size={11} />
+                      </button>
                     </span>
-                  </button>
+                  </div>
                 ))}
                 </div>
               </div>
@@ -1029,25 +1243,49 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
                   <div style={{ width: '100%', maxWidth: '860px' }}>
                 {selectedSection ? (
                   <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-                      <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#f1f5f9', lineHeight: 1.3 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap', marginBottom: '24px' }}>
+                      <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#f1f5f9', lineHeight: 1.3, flex: 1 }}>
                         {selectedSection.title}
                       </h2>
-                      {!realWorldApps && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                         <button
-                          onClick={handleGenerateAI}
-                          disabled={isGeneratingAI}
+                          onClick={() => setManage({ type: 'chapter-edit', chapter: selectedSection })}
                           style={{
-                            display: 'flex', alignItems: 'center', gap: '6px',
-                            padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(168,85,247,0.4)',
-                            background: 'rgba(168,85,247,0.1)', color: '#c084fc',
-                            fontSize: '0.75rem', fontWeight: 700, cursor: isGeneratingAI ? 'not-allowed' : 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '5px',
+                            padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)',
+                            background: 'rgba(255,255,255,0.04)', color: '#cbd5e1',
+                            fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer',
                           }}
                         >
-                          {isGeneratingAI ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
-                          {isGeneratingAI ? 'Đang phân tích...' : 'Mở rộng với AI'}
+                          <Pencil size={12} /> Sửa bài học
                         </button>
-                      )}
+                        <button
+                          onClick={() => setManage({ type: 'chapter-create' })}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '5px',
+                            padding: '6px 10px', borderRadius: '8px', border: '1px solid rgba(108,196,255,0.3)',
+                            background: 'rgba(108,196,255,0.1)', color: '#6cc4ff',
+                            fontSize: '0.74rem', fontWeight: 700, cursor: 'pointer',
+                          }}
+                        >
+                          <Plus size={12} /> Thêm chương
+                        </button>
+                        {!realWorldApps && (
+                          <button
+                            onClick={handleGenerateAI}
+                            disabled={isGeneratingAI}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: '6px',
+                              padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(168,85,247,0.4)',
+                              background: 'rgba(168,85,247,0.1)', color: '#c084fc',
+                              fontSize: '0.75rem', fontWeight: 700, cursor: isGeneratingAI ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            {isGeneratingAI ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+                            {isGeneratingAI ? 'Đang phân tích...' : 'Mở rộng với AI'}
+                          </button>
+                        )}
+                      </div>
                     </div>
                     
                     {(!selectedSection.coreConcept || selectedSection.coreConcept.includes("Đang chờ cập nhật nội dung") || selectedSection.coreConcept.includes("chưa cập nhật")) ? (
@@ -1926,32 +2164,32 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               
-              {/* Tạo Môn Học Đa Ngành (UGC) */}
+              {/* Tạo Môn Học Đa Ngành / Chủ Đề Tự Học (UGC) */}
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(61, 214, 140,0.1)', color: '#3dd68c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <BookOpen size={20} />
                   </div>
                   <div>
-                    <h3 style={{ margin: 0, color: '#e2e8f0', fontSize: '1.1rem' }}>Tạo Môn Học Mới Theo Ngành Của Bạn</h3>
-                    <div style={{ color: '#64748b', fontSize: '0.8rem' }}>Tự định nghĩa nhóm ngành, môn học và nội dung chương đầu tiên</div>
+                    <h3 style={{ margin: 0, color: '#e2e8f0', fontSize: '1.1rem' }}>Tạo Môn Học / Chủ Đề Tự Học Mới</h3>
+                    <div style={{ color: '#64748b', fontSize: '0.8rem' }}>Phù hợp cả sinh viên, người tự học kỹ năng và người đã tốt nghiệp đi làm (Mã môn không bắt buộc)</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <input
-                      type="text" placeholder="Nhóm ngành (VD: Kinh tế / Ngoại ngữ / Y học)"
+                      type="text" placeholder="Nhóm lĩnh vực (VD: Tự học kỹ năng / Công việc / Ngoại ngữ)"
                       value={ugcForm.groupName} onChange={e => setUgcForm({...ugcForm, groupName: e.target.value})}
                       style={{ flex: 1, padding: '11px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#fff', fontSize: '0.88rem', outline: 'none' }}
                     />
                     <input
-                      type="text" placeholder="Mã môn (VD: MKT101, JAP-N3)"
+                      type="text" placeholder="Mã / Tag (Tùy chọn)"
                       value={ugcForm.code} onChange={e => setUgcForm({...ugcForm, code: e.target.value})}
                       style={{ width: '160px', padding: '11px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#fff', fontSize: '0.88rem', outline: 'none' }}
                     />
                   </div>
                   <input
-                    type="text" placeholder="Tên môn học (VD: Nguyên lý Marketing / Tiếng Nhật N3 / Giải phẫu học)"
+                    type="text" placeholder="Tên môn học / chủ đề tự học (VD: Giao tiếp Tiếng Anh / Quản lý dự án / Đầu tư cá nhân)"
                     value={ugcForm.name} onChange={e => setUgcForm({...ugcForm, name: e.target.value})}
                     style={{ width: '100%', padding: '11px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#fff', fontSize: '0.88rem', outline: 'none' }}
                   />
@@ -1968,7 +2206,7 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
                   />
                   <button
                     onClick={async () => {
-                      if (!ugcForm.code || !ugcForm.name) return alert('Vui lòng nhập Mã và Tên môn học!');
+                      if (!ugcForm.name.trim()) return alert('Vui lòng nhập Tên môn học / chủ đề!');
                       setImportingType('ugc'); setImportResult(null);
                       try {
                         const fresh = await createCustomSubjectWithGroup(
@@ -1979,7 +2217,7 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
                           ugcForm.content
                         );
                         refreshCurriculumState(fresh);
-                        setImportResult({ success: true, msg: 'Đã tạo môn học mới thành công và cập nhật vào danh sách!' });
+                        setImportResult({ success: true, msg: 'Đã tạo môn học / chủ đề mới thành công!' });
                         setUgcForm({ groupName: ugcForm.groupName, code: '', name: '', chapter: '', content: '' });
                       } catch (e: any) { setImportResult({ success: false, msg: e.message }); }
                       finally { setImportingType(null); }
@@ -1987,7 +2225,7 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
                     disabled={importingType !== null}
                     style={{ padding: '12px 24px', borderRadius: '8px', border: 'none', background: '#3dd68c', color: '#0f172a', fontWeight: 800, cursor: importingType ? 'not-allowed' : 'pointer', alignSelf: 'flex-start' }}
                   >
-                    {importingType === 'ugc' ? <Loader2 size={18} className="animate-spin" /> : '+ Tạo Môn Học Này'}
+                    {importingType === 'ugc' ? <Loader2 size={18} className="animate-spin" /> : '+ Tạo Chủ Đề / Môn Học Này'}
                   </button>
                 </div>
               </div>
@@ -2256,6 +2494,7 @@ export default function CurriculumVault({ initialData }: { initialData?: any[] }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
+      {renderManageModals()}
     </div>
   );
 }

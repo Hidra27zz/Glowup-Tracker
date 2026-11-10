@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Terminal, Plus, Database, Cloud, Layout, Cpu, Code2, Zap, Search, ExternalLink, BookOpen, Network, CheckCircle, ChevronRight } from 'lucide-react';
+import { Terminal, Plus, Database, Cloud, Layout, Cpu, Code2, Zap, Search, ExternalLink, BookOpen, Network, CheckCircle, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 import { Skill } from '@prisma/client';
-import { addSkill, addExp } from '@/app/career/actions';
+import { addSkill, addExp, updateSkill, deleteSkill } from '@/app/career/actions';
 import { fetchMultiSourceResources, fetchSingleResource, LearningResource } from '@/lib/actions/learning.actions';
 
 const Github = ({ size = 24, color = "currentColor" }) => (
@@ -27,11 +27,35 @@ interface Props {
 export default function SkillTree({ skills }: Props) {
   const [loading, setLoading] = useState(false);
   const [showInput, setShowInput] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editCategory, setEditCategory] = useState('');
   
   const [activeFarm, setActiveFarm] = useState<string | null>(null);
   const [farmResources, setFarmResources] = useState<LearningResource[]>([]);
   const [skipIds, setSkipIds] = useState<string[]>([]);
   const [loadingFarm, setLoadingFarm] = useState(false);
+
+  const handleStartEdit = (skill: Skill) => {
+    setEditingId(skill.id);
+    setEditName(skill.name);
+    setEditCategory(skill.category);
+  };
+
+  const handleSaveEdit = async (id: string) => {
+    if (!editName.trim()) return;
+    setLoading(true);
+    await updateSkill(id, editName, editCategory);
+    setEditingId(null);
+    setLoading(false);
+  };
+
+  const handleDeleteSkill = async (skill: Skill) => {
+    if (!confirm(`Xóa kỹ năng "${skill.name}"?`)) return;
+    setLoading(true);
+    await deleteSkill(skill.id);
+    setLoading(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -151,17 +175,23 @@ export default function SkillTree({ skills }: Props) {
         <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr auto', gap: '12px', background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.07)', animation: 'fadeIn 0.2s ease' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tên kỹ năng</label>
-            <input name="name" placeholder="VD: Next.js, Python, System Design" required autoFocus style={inputStyle} />
+            <input name="name" placeholder="VD: Tiếng Anh Giao Tiếp, Excel, Quản lý dự án, Next.js..." required autoFocus style={inputStyle} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Phân loại</label>
-            <select name="category" required style={{ ...inputStyle, appearance: 'none' }}>
-              <option value="Frontend">Frontend</option>
-              <option value="Backend">Backend</option>
-              <option value="Data">Data Engineering</option>
-              <option value="Cloud">Cloud & DevOps</option>
-              <option value="Core">Core CS & System Design</option>
-            </select>
+            <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Phân loại / Lĩnh vực</label>
+            <input name="category" list="skill-categories" placeholder="VD: Ngoại ngữ, Kinh doanh, Frontend..." defaultValue="Kỹ năng mềm" required style={inputStyle} />
+            <datalist id="skill-categories">
+              <option value="Kỹ năng mềm" />
+              <option value="Ngoại ngữ" />
+              <option value="Kinh doanh & Quản trị" />
+              <option value="Tài chính & Đầu tư" />
+              <option value="Thiết kế & Sáng tạo" />
+              <option value="Frontend" />
+              <option value="Backend" />
+              <option value="Data" />
+              <option value="Cloud" />
+              <option value="Core" />
+            </datalist>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', justifyContent: 'flex-end' }}>
             <button type="submit" disabled={loading} style={{ background: '#6cc4ff', color: '#0f172a', border: 'none', borderRadius: '10px', padding: '10px 24px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', height: '40px' }}>
@@ -192,20 +222,41 @@ export default function SkillTree({ skills }: Props) {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', zIndex: 1, gap: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
                     <div style={{ background: `${color}15`, padding: '10px', borderRadius: '10px', border: `1px solid ${color}30` }}>
                       {getCategoryIcon(skill.category)}
                     </div>
-                    <div>
-                      <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#fff', fontWeight: 700 }}>{skill.name}</h3>
-                      <span style={{ fontSize: '0.7rem', color: color, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
-                        {skill.category}
-                      </span>
-                    </div>
+                    {editingId === skill.id ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                        <input value={editName} onChange={e => setEditName(e.target.value)} style={{ ...inputStyle, padding: '6px 10px', fontSize: '0.85rem' }} />
+                        <input value={editCategory} onChange={e => setEditCategory(e.target.value)} list="skill-categories" style={{ ...inputStyle, padding: '5px 10px', fontSize: '0.75rem' }} />
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button type="button" onClick={() => handleSaveEdit(skill.id)} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                          <button type="button" onClick={() => setEditingId(null)} style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '0.75rem', cursor: 'pointer' }}>Hủy</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#fff', fontWeight: 700 }}>{skill.name}</h3>
+                        <span style={{ fontSize: '0.7rem', color: color, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
+                          {skill.category}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'baseline', gap: '3px' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Cấp độ</span>{skill.level}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                    <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'baseline', gap: '3px' }}>
+                      <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>Cấp độ</span>{skill.level}
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button type="button" onClick={() => handleStartEdit(skill)} title="Sửa kỹ năng" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', color: '#94a3b8', cursor: 'pointer', padding: '4px 6px', display: 'flex' }}>
+                        <Pencil size={12} />
+                      </button>
+                      <button type="button" onClick={() => handleDeleteSkill(skill)} title="Xóa kỹ năng" style={{ background: 'rgba(244,109,117,0.08)', border: '1px solid rgba(244,109,117,0.2)', borderRadius: '6px', color: '#f46d75', cursor: 'pointer', padding: '4px 6px', display: 'flex' }}>
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
                 

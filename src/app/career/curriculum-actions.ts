@@ -97,6 +97,112 @@ const MULTI_DISCIPLINE_TEMPLATES: Record<
       ],
     },
   ],
+  selfstudy: [
+    {
+      name: 'Tự Học & Kỹ Năng Cá Nhân',
+      icon: '',
+      color: '#3dd68c',
+      subjects: [
+        {
+          code: 'TH-01',
+          name: 'Ngoại ngữ tự học (Từ vựng, Nghe, Nói)',
+          credits: 0,
+          color: '#3dd68c',
+          theories: [
+            {
+              title: 'Kế hoạch tuần & mục tiêu',
+              content: `<h3>Đặt mục tiêu tuần</h3><ul><li>Số từ mới mỗi ngày</li><li>Số phút nghe / nói mỗi ngày</li><li>Cách tự kiểm tra cuối tuần</li></ul>`,
+            },
+          ],
+        },
+        {
+          code: 'TH-02',
+          name: 'Kỹ năng số (Excel, Dữ liệu, Công cụ AI)',
+          credits: 0,
+          color: '#6cc4ff',
+          theories: [
+            {
+              title: 'Lộ trình học theo dự án nhỏ',
+              content: `<p>Chọn một bài toán thực tế của bạn (báo cáo chi tiêu, theo dõi công việc...) và học công cụ cần thiết để giải quyết nó.</p>`,
+            },
+          ],
+        },
+        {
+          code: 'TH-03',
+          name: 'Đọc sách & Ghi chú tri thức',
+          credits: 0,
+          color: '#f5b94a',
+          theories: [
+            {
+              title: 'Ghi chú theo phương pháp Cornell',
+              content: `<p>Chia trang thành: <strong>Ghi chú chính</strong>, <strong>Từ khóa / Câu hỏi</strong> và <strong>Tóm tắt</strong> cuối trang.</p>`,
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  graduate: [
+    {
+      name: 'Phát Triển Nghề Nghiệp (Sau Tốt Nghiệp)',
+      icon: '',
+      color: '#7b8cff',
+      subjects: [
+        {
+          code: 'CAR-01',
+          name: 'Kỹ năng việc làm: CV, Phỏng vấn, Đàm phán lương',
+          credits: 0,
+          color: '#7b8cff',
+          theories: [
+            {
+              title: 'CV theo vị trí ứng tuyển',
+              content: `<h3>Cấu trúc CV 1 trang</h3><ul><li>Tóm tắt 2-3 dòng</li><li>Thành tựu có số liệu</li><li>Kỹ năng khớp mô tả công việc</li></ul>`,
+            },
+            {
+              title: 'Phương pháp trả lời STAR',
+              content: `<p><strong>S</strong>ituation → <strong>T</strong>ask → <strong>A</strong>ction → <strong>R</strong>esult.</p>`,
+            },
+          ],
+        },
+        {
+          code: 'CAR-02',
+          name: 'Chứng chỉ & Học liên tục trong ngành',
+          credits: 0,
+          color: '#14b8a6',
+          theories: [
+            {
+              title: 'Bản đồ chứng chỉ cần có',
+              content: `<p>Liệt kê chứng chỉ ngành bạn đang theo, hạn thi, chi phí và kế hoạch ôn tập.</p>`,
+            },
+          ],
+        },
+        {
+          code: 'CAR-03',
+          name: 'Dự án cá nhân & Portfolio',
+          credits: 0,
+          color: '#ec4899',
+          theories: [
+            {
+              title: 'Chọn 1 dự án để hoàn thành trong 30 ngày',
+              content: `<p>Xác định đầu ra rõ ràng, cột mốc theo tuần và cách trình bày kết quả.</p>`,
+            },
+          ],
+        },
+        {
+          code: 'CAR-04',
+          name: 'Tài chính cá nhân cho người đi làm',
+          credits: 0,
+          color: '#f5b94a',
+          theories: [
+            {
+              title: 'Quỹ dự phòng & ngân sách 50/30/20',
+              content: `<p>Xây quỹ dự phòng 3-6 tháng chi tiêu trước khi đầu tư.</p>`,
+            },
+          ],
+        },
+      ],
+    },
+  ],
   design: [
     {
       name: 'Thiết Kế, Sáng Tạo & Nghệ Thuật',
@@ -168,63 +274,33 @@ export async function getCurriculumData() {
       orderBy: { order: 'asc' },
     });
 
-  let data = await fetchAll();
-
-  // Tự động khởi tạo học liệu mẫu đa ngành nếu tài khoản mới chưa có môn học nào
-  if (data.length === 0) {
-    try {
-      const starterGroups = [
-        ...MULTI_DISCIPLINE_TEMPLATES.general,
-        ...MULTI_DISCIPLINE_TEMPLATES.business,
-        ...MULTI_DISCIPLINE_TEMPLATES.languages,
-      ];
-      let gIdx = 0;
-      for (const grp of starterGroups) {
-        const createdGroup = await prisma.subjectGroup.create({
-          data: {
-            name: grp.name,
-            icon: '',
-            color: grp.color,
-            order: gIdx++,
-          },
-        });
-        let sIdx = 0;
-        for (const sub of grp.subjects) {
-          const createdSub = await prisma.subject.create({
-            data: {
-              code: sub.code,
-              name: sub.name,
-              credits: sub.credits,
-              icon: '',
-              color: sub.color,
-              order: sIdx++,
-              groupId: createdGroup.id,
-            },
-          });
-          for (let i = 0; i < sub.theories.length; i++) {
-            const th = sub.theories[i];
-            await prisma.theorySection.create({
-              data: {
-                title: th.title,
-                order: i,
-                coreConcept: th.content,
-                subjectId: createdSub.id,
-              },
-            });
-          }
-        }
-      }
-      data = await fetchAll();
-    } catch {
-      // ignore seed error
-    }
-  }
-
-  return data;
+  return fetchAll();
 }
 
-export async function applyFieldPreset(presetKey: 'blank' | 'business' | 'languages' | 'design' | 'general' | 'it') {
-  await prisma.subjectGroup.deleteMany({});
+async function assertSubjectOwned(subjectId: string) {
+  const ok = await prisma.subjectGroup.findFirst({ where: { subjects: { some: { id: subjectId } } } });
+  if (!ok) throw new Error('Không tìm thấy môn học hoặc bạn không có quyền sửa.');
+}
+
+async function assertGroupOwned(groupId: string) {
+  const ok = await prisma.subjectGroup.findFirst({ where: { id: groupId } });
+  if (!ok) throw new Error('Không tìm thấy nhóm hoặc bạn không có quyền sửa.');
+}
+
+async function assertChapterOwned(chapterId: string) {
+  const ok = await prisma.subjectGroup.findFirst({
+    where: { subjects: { some: { theories: { some: { id: chapterId } } } } },
+  });
+  if (!ok) throw new Error('Không tìm thấy chương hoặc bạn không có quyền sửa.');
+}
+
+export async function applyFieldPreset(
+  presetKey: 'blank' | 'business' | 'languages' | 'design' | 'general' | 'it' | 'selfstudy' | 'graduate',
+  mode: 'append' | 'replace' = 'append'
+) {
+  if (mode === 'replace') {
+    await prisma.subjectGroup.deleteMany({});
+  }
 
   if (presetKey === 'blank') {
     const personalGroup = await prisma.subjectGroup.create({
@@ -262,8 +338,10 @@ export async function applyFieldPreset(presetKey: 'blank' | 'business' | 'langua
   }
 
   if (presetKey === 'it') {
-    let groupOrder = 0;
+    let groupOrder = await prisma.subjectGroup.count({});
     for (const group of subjectGroups) {
+      const dup = await prisma.subjectGroup.findFirst({ where: { name: group.name } });
+      if (dup) continue;
       const createdGroup = await prisma.subjectGroup.create({
         data: {
           name: group.name,
@@ -306,8 +384,10 @@ export async function applyFieldPreset(presetKey: 'blank' | 'business' | 'langua
   }
 
   const templateGroups = MULTI_DISCIPLINE_TEMPLATES[presetKey] || MULTI_DISCIPLINE_TEMPLATES.general;
-  let groupOrder = 0;
+  let groupOrder = await prisma.subjectGroup.count({});
   for (const grp of templateGroups) {
+    const dup = await prisma.subjectGroup.findFirst({ where: { name: grp.name } });
+    if (dup) continue;
     const createdGroup = await prisma.subjectGroup.create({
       data: {
         name: grp.name,
@@ -349,18 +429,157 @@ export async function applyFieldPreset(presetKey: 'blank' | 'business' | 'langua
 }
 
 export async function deleteSubjectAction(subjectId: string) {
+  await assertSubjectOwned(subjectId);
   await prisma.subject.delete({ where: { id: subjectId } });
   revalidatePath('/career');
   return getCurriculumData();
 }
 
 export async function deleteSubjectGroupAction(groupId: string) {
+  await assertGroupOwned(groupId);
   await prisma.subjectGroup.delete({ where: { id: groupId } });
   revalidatePath('/career');
   return getCurriculumData();
 }
 
+export async function createGroupAction(name: string, color: string) {
+  if (!name.trim()) throw new Error('Tên nhóm không được để trống.');
+  const order = await prisma.subjectGroup.count({});
+  await prisma.subjectGroup.create({
+    data: { name: name.trim(), icon: '', color: color || '#6cc4ff', order },
+  });
+  revalidatePath('/career');
+  return getCurriculumData();
+}
+
+export async function updateGroupAction(groupId: string, input: { name: string; color: string }) {
+  await assertGroupOwned(groupId);
+  if (!input.name.trim()) throw new Error('Tên nhóm không được để trống.');
+  await prisma.subjectGroup.update({
+    where: { id: groupId },
+    data: { name: input.name.trim(), color: input.color },
+  });
+  revalidatePath('/career');
+  return getCurriculumData();
+}
+
+export async function createSubjectAction(input: {
+  groupId?: string;
+  newGroupName?: string;
+  name: string;
+  code?: string;
+  credits?: number;
+  color?: string;
+}) {
+  const name = input.name.trim();
+  if (!name) throw new Error('Tên môn học không được để trống.');
+
+  let groupId = input.groupId;
+  if (!groupId || groupId === '__new__') {
+    const gName = (input.newGroupName || '').trim() || 'Môn học của tôi';
+    let group = await prisma.subjectGroup.findFirst({ where: { name: gName } });
+    if (!group) {
+      const order = await prisma.subjectGroup.count({});
+      group = await prisma.subjectGroup.create({
+        data: { name: gName, icon: '', color: input.color || '#6cc4ff', order },
+      });
+    }
+    groupId = group.id;
+  } else {
+    await assertGroupOwned(groupId);
+  }
+
+  const order = await prisma.subject.count({ where: { groupId } });
+  const code = (input.code || '').trim() || `TH-${String(order + 1).padStart(2, '0')}`;
+
+  const subject = await prisma.subject.create({
+    data: {
+      code,
+      name,
+      credits: Math.max(0, input.credits ?? 0),
+      icon: '',
+      color: input.color || '#3dd68c',
+      order,
+      groupId,
+    },
+  });
+
+  await prisma.theorySection.create({
+    data: {
+      title: 'Chương 1: Tổng quan',
+      order: 0,
+      coreConcept:
+        '<p>Bấm <strong>+ Chương</strong> để thêm bài học, hoặc dùng tab <strong>Import</strong> để nhập tài liệu từ web / file.</p>',
+      subjectId: subject.id,
+    },
+  });
+
+  revalidatePath('/career');
+  return { data: await getCurriculumData(), subjectId: subject.id };
+}
+
+export async function updateSubjectAction(
+  subjectId: string,
+  input: { groupId?: string; newGroupName?: string; name: string; code?: string; credits?: number; color?: string }
+) {
+  await assertSubjectOwned(subjectId);
+  const name = input.name.trim();
+  if (!name) throw new Error('Tên môn học không được để trống.');
+
+  let groupId = input.groupId;
+  if (groupId === '__new__') {
+    const gName = (input.newGroupName || '').trim() || 'Môn học của tôi';
+    let group = await prisma.subjectGroup.findFirst({ where: { name: gName } });
+    if (!group) {
+      const order = await prisma.subjectGroup.count({});
+      group = await prisma.subjectGroup.create({
+        data: { name: gName, icon: '', color: input.color || '#6cc4ff', order },
+      });
+    }
+    groupId = group.id;
+  } else if (groupId) {
+    await assertGroupOwned(groupId);
+  }
+
+  await prisma.subject.update({
+    where: { id: subjectId },
+    data: {
+      name,
+      ...(input.code !== undefined && input.code.trim() ? { code: input.code.trim() } : {}),
+      credits: Math.max(0, input.credits ?? 0),
+      ...(input.color ? { color: input.color } : {}),
+      ...(groupId ? { groupId } : {}),
+    },
+  });
+  revalidatePath('/career');
+  return getCurriculumData();
+}
+
+export async function updateChapterAction(chapterId: string, title: string, content?: string) {
+  await assertChapterOwned(chapterId);
+  if (!title.trim()) throw new Error('Tên chương không được để trống.');
+  await prisma.theorySection.update({
+    where: { id: chapterId },
+    data: {
+      title: title.trim(),
+      ...(content && content.trim()
+        ? { coreConcept: `<p>${content.trim().replace(/\n/g, '</p><p>')}</p>` }
+        : {}),
+    },
+  });
+  revalidatePath('/career');
+  return getCurriculumData();
+}
+
+export async function deleteChapterAction(chapterId: string) {
+  await assertChapterOwned(chapterId);
+  await prisma.theorySection.delete({ where: { id: chapterId } });
+  revalidatePath('/career');
+  return getCurriculumData();
+}
+
 export async function addChapterToSubjectAction(subjectId: string, title: string, content: string) {
+  await assertSubjectOwned(subjectId);
   const count = await prisma.theorySection.count({ where: { subjectId } });
   await prisma.theorySection.create({
     data: {
@@ -395,13 +614,17 @@ export async function createCustomSubjectWithGroup(
     });
   }
 
+  const order = await prisma.subject.count({ where: { groupId: group.id } });
+  const finalCode = (code || '').trim() || `TH-${String(order + 1).padStart(2, '0')}`;
+
   const subject = await prisma.subject.create({
     data: {
-      code: code.trim(),
+      code: finalCode,
       name: name.trim(),
-      credits: 3,
-      icon: '📘',
+      credits: (code || '').trim() ? 3 : 0,
+      icon: '',
       color: '#10b981',
+      order,
       groupId: group.id,
     },
   });

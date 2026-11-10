@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Code, Trash2, Copy, CheckCircle, Plus } from 'lucide-react';
-import { createCodeSnippet, deleteCodeSnippet } from '@/app/career/actions';
+import { Code, Trash2, Copy, CheckCircle, Plus, Pencil } from 'lucide-react';
+import { createCodeSnippet, updateCodeSnippet, deleteCodeSnippet } from '@/app/career/actions';
 
 interface Snippet {
   id: string;
@@ -20,6 +20,21 @@ interface Props {
 export default function SnippetLibrary({ snippets }: Props) {
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ title: '', language: 'typescript', code: '', tags: '' });
+
+  const handleStartEdit = (s: Snippet) => {
+    setEditingId(s.id);
+    setEditForm({ title: s.title, language: s.language, code: s.code, tags: s.tags || '' });
+  };
+
+  const handleSaveEdit = async (id: string) => {
+    if (!editForm.title.trim() || !editForm.code.trim()) return;
+    setLoading(true);
+    await updateCodeSnippet(id, editForm);
+    setEditingId(null);
+    setLoading(false);
+  };
 
   const handleAddSnippet = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -91,18 +106,35 @@ export default function SnippetLibrary({ snippets }: Props) {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => handleCopy(snippet.id, snippet.code)} style={{ background: 'none', border: 'none', color: copiedId === snippet.id ? '#3dd68c' : '#94a3b8', cursor: 'pointer', padding: '4px' }}>
+                  <button onClick={() => handleCopy(snippet.id, snippet.code)} title="Sao chép" style={{ background: 'none', border: 'none', color: copiedId === snippet.id ? '#3dd68c' : '#94a3b8', cursor: 'pointer', padding: '4px' }}>
                     {copiedId === snippet.id ? <CheckCircle size={16} /> : <Copy size={16} />}
                   </button>
-                  <button onClick={() => handleDelete(snippet.id)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}><Trash2 size={16} /></button>
+                  <button onClick={() => handleStartEdit(snippet)} title="Sửa" style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}>
+                    <Pencil size={15} />
+                  </button>
+                  <button onClick={() => handleDelete(snippet.id)} title="Xóa" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}><Trash2 size={16} /></button>
                 </div>
               </div>
 
-              <div style={{ padding: '16px', overflowX: 'auto' }}>
-                <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '0.85rem', color: '#cbd5e1', whiteSpace: 'pre-wrap' }}>
-                  <code>{snippet.code}</code>
-                </pre>
-              </div>
+              {editingId === snippet.id ? (
+                <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} placeholder="Tiêu đề" style={{ flex: 2, padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+                    <input value={editForm.tags} onChange={e => setEditForm({ ...editForm, tags: e.target.value })} placeholder="Tags" style={{ flex: 1, padding: '8px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: '0.85rem' }} />
+                  </div>
+                  <textarea rows={5} value={editForm.code} onChange={e => setEditForm({ ...editForm, code: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontFamily: 'monospace', fontSize: '0.82rem' }} />
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button type="button" onClick={() => handleSaveEdit(snippet.id)} style={{ background: '#3dd68c', color: '#0f172a', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Lưu</button>
+                    <button type="button" onClick={() => setEditingId(null)} style={{ background: 'rgba(255,255,255,0.08)', color: '#cbd5e1', border: 'none', borderRadius: '8px', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer' }}>Hủy</button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ padding: '16px', overflowX: 'auto' }}>
+                  <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '0.85rem', color: '#cbd5e1', whiteSpace: 'pre-wrap' }}>
+                    <code>{snippet.code}</code>
+                  </pre>
+                </div>
+              )}
 
             </div>
           ))

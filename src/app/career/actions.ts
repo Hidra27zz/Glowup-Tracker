@@ -306,3 +306,69 @@ export async function deleteCodeSnippet(id: string) {
   await prisma.codeSnippet.delete({ where: { id } });
   revalidatePath('/career');
 }
+
+export async function updateCodeSnippet(
+  id: string,
+  data: { title: string; language: string; code: string; tags?: string }
+) {
+  await prisma.codeSnippet.update({
+    where: { id },
+    data: {
+      title: data.title.trim(),
+      language: data.language || 'typescript',
+      code: data.code,
+      tags: data.tags || null,
+    },
+  });
+  revalidatePath('/career');
+}
+
+export async function updateSkill(id: string, name: string, category: string) {
+  if (!name.trim()) throw new Error('Tên kỹ năng không được để trống');
+  await prisma.skill.update({
+    where: { id },
+    data: { name: name.trim(), category: category.trim() || 'General' },
+  });
+  revalidatePath('/career');
+}
+
+export async function deleteSkill(id: string) {
+  await prisma.skill.delete({ where: { id } });
+  revalidatePath('/career');
+}
+
+export async function updateFlashcardDeck(id: string, name: string, category: string) {
+  if (!name.trim()) throw new Error('Tên bộ thẻ không được để trống');
+  await prisma.flashcardDeck.update({
+    where: { id },
+    data: { name: name.trim(), category: category.trim() || 'General' },
+  });
+  revalidatePath('/career');
+}
+
+export async function updateFlashcard(id: string, front: string, back: string) {
+  if (!front.trim() || !back.trim()) throw new Error('Mặt trước và mặt sau không được để trống');
+  await prisma.flashcard.update({
+    where: { id },
+    data: { front: front.trim(), back: back.trim() },
+  });
+  revalidatePath('/career');
+}
+
+export async function updateJobApplication(
+  id: string,
+  data: { company: string; position: string; notes?: string }
+) {
+  if (!data.company.trim() || !data.position.trim()) {
+    throw new Error('Tên công ty và vị trí không được để trống');
+  }
+  await prisma.jobApplication.update({
+    where: { id },
+    data: {
+      company: data.company.trim(),
+      position: data.position.trim(),
+      notes: data.notes ?? null,
+    },
+  });
+  revalidatePath('/career');
+}
